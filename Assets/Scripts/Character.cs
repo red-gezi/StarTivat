@@ -3,9 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+class CharaAtcion
+{
+    ActionType actionType;
 
+}
+interface IChara
+{
+    void WaitForSelectSkill(List<CharaAtcion> charaAction)
+    {
+        //开启图标
+        //设置摄像机位置和角度
+        //设置选择目标类型
+    }
 
-internal class Character
+}
+internal class Character : IChara
 {
     public int HealthPoints { get; set; } // 生命值
     public int Attack { get; set; } // 攻击力
@@ -35,7 +48,6 @@ public enum SkillType
     CounterAttack,
     AdditionalAttack,
     ExtraAttack
-
 }
 public enum ActionType
 {
@@ -82,7 +94,7 @@ class ActionBar
 
         }
     }
-    
+
     //新增一名角色
     public void AddChara(ActionType actionType)
     {
