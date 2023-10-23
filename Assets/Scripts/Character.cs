@@ -6,19 +6,39 @@ using System.Threading.Tasks;
 class CharaAtcion
 {
     ActionType actionType;
+    Action Ability()
+    {
 
+    }
 }
 interface IChara
 {
     void WaitForSelectSkill(List<CharaAtcion> charaAction)
     {
         //开启图标
+        foreach (var item in charaAction)
+        {
+
+        }
         //设置摄像机位置和角度
         //设置选择目标类型
+        //玩家按键执行下个操作
     }
+}
+class Naxida : Character
+{
+    
+    public override void OnCharaDead()
+    {
+
+    }
+}
+//一个行为的数据，如消耗、类型、特殊字段、行为、动画等
+class ActionData
+{
 
 }
-internal class Character : IChara
+public class Character : IChara
 {
     public int HealthPoints { get; set; } // 生命值
     public int Attack { get; set; } // 攻击力
@@ -39,6 +59,14 @@ internal class Character : IChara
     ActionType BrustSkillType { get; set; }
 
 
+    public virtual void OnCharaLightHit() { }
+    public virtual void OnCharaHeavyHurt() { }
+    public virtual void OnEnemyHit() { }
+    public virtual void OnCharaDead() { }
+    public virtual void OnEnemyDead() { }
+    public virtual void OnCharaRevived() { }
+    public virtual void OnEnemyRevived() { }
+    
 }
 public enum SkillType
 {
@@ -91,7 +119,9 @@ class ActionBar
         }
         public void AddAction(SkillType skillType)
         {
-
+            //如果当前主体是怪物，将其下移，并插入我方人物
+            //如果当前主体是我方，将其右移
+            //追加攻击、反击、亡语加到左侧，大招加到右侧
         }
     }
 
