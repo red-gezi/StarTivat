@@ -3,7 +3,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-public class Character : IChara
+public class Character 
 {
     public GameObject model;
     public int HealthPoints { get; set; } // 生命值
@@ -19,12 +19,28 @@ public class Character : IChara
     public float ElementalEnergy { get; set; } // 元素能量
     public string ElementalSkill { get; set; } // 元素战技
     public string ElementalBurst { get; set; } // 元素爆发
+
+    public bool IsBasicActionEnd = false;
     public virtual AtcionData GetBasicAttackActionData() { return null; }
     public virtual AtcionData GetSpecialSkillActionData() { return null; }
     public virtual AtcionData GetBrustSkillActionData() { return null; }
     public virtual List<AtcionData> GetEnemySkillActionData() { return null; }
 
+    public virtual void WaitForSelectSkill()
+    {
+        
+    }
+    public virtual void WaitForBrustSkill()
+    {
+        //开启图标
+        foreach (var item in charaAction)
+        {
 
+        }
+        //设置摄像机位置和角度
+        //设置选择目标类型
+        //玩家按键执行下个操作
+    }
     public virtual void OnCharaLightHit() { }
     public virtual void OnCharaHeavyHurt() { }
     public virtual void OnEnemyHit() { }
