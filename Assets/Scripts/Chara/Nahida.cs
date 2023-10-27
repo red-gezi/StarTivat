@@ -1,12 +1,15 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 class Nahida : Character
 {
+    //获得基础攻击的一些数据，如消耗/回复技能点数，类型，生效对象，镜头控制数据等
     public override AtcionData GetBasicAttackActionData()
     {
         return new AtcionData()
         {
             ActionType = ActionType.SingleTarget,
+            
         };
     }
     public override AtcionData GetSpecialSkillActionData()
@@ -18,7 +21,10 @@ class Nahida : Character
     }
     public override AtcionData GetBrustSkillActionData()
     {
-        return base.GetBrustSkillActionData();
+        return new AtcionData()
+        {
+            ActionType = ActionType.AreaOfEffect,
+        };
     }
     public override void WaitForSelectSkill()
     {
@@ -34,5 +40,40 @@ class Nahida : Character
     public override void OnCharaDead()
     {
 
+    }
+
+    public override Task BasicAttackAction()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override List<AtcionData> GetEnemySkillActionData()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override void WaitForBrustSkill()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override Task SpecialSkillAction()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override Task GetBrustSkillAction()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override void OnCharaLightHit()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override void OnCharaHeavyHurt()
+    {
+        throw new System.NotImplementedException();
     }
 }

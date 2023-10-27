@@ -23,6 +23,7 @@ public class Battle : MonoBehaviour
         CameraTrackController.Init();
         //初始化行动条
         ActionBar.Init(charaList);
+        //开始行动
         ActionBar.Run();
     }
     public void InitChara(List<PlayerType> playerList, List<EnemyType> enemyList)

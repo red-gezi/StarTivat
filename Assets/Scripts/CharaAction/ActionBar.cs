@@ -7,8 +7,11 @@ class ActionBar
     static List<CharaAction> charaActions = new();
     internal static void Init(List<Character> charaList)
     {
+
         charaActions.Clear();
         charaActions.AddRange(charaList.Select(chara => new CharaAction(chara)));
+        int minActionPoint = charaActions.Min(ca => ca.CurrentActionValue);
+        charaActions.ForEach(x=>x.basicActionValue)
     }
     /// <summary>
     /// 排序行动队列，触发首个目标
@@ -20,24 +23,24 @@ class ActionBar
     class CharaAction
     {
         //行动格主体
-        Character character;
-        bool isTemp = false;
-        string name = "";
-        int basicActionValue = 100;
-        int currentActionValue = 150;
-        int showActionValue = 100;
-        Action BasicAction=>character.WaitForSelectSkill;
+        public Character character;
+        public bool isTemp = false;
+        public string name = "";
+        public int basicActionValue = 100;
+        public int CurrentActionValue { get; set; } = 150;
+        public int showActionValue = 100;
+        public Action BasicAction => character.WaitForSelectSkill;
         //额外回合
-        List<Action> externActions = new();
+        public List<Action> externActions = new();
         //大招插入回合
-        List<Action> brustActions = new();
-        List<Action> RunAction = new();
+        public List<Action> brustActions = new();
+        public List<Action> RunAction = new();
 
         public CharaAction(Character character)
         {
             this.character = character;
+            CurrentActionValue = character.CurrentActionPoint;
         }
-
         public void Run()
         {
             //如果额外回合有无行动，则按顺序执行额外回合的

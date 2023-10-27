@@ -7,3 +7,7 @@ public class CameraTrackController
         
     }
 }
+class CameraData
+{
+
+}

@@ -3,51 +3,62 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-public class Character 
+public abstract class Character
 {
     public GameObject model;
     public int HealthPoints { get; set; } // 生命值
+    public int MaxHealthPoints { get; set; } // 生命值上限
     public int Attack { get; set; } // 攻击力
     public int Defense { get; set; } // 防御力
+    public int CurrentActionPoint { get; set; } // 当前剩余行动值
+    public int MaxActionPoint { get; set; } // 行动力基准值
     public int ElementalMastery { get; set; } // 元素精通
     public float ElementalDamageBonus { get; set; } // 元素伤害加成
     public float EnergyRecharge { get; set; } // 元素充能效率
     public float CriticalRate { get; set; } // 暴击率
     public float CriticalDamage { get; set; } // 暴击伤害
     public float HealingBonus { get; set; } // 治疗加成
-    public float PhysicalDamageBonus { get; set; } // 属性伤害加成
     public float ElementalEnergy { get; set; } // 元素能量
+    public float MaxElementalEnergy { get; set; } // 元素能量上限
     public string ElementalSkill { get; set; } // 元素战技
     public string ElementalBurst { get; set; } // 元素爆发
 
     public bool IsBasicActionEnd = false;
-    public virtual AtcionData GetBasicAttackActionData() { return null; }
-    public virtual AtcionData GetSpecialSkillActionData() { return null; }
-    public virtual AtcionData GetBrustSkillActionData() { return null; }
-    public virtual List<AtcionData> GetEnemySkillActionData() { return null; }
+    public abstract AtcionData GetBasicAttackActionData();
+    public abstract AtcionData GetSpecialSkillActionData();
+    public abstract AtcionData GetBrustSkillActionData();
+    public abstract List<AtcionData> GetEnemySkillActionData();
 
-    public virtual void WaitForSelectSkill()
-    {
-        
-    }
-    public virtual void WaitForBrustSkill()
-    {
-        //开启图标
-        foreach (var item in charaAction)
-        {
+    public abstract void WaitForSelectSkill();
+    public abstract void WaitForBrustSkill();
 
-        }
-        //设置摄像机位置和角度
-        //设置选择目标类型
-        //玩家按键执行下个操作
-    }
-    public virtual void OnCharaLightHit() { }
-    public virtual void OnCharaHeavyHurt() { }
+    public abstract Task BasicAttackAction();
+    public abstract Task SpecialSkillAction();
+    public abstract Task GetBrustSkillAction();
+
+    public abstract void OnCharaLightHit();
+    public abstract void OnCharaHeavyHurt();
     public virtual void OnEnemyHit() { }
     public virtual void OnCharaDead() { }
     public virtual void OnEnemyDead() { }
     public virtual void OnCharaRevived() { }
     public virtual void OnEnemyRevived() { }
+    ///////////////////////////计算公式//////////////////////////////
+    /// <summary>
+    /// 输入伤害倍率和目标，根据当前玩家的攻击力、暴击、爆伤、对方防御力和双方的状态、buff等决定伤害
+    /// </summary>
+    /// <param name="DamageMultipler"></param>
+    /// <param name="target"></param>
+    /// <returns></returns>
+    float CalculateHitPoints(int DamageMultipler, Character target)
+    {
+        bool isCritical = Random.Range(0f, 100f) > CriticalRate;
+        float point =
+            Attack
+            * ((100 + CriticalDamage) * 0.01f)
+            * ((100 - target.Defense) * 0.01f);
+        return point;
+    }
 
 }
 class Ability
