@@ -1,8 +1,10 @@
 ﻿public enum ActionType
 {
-    SingleTarget,
-    AreaOfEffect,
-    Support,
-    Hindrance,
-    Healing
+    None,
+    BasicAttack,
+    SpecialSkill,
+    Brust,
+    CounterAttack,
+    AdditionalAttack,
+    ExtraAttack
 }

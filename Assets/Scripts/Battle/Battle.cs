@@ -31,7 +31,7 @@ public class Battle : MonoBehaviour
         charaList.Clear();
         var playerDistance = 3;
         var playerOffset = (playerList.Count - 1) * playerDistance / 2f;
-        var enemyDistance = 2;
+        var enemyDistance = 1.5f;
         var enemyOffset = (enemyList.Count - 1) * enemyDistance / 2f;
         for (int i = 0; i < playerList.Count; i++)
         {

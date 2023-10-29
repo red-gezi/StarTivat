@@ -1,4 +1,7 @@
-﻿public class AtcionData
+﻿using UnityEngine;
+
+public class ActionData
 {
-    public ActionType ActionType;
+    public SkillType skill;
+    public Sprite icon;
 }

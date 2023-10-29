@@ -11,7 +11,7 @@ class ActionBar
         charaActions.Clear();
         charaActions.AddRange(charaList.Select(chara => new CharaAction(chara)));
         int minActionPoint = charaActions.Min(ca => ca.CurrentActionValue);
-        charaActions.ForEach(x=>x.basicActionValue)
+        charaActions.ForEach(x => x.CurrentActionValue -= minActionPoint);
     }
     /// <summary>
     /// 排序行动队列，触发首个目标
@@ -52,27 +52,27 @@ class ActionBar
             //如果额外回合和大招队列都为空，切主行动触发完，执行end
         }
         //首先插入普通行动
-        public void AddAction(SkillType skillType)
+        public void AddAction(ActionType skillType)
         {
             //如果当前主体是怪物，将其下移，并插入我方人物
             //如果当前主体是我方，将其右移
             //追加攻击、反击、亡语加到左侧，大招加到右侧
         }
         //结束当前回合
-        public void EndAction(SkillType skillType)
+        public void EndAction(ActionType skillType)
         {
             //如果存在依附主体，行动者buff回合减一，并重置行动值
             //否则直接消除该回合
         }
     }
     //新增一名角色
-    public void AddChara(ActionType actionType)
+    public void AddChara(SkillType skillType)
     {
 
     }
     //追加行为
     //
-    public void AddAction(ActionType actionType)
+    public void AddAction(SkillType skillType)
     {
 
     }

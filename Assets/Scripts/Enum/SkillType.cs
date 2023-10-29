@@ -1,9 +1,10 @@
 ﻿public enum SkillType
 {
-    BasicAttack,
-    SpecialSkill,
-    Brust,
-    CounterAttack,
-    AdditionalAttack,
-    ExtraAttack
+    None,
+    SingleTarget,
+    Diffusion,
+    AreaOfEffect,
+    Support,
+    Hindrance,
+    Healing
 }

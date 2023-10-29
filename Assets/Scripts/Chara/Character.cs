@@ -3,7 +3,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-public abstract class Character
+public abstract class Character:MonoBehaviour
 {
     public GameObject model;
     public int HealthPoints { get; set; } // 生命值
@@ -24,10 +24,16 @@ public abstract class Character
     public string ElementalBurst { get; set; } // 元素爆发
 
     public bool IsBasicActionEnd = false;
-    public abstract AtcionData GetBasicAttackActionData();
-    public abstract AtcionData GetSpecialSkillActionData();
-    public abstract AtcionData GetBrustSkillActionData();
-    public abstract List<AtcionData> GetEnemySkillActionData();
+
+    public Sprite BasicAttackIcon;
+    public Sprite SpecialSkillIcon;
+    public Sprite BrustSkillIcon;
+
+
+    public abstract ActionData GetBasicAttackSkillData();
+    public abstract ActionData GetSpecialSkillData();
+    public abstract ActionData GetBrustSkillData();
+    public abstract List<ActionData> GetEnemySkillActionData();
 
     public abstract void WaitForSelectSkill();
     public abstract void WaitForBrustSkill();
