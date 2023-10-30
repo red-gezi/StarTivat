@@ -13,19 +13,26 @@ public class BattleManager : MonoBehaviour
     public List<EnemyType> enemies;
     public List<GameObject> playerPrefebs;
     public List<GameObject> enemyPrefebs;
-    public List<Character> charaList = new();
+    //当前战场上的角色集合
+    public static List<Character> charaList = new();
 
     private void Awake() => Instance = this;
     private void Start()
     {
-        //初始化行动条
+        //加载角色列表
         charaList.Clear();
         InitChara(players, enemies);
+        //初始化摄像机
         CameraTrackController.Init();
+        //关闭角色选择图标
+        SelectManager.Close();
+        //关闭角色技能图标
+        SkillManager.Close();
         //初始化行动条
         ActionBar.Init(charaList);
         //开始行动
         ActionBar.Run();
+       
     }
     public void InitChara(List<PlayerType> playerList, List<EnemyType> enemyList)
     {
@@ -42,19 +49,8 @@ public class BattleManager : MonoBehaviour
             chara.SetActive(true);
             chara.transform.position = new Vector3(i * playerDistance - playerOffset, 0, 0);
             Character charaScript = chara.GetComponent<Character>();
-            charaScript.IsEnemy = true;
+            charaScript.IsEnemy = false;
             charaList.Add(charaScript);
-            //Type type = Type.GetType(charaName);
-            //if (type != null)
-            //{
-            //    Character charaScript = (Character)Activator.CreateInstance(type);
-            //    charaScript.IsEnemy = false;
-            //    charaList.Add(charaScript);
-            //}
-            //else
-            //{
-            //    Debug.LogError("无法找到对应人物类" + charaName);
-            //}
         }
         for (int i = 0; i < enemyList.Count; i++)
         {
@@ -66,17 +62,6 @@ public class BattleManager : MonoBehaviour
             Character charaScript = chara.GetComponent<Character>();
             charaScript.IsEnemy = true;
             charaList.Add(charaScript);
-            //Type type = Type.GetType(charaName);
-            //if (type != null)
-            //{
-            //    Character charaScript  = (Character)Activator.CreateInstance(type);
-            //    charaScript.IsEnemy = true;
-            //    charaList.Add(charaScript);
-            //}
-            //else
-            //{
-            //    Debug.LogError("无法找到对应人物类" + charaName);
-            //}
         }
     }
 }

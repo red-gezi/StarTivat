@@ -6,6 +6,8 @@ using UnityEngine;
 public abstract class Character:MonoBehaviour
 {
     public GameObject model;
+    public GameObject largeLock;
+    public GameObject smallLock;
     public bool IsEnemy { get; set; }
     public int HealthPoints { get; set; } // 生命值
     public int MaxHealthPoints { get; set; } // 生命值上限
@@ -66,9 +68,9 @@ public abstract class Character:MonoBehaviour
             * ((100 - target.Defense) * 0.01f);
         return point;
     }
-
-}
-class Ability
-{
-
+    private void OnMouseDown()
+    {
+        Debug.Log("点击了" + name);
+        SelectManager.CharaClick(this);
+    }
 }

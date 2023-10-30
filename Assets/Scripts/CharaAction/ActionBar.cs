@@ -50,31 +50,31 @@ class ActionBar
         }
         public void Run()
         {
-            if (ExternActions.Any())
-            {
-                ExternActions.Pop()();
-            }
-            else
-            {
-                //如果爆发回合有行动，则按顺序执行爆发回合的
-                if (BrustActions.Any())
-                {
-                    BrustActions.Dequeue()();
-                }
-                else
-                {
-                    if (BasicActionAlreadlyExce)
-                    {
+            //if (ExternActions.Any())
+            //{
+            //    ExternActions.Pop()();
+            //}
+            //else
+            //{
+            //    //如果爆发回合有行动，则按顺序执行爆发回合的
+            //    if (BrustActions.Any())
+            //    {
+            //        BrustActions.Dequeue()();
+            //    }
+            //    else
+            //    {
+            //        if (BasicActionAlreadlyExce)
+            //        {
                         
-                        EndAction();
-                    }
-                    else
-                    {
-                        BasicAction();
-                        BasicActionAlreadlyExce = true;
-                    }
-                }
-            }
+            //            EndAction();
+            //        }
+            //        else
+            //        {
+            //            BasicAction();
+            //            BasicActionAlreadlyExce = true;
+            //        }
+            //    }
+            //}
             //如果额外回合有无行动，则按顺序执行额外回合的
             if (ExternActions.Any())
             {
@@ -98,7 +98,7 @@ class ActionBar
             }
         }
         //首先插入普通行动
-        public void AddAction(ActionType skillType ,Action)
+        public void AddAction(ActionType skillType ,Action action)
         {
             switch (skillType)
             {

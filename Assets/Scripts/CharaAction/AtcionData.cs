@@ -9,5 +9,5 @@ public class ActionData
     public int abilityPointChange;
     public Character sender;
     public List<Character> DefaultTargets;
-    public bool isTargetBelongPlayer;
+    public bool isEnemyTarget;
 }
