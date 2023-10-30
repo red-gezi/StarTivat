@@ -6,6 +6,7 @@ using UnityEngine;
 public abstract class Character:MonoBehaviour
 {
     public GameObject model;
+    public bool IsEnemy { get; set; }
     public int HealthPoints { get; set; } // 生命值
     public int MaxHealthPoints { get; set; } // 生命值上限
     public int Attack { get; set; } // 攻击力
@@ -40,7 +41,7 @@ public abstract class Character:MonoBehaviour
 
     public abstract Task BasicAttackAction();
     public abstract Task SpecialSkillAction();
-    public abstract Task GetBrustSkillAction();
+    public abstract Task BrustSkillAction();
 
     public abstract void OnCharaLightHit();
     public abstract void OnCharaHeavyHurt();

@@ -1,6 +1,7 @@
 ﻿using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using UnityEngine;
 
 class Nahida : Character
 {
@@ -14,7 +15,7 @@ class Nahida : Character
     {
         return new ActionData()
         {
-            skill = SkillType.SingleTarget,
+            skillType = SkillType.SingleTarget,
             icon = BasicAttackIcon,
         };
     }
@@ -22,7 +23,7 @@ class Nahida : Character
     {
         return new ActionData()
         {
-            skill = SkillType.AreaOfEffect,
+            skillType = SkillType.AreaOfEffect,
             icon = SpecialSkillIcon,
         };
     }
@@ -30,7 +31,7 @@ class Nahida : Character
     {
         return new ActionData()
         {
-            skill = SkillType.AreaOfEffect,
+            skillType = SkillType.AreaOfEffect,
             icon = BrustSkillIcon,
         };
     }
@@ -50,11 +51,7 @@ class Nahida : Character
 
     }
 
-    public override Task BasicAttackAction()
-    {
-        throw new System.NotImplementedException();
-    }
-
+   
     public override List<ActionData> GetEnemySkillActionData()
     {
         throw new System.NotImplementedException();
@@ -65,12 +62,18 @@ class Nahida : Character
         throw new System.NotImplementedException();
     }
 
+    public override Task BasicAttackAction()
+    {
+        Debug.Log("纳西妲进行普通攻击");
+        ActionBar.Run();
+    }
+
     public override Task SpecialSkillAction()
     {
         throw new System.NotImplementedException();
     }
 
-    public override Task GetBrustSkillAction()
+    public override Task BrustSkillAction()
     {
         throw new System.NotImplementedException();
     }

@@ -6,15 +6,16 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class Battle : MonoBehaviour
+public class BattleManager : MonoBehaviour
 {
+    public static BattleManager Instance;
     public List<PlayerType> players;
     public List<EnemyType> enemies;
     public List<GameObject> playerPrefebs;
     public List<GameObject> enemyPrefebs;
-    List<Character> charaList = new();
+    public List<Character> charaList = new();
 
-
+    private void Awake() => Instance = this;
     private void Start()
     {
         //初始化行动条
@@ -40,16 +41,20 @@ public class Battle : MonoBehaviour
             GameObject chara = Instantiate(charaModel, charaModel.transform.parent);
             chara.SetActive(true);
             chara.transform.position = new Vector3(i * playerDistance - playerOffset, 0, 0);
-            Type type = Type.GetType(charaName);
-            if (type != null)
-            {
-                Character charaScript = (Character)Activator.CreateInstance(type);
-                charaList.Add(charaScript);
-            }
-            else
-            {
-                Debug.LogError("无法找到对应人物类" + charaName);
-            }
+            Character charaScript = chara.GetComponent<Character>();
+            charaScript.IsEnemy = true;
+            charaList.Add(charaScript);
+            //Type type = Type.GetType(charaName);
+            //if (type != null)
+            //{
+            //    Character charaScript = (Character)Activator.CreateInstance(type);
+            //    charaScript.IsEnemy = false;
+            //    charaList.Add(charaScript);
+            //}
+            //else
+            //{
+            //    Debug.LogError("无法找到对应人物类" + charaName);
+            //}
         }
         for (int i = 0; i < enemyList.Count; i++)
         {
@@ -58,16 +63,20 @@ public class Battle : MonoBehaviour
             GameObject chara = Instantiate(charaModel, charaModel.transform.parent);
             chara.SetActive(true);
             chara.transform.position = new Vector3(i * enemyDistance - enemyOffset, 0, 5);
-            Type type = Type.GetType(charaName);
-            if (type != null)
-            {
-                Character charaScript = (Character)Activator.CreateInstance(type);
-                charaList.Add(charaScript);
-            }
-            else
-            {
-                Debug.LogError("无法找到对应人物类" + charaName);
-            }
+            Character charaScript = chara.GetComponent<Character>();
+            charaScript.IsEnemy = true;
+            charaList.Add(charaScript);
+            //Type type = Type.GetType(charaName);
+            //if (type != null)
+            //{
+            //    Character charaScript  = (Character)Activator.CreateInstance(type);
+            //    charaScript.IsEnemy = true;
+            //    charaList.Add(charaScript);
+            //}
+            //else
+            //{
+            //    Debug.LogError("无法找到对应人物类" + charaName);
+            //}
         }
     }
 }
