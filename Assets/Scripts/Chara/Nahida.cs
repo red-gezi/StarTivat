@@ -8,33 +8,33 @@ class Nahida : Character
     //获得基础攻击的一些数据，如消耗/回复技能点数，类型，生效对象，镜头控制数据等
     public override ActionData GetBasicAttackSkillData() => new ActionData()
     {
-        skillType = SkillType.SingleTarget,
-        icon = BasicAttackIcon,
-        abilityPointChange = 1,
-        actionType = ActionType.BasicAttack,
+        CurrentSkillType = SkillType.SingleTarget,
+        Icon = basicAttackIcon,
+        AbilityPointChange = 1,
+        CurrentActionType = ActionType.BasicAttack,
         DefaultTargets = BattleManager.charaList.Where( chara=>chara.IsEnemy).Take(1).ToList(),
-        isEnemyTarget = true,
-        sender = this,
+        IsTargetEnemy = true,
+        Sender = this,
     };
     public override ActionData GetSpecialSkillData() => new ActionData()
     {
-        skillType = SkillType.AreaOfEffect,
-        icon = SpecialSkillIcon,
-        abilityPointChange = -1,
-        actionType = ActionType.SpecialSkill,
+        CurrentSkillType = SkillType.AreaOfEffect,
+        Icon = specialSkillIcon,
+        AbilityPointChange = -1,
+        CurrentActionType = ActionType.SpecialSkill,
         DefaultTargets = BattleManager.charaList.Where(chara => chara.IsEnemy).ToList(),
-        isEnemyTarget = true,
-        sender = this,
+        IsTargetEnemy = true,
+        Sender = this,
     };
     public override ActionData GetBrustSkillData() => new ActionData()
     {
-        skillType = SkillType.AreaOfEffect,
-        icon = BrustSkillIcon,
-        abilityPointChange = 0,
-        actionType = ActionType.Brust,
+        CurrentSkillType = SkillType.AreaOfEffect,
+        Icon = brustSkillIcon,
+        AbilityPointChange = 0,
+        CurrentActionType = ActionType.Brust,
         DefaultTargets = BattleManager.charaList.Where(chara => chara.IsEnemy).Skip(2).Take(1).ToList(),
-        isEnemyTarget = true,
-        sender = this,
+        IsTargetEnemy = true,
+        Sender = this,
     };
     public override void WaitForSelectSkill()
     {
@@ -64,15 +64,21 @@ class Nahida : Character
     public override async Task BasicAttackAction()
     {
         Debug.Log("纳西妲进行普通攻击");
+        //播放动作
+        PlayAnimation(AnimationType.BasicAttack);
+        //调整摄像机
+        //
         await Task.Delay(1000);
-        ActionBar.Run();
+        ActionBarManager.BasicActionCompleted();
     }
 
     public override async Task SpecialSkillAction()
     {
         Debug.Log("纳西妲使用了元素战技");
+        PlayAnimation(AnimationType.SpecialAttack);
+        //调整摄像机
         await Task.Delay(1000);
-        ActionBar.Run();
+        ActionBarManager.BasicActionCompleted();
     }
 
     public override Task BrustSkillAction()
@@ -88,5 +94,15 @@ class Nahida : Character
     public override void OnCharaHeavyHurt()
     {
         throw new System.NotImplementedException();
+    }
+
+    public override void PlayAnimation(AnimationType animationType)
+    {
+        animator.CrossFade(animationType.ToString(),0.2f);
+    }
+    public override void PlayAudio(AnimationType animationType)
+    {
+        audioSource.clip = null;
+        audioSource.Play();
     }
 }

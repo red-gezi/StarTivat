@@ -29,9 +29,9 @@ public class BattleManager : MonoBehaviour
         //关闭角色技能图标
         SkillManager.Close();
         //初始化行动条
-        ActionBar.Init(charaList);
+        ActionBarManager.Init(charaList);
         //开始行动
-        ActionBar.Run();
+        ActionBarManager.RunAction();
        
     }
     public void InitChara(List<PlayerType> playerList, List<EnemyType> enemyList)

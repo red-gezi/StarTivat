@@ -3,12 +3,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-public abstract class Character:MonoBehaviour
+public abstract class Character : MonoBehaviour
 {
     public GameObject model;
     public GameObject largeLock;
     public GameObject smallLock;
-    public bool IsEnemy { get; set; }
+    public Animator animator => GetComponent<Animator>();
+    public AudioSource audioSource => GetComponent<AudioSource>();
+    private void OnMouseDown() => SelectManager.CharaClick(this);
+    public bool IsEnemy { get; set; }//是否是敌人
     public int HealthPoints { get; set; } // 生命值
     public int MaxHealthPoints { get; set; } // 生命值上限
     public int Attack { get; set; } // 攻击力
@@ -28,10 +31,13 @@ public abstract class Character:MonoBehaviour
 
     public bool IsBasicActionEnd = false;
 
-    public Sprite BasicAttackIcon;
-    public Sprite SpecialSkillIcon;
-    public Sprite BrustSkillIcon;
+    //技能图标
+    public Sprite basicAttackIcon;
+    public Sprite specialSkillIcon;
+    public Sprite brustSkillIcon;
 
+    //在行动条上的图标
+    public Sprite actionBarIcon;
 
     public abstract ActionData GetBasicAttackSkillData();
     public abstract ActionData GetSpecialSkillData();
@@ -40,6 +46,9 @@ public abstract class Character:MonoBehaviour
 
     public abstract void WaitForSelectSkill();
     public abstract void WaitForBrustSkill();
+
+    public abstract void PlayAnimation(AnimationType animationType);
+    public abstract void PlayAudio(AnimationType animationType);
 
     public abstract Task BasicAttackAction();
     public abstract Task SpecialSkillAction();
@@ -68,9 +77,5 @@ public abstract class Character:MonoBehaviour
             * ((100 - target.Defense) * 0.01f);
         return point;
     }
-    private void OnMouseDown()
-    {
-        Debug.Log("点击了" + name);
-        SelectManager.CharaClick(this);
-    }
+    
 }

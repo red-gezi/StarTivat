@@ -42,16 +42,16 @@ public class SelectManager : MonoBehaviour
             if (currentSelectTarget.Contains(character))
             {
                 //如果当前是战技模式，则直接触发战技
-                switch (currentActionData.actionType)
+                switch (currentActionData.CurrentActionType)
                 {
                     case ActionType.BasicAttack:
-                        await currentActionData.sender.BasicAttackAction();
+                        await currentActionData.Sender.BasicAttackAction();
                         break;
                     case ActionType.SpecialSkill:
-                        await currentActionData.sender.SpecialSkillAction();
+                        await currentActionData.Sender.SpecialSkillAction();
                         break;
                     case ActionType.Brust:
-                        await currentActionData.sender.BrustSkillAction();
+                        await currentActionData.Sender.BrustSkillAction();
                         break;
                     default:
                         Debug.LogError("异常行动指令，请检查");
@@ -60,10 +60,10 @@ public class SelectManager : MonoBehaviour
             }
             else
             {
-                var s1 = currentActionData.isEnemyTarget;
+                var s1 = currentActionData.IsTargetEnemy;
                 var s3 = character.IsEnemy;
-                var s2 = (!character.IsEnemy ^ currentActionData.isEnemyTarget);
-                if ((!character.IsEnemy ^ currentActionData.isEnemyTarget))
+                var s2 = (!character.IsEnemy ^ currentActionData.IsTargetEnemy);
+                if ((!character.IsEnemy ^ currentActionData.IsTargetEnemy))
                 {
                     currentSelectTarget = new List<Character> { character };
                     RefreshLock();

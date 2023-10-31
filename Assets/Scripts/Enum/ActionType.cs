@@ -4,7 +4,7 @@
     BasicAttack,
     SpecialSkill,
     Brust,
-    CounterAttack,
-    AdditionalAttack,
-    ExtraAttack
+    CounterAttack,//反击
+    AdditionalAttack,//追加
+    ExtraAttack//额外
 }

@@ -37,6 +37,34 @@ public class AbilityPointManager : MonoBehaviour
         currentPoint = Math.Max(0, Math.Min(maxPoint, currentPoint));
         RefreshUI();
     }
+    [Button("预测点数变动")]
+    public static void PredictionChangePoint(int point)
+    {
+        if (point > 0)
+        {
+            for (int i = 0; i < maxPoint; i++)
+            {
+                if (i > currentPoint && i < currentPoint + point)
+                {
+                    var pointIconTransform = Instance.pointIcon[i].transform;
+                    pointIconTransform.GetChild(0).gameObject.SetActive(true);
+                    pointIconTransform.GetChild(0).GetComponent<Image>().material.SetFloat("_IsDecrease", 0);
+                }
+            }
+        }
+        if (point < 0)
+        {
+            for (int i = 0; i < maxPoint; i++)
+            {
+                if (currentPoint + point < i && i < currentPoint)
+                {
+                    var pointIconTransform = Instance.pointIcon[i].transform;
+                    pointIconTransform.GetChild(0).gameObject.SetActive(true);
+                    pointIconTransform.GetChild(0).GetComponent<Image>().material.SetFloat("_IsDecrease", 1);
+                }
+            }
+        }
+    }
     public static async void RefreshUI()
     {
         for (int i = 0; i < maxPoint; i++)
@@ -55,9 +83,9 @@ public class AbilityPointManager : MonoBehaviour
                     pointIconTransform.GetChild(0).gameObject.SetActive(true);
                     pointIconTransform.GetChild(0).GetComponent<Image>().material.SetFloat("_IsDecrease", 1);
                 }
-                Instance.pointText.fontSize += 10;
+                Instance.pointText.text = $"<size=40><color=cyan>{currentPoint}</color></size>/";
                 await Task.Delay(500);
-                Instance.pointText.fontSize -= 10;
+                Instance.pointText.text = $"<size=40><color=white>{currentPoint}</color></size>/";
             }
             else
             {
@@ -67,9 +95,9 @@ public class AbilityPointManager : MonoBehaviour
                     pointIconTransform.GetChild(0).gameObject.SetActive(true);
                     pointIconTransform.GetChild(0).GetComponent<Image>().material.SetFloat("_IsDecrease", 0);
                 }
-                Instance.pointText.fontSize += 10;
+                Instance.pointText.text = $"<size=40><color=red>{currentPoint}</color></size>/";
                 await Task.Delay(500);
-                Instance.pointText.fontSize -= 10;
+                Instance.pointText.text = $"<size=40><color=white>{currentPoint}</color></size>/";
             }
             Instance.pointIcon.ForEach(icon =>
             {
@@ -78,6 +106,6 @@ public class AbilityPointManager : MonoBehaviour
 
             lastPoint = currentPoint;
         }
-        Instance.pointText.text = currentPoint + "/";
+
     }
 }

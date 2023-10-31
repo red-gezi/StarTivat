@@ -21,7 +21,7 @@ public class SkillManager : MonoBehaviour
     private void Awake() => Instance = this;
     private static string GetSkillTypeText(ActionData actionData)
     {
-        return actionData.skillType switch
+        return actionData.CurrentSkillType switch
         {
             SkillType.SingleTarget => "单攻",
             SkillType.Diffusion => "扩散",
@@ -39,10 +39,10 @@ public class SkillManager : MonoBehaviour
         //Instance.currentActionType = ActionType.BasicAttack;
         //根据行为数据设置Icon图标和文字
         Instance.BasicAttack.SetActive(true);
-        Instance.BasicAttack.GetComponent<Image>().sprite = basicAttackData.icon;
+        Instance.BasicAttack.GetComponent<Image>().sprite = basicAttackData.Icon;
         Instance.BasicAttack.transform.GetChild(0).GetChild(0).GetComponent<Text>().text = GetSkillTypeText(basicAttackData);
         Instance.SpecialSkill.SetActive(true);
-        Instance.SpecialSkill.GetComponent<Image>().sprite = specialSkillData.icon;
+        Instance.SpecialSkill.GetComponent<Image>().sprite = specialSkillData.Icon;
         Instance.SpecialSkill.transform.GetChild(0).GetChild(0).GetComponent<Text>().text = GetSkillTypeText(specialSkillData);
         Instance.BrustSkill.SetActive(false);
         //进入选择普攻模式
@@ -62,11 +62,10 @@ public class SkillManager : MonoBehaviour
         //如果技能不可发动，择不做处理
         if (true)
         {
-
             if (currentActionType == ActionType.BasicAttack)
             {
                 //如果当前已选择BasicAttack，则直接触发攻击
-                await BasicAttackData.sender.BasicAttackAction();
+                await BasicAttackData.Sender.BasicAttackAction();
             }
             else
             {
@@ -74,16 +73,22 @@ public class SkillManager : MonoBehaviour
                 currentActionType = ActionType.BasicAttack;
                 //开启选择框
                 SelectManager.Show(BasicAttackData);
+                //初始化技能图标
                 Instance.BasicAttack.transform.GetChild(0).gameObject.SetActive(true);
                 Instance.SpecialSkill.transform.GetChild(0).gameObject.SetActive(false);
-                var small = new Vector2(110, 110);
-                var large = new Vector2(160, 160);
+                //初始化技能点显示
+                AbilityPointManager.PredictionChangePoint(BasicAttackData.AbilityPointChange);
+                //相机移动
+
+              
                 for (int i = 0; i < 10; i++)
                 {
-                    Instance.BasicAttack.GetComponent<RectTransform>().sizeDelta = Vector2.Lerp(small, large, i * 0.1f);
-                    Instance.SpecialSkill.GetComponent<RectTransform>().sizeDelta = Vector2.Lerp(large, small, i * 0.1f);
+                    Instance.BasicAttack.GetComponent<RectTransform>().sizeDelta = Vector2.Lerp(smallSize, largeSize, i * 0.1f);
+                    Instance.SpecialSkill.GetComponent<RectTransform>().sizeDelta = Vector2.Lerp(largeSize, smallSize, i * 0.1f);
                     await Task.Delay(10);
                 }
+                //播放动作
+                await BasicAttackData.Sender.BasicAttackAction();
             }
         }
     }
@@ -95,7 +100,7 @@ public class SkillManager : MonoBehaviour
             if (currentActionType == ActionType.SpecialSkill)
             {
                 //如果当前已选择SpecialSkill，则直接触发攻击
-                await SpecialSkillData.sender.SpecialSkillAction();
+                await SpecialSkillData.Sender.SpecialSkillAction();
             }
             else
             {
@@ -105,12 +110,17 @@ public class SkillManager : MonoBehaviour
                 SelectManager.Show(SpecialSkillData);
                 Instance.BasicAttack.transform.GetChild(0).gameObject.SetActive(false);
                 Instance.SpecialSkill.transform.GetChild(0).gameObject.SetActive(true);
+                //初始化技能点显示
+                AbilityPointManager.PredictionChangePoint(BasicAttackData.AbilityPointChange);
+                //相机移动
                 for (int i = 0; i < 10; i++)
                 {
                     Instance.BasicAttack.GetComponent<RectTransform>().sizeDelta = Vector2.Lerp(largeSize, smallSize, i * 0.1f);
                     Instance.SpecialSkill.GetComponent<RectTransform>().sizeDelta = Vector2.Lerp(smallSize, largeSize, i * 0.1f);
                     await Task.Delay(10);
                 }
+                //播放动作
+                await BasicAttackData.Sender.SpecialSkillAction();
             }
         }
     }
@@ -119,10 +129,10 @@ public class SkillManager : MonoBehaviour
         //如果技能不可发动，择不做处理
         if (true)
         {
-            if (currentActionType == ActionType.SpecialSkill)
+            if (currentActionType == ActionType.BasicAttack)
             {
                 //如果当前已选择SpecialSkill，则直接触发攻击
-                await SpecialSkillData.sender.BrustSkillAction();
+                await SpecialSkillData.Sender.BrustSkillAction();
             }
             else
             {
@@ -131,13 +141,16 @@ public class SkillManager : MonoBehaviour
                 //开启选择框
                 SelectManager.Show(SpecialSkillData);
                 Instance.BasicAttack.transform.GetChild(0).gameObject.SetActive(false);
-                Instance.SpecialSkill.transform.GetChild(0).gameObject.SetActive(true);
+                Instance.SpecialSkill.transform.GetChild(0).gameObject.SetActive(false);
+                Instance.BrustSkill.transform.GetChild(0).gameObject.SetActive(true);
                 for (int i = 0; i < 10; i++)
                 {
                     Instance.BasicAttack.GetComponent<RectTransform>().sizeDelta = Vector2.Lerp(largeSize, smallSize, i * 0.1f);
                     Instance.SpecialSkill.GetComponent<RectTransform>().sizeDelta = Vector2.Lerp(smallSize, largeSize, i * 0.1f);
                     await Task.Delay(10);
                 }
+                //播放动作
+                await BasicAttackData.Sender.SpecialSkillAction();
             }
         }
     }
