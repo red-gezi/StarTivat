@@ -65,7 +65,7 @@ class ActionBarManager : MonoBehaviour
         public CharaActionTurn(Character character)
         {
             this.character = character;
-            BasicActionValue = character.CurrentActionPoint;
+            BasicActionValue = character.MaxActionPoint;
             CurrentActionValue = BasicActionValue;
         }
         public void RunAction()

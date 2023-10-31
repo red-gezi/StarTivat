@@ -1,8 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using UnityEngine;
 
 class Qiuqiu : Character
 {
+    private void Awake()
+    {
+        MaxActionPoint = 70;
+    }
     public override Task BasicAttackAction()
     {
         throw new System.NotImplementedException();
@@ -65,6 +70,6 @@ class Qiuqiu : Character
 
     public override void WaitForSelectSkill()
     {
-        throw new System.NotImplementedException();
+        Debug.Log("丘丘人随机攻击");
     }
 }

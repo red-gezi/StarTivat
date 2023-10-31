@@ -17,7 +17,6 @@ public abstract class Character : MonoBehaviour
     public int MaxHealthPoints { get; set; } // 生命值上限
     public int Attack { get; set; } // 攻击力
     public int Defense { get; set; } // 防御力
-    public int CurrentActionPoint { get; set; } // 当前剩余行动值
     public int MaxActionPoint { get; set; } // 行动力基准值
     public int ElementalMastery { get; set; } // 元素精通
     public float ElementalDamageBonus { get; set; } // 元素伤害加成

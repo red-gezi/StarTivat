@@ -5,6 +5,10 @@ using System.Threading.Tasks;
 using UnityEngine;
 class Nahida : Character
 {
+    private void Awake()
+    {
+        MaxActionPoint = 60;
+    }
     //获得基础攻击的一些数据，如消耗/回复技能点数，类型，生效对象，镜头控制数据等
     public override ActionData GetBasicAttackSkillData() => new ActionData()
     {
