@@ -5,7 +5,7 @@ public class SelectManager : MonoBehaviour
 {
     static bool isSelectModeOpen;
     static ActionData currentActionData;
-    static List<Character> currentSelectTarget;
+    public static List<Character> currentSelectTarget=new();
 
     public static void Show(ActionData actionData)
     {

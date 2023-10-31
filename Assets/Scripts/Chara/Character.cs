@@ -8,6 +8,7 @@ public abstract class Character : MonoBehaviour
     public GameObject model;
     public GameObject largeLock;
     public GameObject smallLock;
+    public int Rank => BattleManager.charaList.Where(chara => chara.IsEnemy == IsEnemy).ToList().IndexOf(this);
     public Animator animator => GetComponent<Animator>();
     public AudioSource audioSource => GetComponent<AudioSource>();
     private void OnMouseDown() => SelectManager.CharaClick(this);
@@ -29,7 +30,7 @@ public abstract class Character : MonoBehaviour
     public string ElementalSkill { get; set; } // 元素战技
     public string ElementalBurst { get; set; } // 元素爆发
 
-    public bool IsBasicActionEnd = false;
+    //public bool IsBasicActionEnd = false;
 
     //技能图标
     public Sprite basicAttackIcon;

@@ -79,8 +79,8 @@ public class SkillManager : MonoBehaviour
                 //初始化技能点显示
                 AbilityPointManager.PredictionChangePoint(BasicAttackData.AbilityPointChange);
                 //相机移动
+                CameraTrackManager.SetDefalutCharaRank(BasicAttackData.Sender.Rank+1);
 
-              
                 for (int i = 0; i < 10; i++)
                 {
                     Instance.BasicAttack.GetComponent<RectTransform>().sizeDelta = Vector2.Lerp(smallSize, largeSize, i * 0.1f);
@@ -88,7 +88,7 @@ public class SkillManager : MonoBehaviour
                     await Task.Delay(10);
                 }
                 //播放动作
-                await BasicAttackData.Sender.BasicAttackAction();
+                BasicAttackData.Sender.PlayAnimation(AnimationType.BasicAttack);
             }
         }
     }
@@ -120,7 +120,7 @@ public class SkillManager : MonoBehaviour
                     await Task.Delay(10);
                 }
                 //播放动作
-                await BasicAttackData.Sender.SpecialSkillAction();
+                SpecialSkillData.Sender.PlayAnimation(AnimationType.SpecialAttack);
             }
         }
     }

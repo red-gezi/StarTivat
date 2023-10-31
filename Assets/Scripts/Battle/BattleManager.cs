@@ -23,7 +23,7 @@ public class BattleManager : MonoBehaviour
         charaList.Clear();
         InitChara(players, enemies);
         //初始化摄像机
-        CameraTrackController.Init();
+        CameraTrackManager.Init(Vector3.zero);
         //关闭角色选择图标
         SelectManager.Close();
         //关闭角色技能图标
@@ -32,12 +32,12 @@ public class BattleManager : MonoBehaviour
         ActionBarManager.Init(charaList);
         //开始行动
         ActionBarManager.RunAction();
-       
+
     }
     public void InitChara(List<PlayerType> playerList, List<EnemyType> enemyList)
     {
         charaList.Clear();
-        var playerDistance = 3;
+        var playerDistance = 2f;
         var playerOffset = (playerList.Count - 1) * playerDistance / 2f;
         var enemyDistance = 1.5f;
         var enemyOffset = (enemyList.Count - 1) * enemyDistance / 2f;
@@ -47,7 +47,8 @@ public class BattleManager : MonoBehaviour
             GameObject charaModel = playerPrefebs.FirstOrDefault(prefeb => prefeb.name == playerList[i].ToString());
             GameObject chara = Instantiate(charaModel, charaModel.transform.parent);
             chara.SetActive(true);
-            chara.transform.position = new Vector3(i * playerDistance - playerOffset, 0, 0);
+            float x = i * playerDistance - playerOffset;
+            chara.transform.position = new Vector3(x, 0, -0.5f * MathF.Cos(x));
             Character charaScript = chara.GetComponent<Character>();
             charaScript.IsEnemy = false;
             charaList.Add(charaScript);
@@ -58,7 +59,8 @@ public class BattleManager : MonoBehaviour
             GameObject charaModel = enemyPrefebs.FirstOrDefault(prefeb => prefeb.name == charaName);
             GameObject chara = Instantiate(charaModel, charaModel.transform.parent);
             chara.SetActive(true);
-            chara.transform.position = new Vector3(i * enemyDistance - enemyOffset, 0, 5);
+            float x = i * enemyDistance - enemyOffset;
+            chara.transform.position = new Vector3(x, 0, 5 + 0.5f * MathF.Cos(x));
             Character charaScript = chara.GetComponent<Character>();
             charaScript.IsEnemy = true;
             charaList.Add(charaScript);
