@@ -71,5 +71,6 @@ class Qiuqiu : Character
     public override void WaitForSelectSkill()
     {
         Debug.Log("丘丘人随机攻击");
+        ActionBarManager.BasicActionCompleted();
     }
 }

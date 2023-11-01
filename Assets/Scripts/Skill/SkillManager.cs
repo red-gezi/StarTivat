@@ -89,6 +89,7 @@ public class SkillManager : MonoBehaviour
                 }
                 //播放动作
                 BasicAttackData.Sender.PlayAnimation(AnimationType.BasicAttack);
+                AbilityPointManager.PredictionChangePoint(BasicAttackData.AbilityPointChange);
             }
         }
     }
@@ -111,7 +112,7 @@ public class SkillManager : MonoBehaviour
                 Instance.BasicAttack.transform.GetChild(0).gameObject.SetActive(false);
                 Instance.SpecialSkill.transform.GetChild(0).gameObject.SetActive(true);
                 //初始化技能点显示
-                AbilityPointManager.PredictionChangePoint(BasicAttackData.AbilityPointChange);
+                AbilityPointManager.PredictionChangePoint(SpecialSkillData.AbilityPointChange);
                 //相机移动
                 for (int i = 0; i < 10; i++)
                 {
@@ -121,6 +122,7 @@ public class SkillManager : MonoBehaviour
                 }
                 //播放动作
                 SpecialSkillData.Sender.PlayAnimation(AnimationType.SpecialAttack);
+                AbilityPointManager.PredictionChangePoint(SpecialSkillData.AbilityPointChange);
             }
         }
     }

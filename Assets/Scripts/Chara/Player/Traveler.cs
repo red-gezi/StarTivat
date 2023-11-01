@@ -14,7 +14,7 @@ class Traveler : Character
     {
         CurrentSkillType = SkillType.SingleTarget,
         Icon = basicAttackIcon,
-        AbilityPointChange = 1,
+        AbilityPointChange = 2,
         CurrentActionType = ActionType.BasicAttack,
         DefaultTargets = BattleManager.charaList.Where( chara=>chara.IsEnemy).Take(1).ToList(),
         IsTargetEnemy = true,
@@ -22,9 +22,9 @@ class Traveler : Character
     };
     public override ActionData GetSpecialSkillData() => new ActionData()
     {
-        CurrentSkillType = SkillType.AreaOfEffect,
+        CurrentSkillType = SkillType.SingleTarget,
         Icon = specialSkillIcon,
-        AbilityPointChange = -1,
+        AbilityPointChange = -2,
         CurrentActionType = ActionType.SpecialSkill,
         DefaultTargets = BattleManager.charaList.Where(chara => chara.IsEnemy).ToList(),
         IsTargetEnemy = true,
@@ -32,7 +32,7 @@ class Traveler : Character
     };
     public override ActionData GetBrustSkillData() => new ActionData()
     {
-        CurrentSkillType = SkillType.AreaOfEffect,
+        CurrentSkillType = SkillType.SingleTarget,
         Icon = brustSkillIcon,
         AbilityPointChange = 0,
         CurrentActionType = ActionType.Brust,
@@ -67,7 +67,7 @@ class Traveler : Character
 
     public override async Task BasicAttackAction()
     {
-        Debug.Log("纳西妲进行普通攻击");
+        Debug.Log("旅行者进行普通攻击");
         //播放动作
         PlayAnimation(AnimationType.BasicAttack);
         //调整摄像机
@@ -78,7 +78,7 @@ class Traveler : Character
 
     public override async Task SpecialSkillAction()
     {
-        Debug.Log("纳西妲使用了元素战技");
+        Debug.Log("旅行者使用了元素战技");
         PlayAnimation(AnimationType.SpecialAttack);
         //调整摄像机
         await Task.Delay(1000);

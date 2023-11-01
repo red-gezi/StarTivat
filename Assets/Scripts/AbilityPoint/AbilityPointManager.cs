@@ -42,25 +42,37 @@ public class AbilityPointManager : MonoBehaviour
     {
         if (point > 0)
         {
+            //至少有一个点不满才能增加
             for (int i = 0; i < maxPoint; i++)
             {
-                if (i > currentPoint && i < currentPoint + point)
+                if (i >= currentPoint && i < currentPoint + point)
                 {
                     var pointIconTransform = Instance.pointIcon[i].transform;
                     pointIconTransform.GetChild(0).gameObject.SetActive(true);
                     pointIconTransform.GetChild(0).GetComponent<Image>().material.SetFloat("_IsDecrease", 0);
                 }
+                else
+                {
+                    var pointIconTransform = Instance.pointIcon[i].transform;
+                    pointIconTransform.GetChild(0).gameObject.SetActive(false);
+                }
             }
         }
         if (point < 0)
         {
-            for (int i = 0; i < maxPoint; i++)
+            //至少有一个点才能减少
+            for (int i = 1; i <= maxPoint; i++)
             {
-                if (currentPoint + point < i && i < currentPoint)
+                if ( i <= currentPoint && currentPoint + point < i)
                 {
-                    var pointIconTransform = Instance.pointIcon[i].transform;
+                    var pointIconTransform = Instance.pointIcon[i-1].transform;
                     pointIconTransform.GetChild(0).gameObject.SetActive(true);
                     pointIconTransform.GetChild(0).GetComponent<Image>().material.SetFloat("_IsDecrease", 1);
+                }
+                else
+                {
+                    var pointIconTransform = Instance.pointIcon[i-1].transform;
+                    pointIconTransform.GetChild(0).gameObject.SetActive(false);
                 }
             }
         }
