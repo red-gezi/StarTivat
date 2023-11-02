@@ -46,6 +46,7 @@ public class BattleManager : MonoBehaviour
             var charaName = playerList[i].ToString();
             GameObject charaModel = playerPrefebs.FirstOrDefault(prefeb => prefeb.name == playerList[i].ToString());
             GameObject chara = Instantiate(charaModel, charaModel.transform.parent);
+            chara.name = charaModel.name+ $"վλ:{i + 1}";
             chara.SetActive(true);
             float x = i * playerDistance - playerOffset;
             chara.transform.position = new Vector3(x, 0, -0.5f * MathF.Cos(x));
@@ -58,6 +59,7 @@ public class BattleManager : MonoBehaviour
             var charaName = enemyList[i].ToString();
             GameObject charaModel = enemyPrefebs.FirstOrDefault(prefeb => prefeb.name == charaName);
             GameObject chara = Instantiate(charaModel, charaModel.transform.parent);
+            chara.name = charaModel.name + $"վλ:{i + 1}";
             chara.SetActive(true);
             float x = i * enemyDistance - enemyOffset;
             chara.transform.position = new Vector3(x, 0, 5 + 0.5f * MathF.Cos(x));

@@ -18,7 +18,7 @@ class ActionBarManager : MonoBehaviour
     /// </summary>
     public static void RunAction()
     {
-        Debug.LogWarning("重整行动条");
+        Debug.LogWarning("重新计算行动队列");
         int minActionPoint = charaActions.Min(ca => ca.CurrentActionValue);
         charaActions.ForEach(x => x.CurrentActionValue -= minActionPoint);
         charaActions = charaActions.OrderBy(x => x.CurrentActionValue).ToList();
@@ -70,25 +70,33 @@ class ActionBarManager : MonoBehaviour
         }
         public void RunAction()
         {
+            Debug.Log($"判定当前玩家{character.name}行动,额外回合数|{ExternActions.Count},大招回合数{BrustActions.Count}");
+            Debug.Log($"当前队列{charaActions.Select(action => $"{ action.character.gameObject.name}:剩余行动力：{ action.CurrentActionValue}/总行动力：{action.BasicActionValue}").ToJson()}");
             //如果额外回合有无行动，则按顺序执行额外回合的
             if (ExternActions.Any())
             {
+                Debug.Log("进行了额外回合操作");
                 ExternActions.Pop().skillAction();
             }
             //如果爆发回合有行动，则按顺序执行爆发回合的
             else if (BrustActions.Any())
             {
+                Debug.Log("进行了爆发回合操作");
+
                 BrustActions.Dequeue().skillAction();
             }
             //如果额外回合，爆发回合都为空，且普通行动未执行完，则执行该回合基础行动
             else if (!BasicActionCompleted)
             {
+                Debug.Log("进行了主回合操作");
+
                 BasicAction.skillAction();
                 BasicActionCompleted = true;
             }
             //如果额外回合，爆发回合都为空，且普通行动执行完，则结束该人物回合
             else
             {
+                Debug.Log("操作都已执行完毕，跳过回合");
                 EndAction();
             }
         }

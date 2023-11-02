@@ -66,6 +66,7 @@ public class SkillManager : MonoBehaviour
             {
                 //如果当前已选择BasicAttack，则直接触发攻击
                 await BasicAttackData.Sender.BasicAttackAction();
+                Instance.currentActionType = ActionType.None;
             }
             else
             {
@@ -102,6 +103,7 @@ public class SkillManager : MonoBehaviour
             {
                 //如果当前已选择SpecialSkill，则直接触发攻击
                 await SpecialSkillData.Sender.SpecialSkillAction();
+                Instance.currentActionType = ActionType.None;
             }
             else
             {
@@ -131,14 +133,15 @@ public class SkillManager : MonoBehaviour
         //如果技能不可发动，择不做处理
         if (true)
         {
-            if (currentActionType == ActionType.BasicAttack)
+            if (currentActionType == ActionType.Brust)
             {
-                //如果当前已选择SpecialSkill，则直接触发攻击
+                //如果当前已选择BrustSkill，则直接触发元素爆发
                 await SpecialSkillData.Sender.BrustSkillAction();
+                Instance.currentActionType = ActionType.None;
             }
             else
             {
-                //如果当前已选择SpecialSkill，则切换到SpecialSkill
+                //如果当前已选择BrustSkill，则切换到BrustSkill
                 currentActionType = ActionType.Brust;
                 //开启选择框
                 SelectManager.Show(SpecialSkillData);
