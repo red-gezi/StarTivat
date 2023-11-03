@@ -1,17 +1,19 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class SelectManager : MonoBehaviour
 {
     static bool isSelectModeOpen;
     static ActionData currentActionData;
-    public static List<Character> currentSelectTarget=new();
+    public static List<Character> currentSelectTargets = new();
+    public static Character currentSelectTarget => currentSelectTargets.FirstOrDefault();
 
     public static void Show(ActionData actionData)
     {
         isSelectModeOpen = true;
         currentActionData = actionData;
-        currentSelectTarget = actionData.DefaultTargets;
+        currentSelectTargets = actionData.DefaultTargets;
         //关掉所有模型身上的大小框，
         RefreshLock();
     }
@@ -21,7 +23,7 @@ public class SelectManager : MonoBehaviour
         BattleManager.charaList.ForEach(chara => chara.largeLock.SetActive(false));
         BattleManager.charaList.ForEach(chara => chara.smallLock.SetActive(false));
         //启动目标模型的大框
-        currentSelectTarget.ForEach(chara => chara.largeLock.SetActive(true));
+        currentSelectTargets.ForEach(chara => chara.largeLock.SetActive(true));
         //若果是扩散，启动两侧模型的小框
     }
 
@@ -39,7 +41,7 @@ public class SelectManager : MonoBehaviour
         if (isSelectModeOpen)
         {
             //如果目标已被选择
-            if (currentSelectTarget.Contains(character))
+            if (currentSelectTargets.Contains(character))
             {
                 //如果当前是战技模式，则直接触发战技
                 switch (currentActionData.CurrentActionType)
@@ -65,7 +67,7 @@ public class SelectManager : MonoBehaviour
                 var s2 = (!character.IsEnemy ^ currentActionData.IsTargetEnemy);
                 if ((!character.IsEnemy ^ currentActionData.IsTargetEnemy))
                 {
-                    currentSelectTarget = new List<Character> { character };
+                    currentSelectTargets = new List<Character> { character };
                     RefreshLock();
                 }
             }

@@ -28,32 +28,7 @@ class Qiuqiu : Character
         throw new System.NotImplementedException();
     }
 
-    public override List<ActionData> GetEnemySkillActionData()
-    {
-        throw new System.NotImplementedException();
-    }
-
     public override ActionData GetSpecialSkillData()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public override void OnCharaHeavyHurt()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public override void OnCharaLightHit()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public override void PlayAnimation(AnimationType animationType)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public override void PlayAudio(AnimationType animationType)
     {
         throw new System.NotImplementedException();
     }
@@ -70,7 +45,11 @@ class Qiuqiu : Character
 
     public override void WaitForSelectSkill()
     {
-        Debug.Log("丘丘人随机攻击");
-        ActionBarManager.BasicActionCompleted();
+       
+    }
+
+    public override Task EnemySkillAction()
+    {
+        throw new System.NotImplementedException();
     }
 }

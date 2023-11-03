@@ -45,6 +45,8 @@ public class SkillManager : MonoBehaviour
         Instance.SpecialSkill.GetComponent<Image>().sprite = specialSkillData.Icon;
         Instance.SpecialSkill.transform.GetChild(0).GetChild(0).GetComponent<Text>().text = GetSkillTypeText(specialSkillData);
         Instance.BrustSkill.SetActive(false);
+        //相机移动
+        CameraTrackManager.SetDefalutCharaRank(BasicAttackData.Sender.Rank + 1);
         //进入选择普攻模式
         Instance.SelectBasicAttack();
     }
@@ -55,6 +57,8 @@ public class SkillManager : MonoBehaviour
         Instance.BasicAttack.SetActive(false);
         Instance.SpecialSkill.SetActive(false);
         Instance.BrustSkill.SetActive(true);
+        //相机移动
+        CameraTrackManager.SetDefalutCharaRank(BasicAttackData.Sender.Rank + 1);
         Instance.SelectBrustSkill();
     }
     public async void SelectBasicAttack()
@@ -79,8 +83,7 @@ public class SkillManager : MonoBehaviour
                 Instance.SpecialSkill.transform.GetChild(0).gameObject.SetActive(false);
                 //初始化技能点显示
                 AbilityPointManager.PredictionChangePoint(BasicAttackData.AbilityPointChange);
-                //相机移动
-                CameraTrackManager.SetDefalutCharaRank(BasicAttackData.Sender.Rank+1);
+                
 
                 for (int i = 0; i < 10; i++)
                 {
@@ -116,6 +119,7 @@ public class SkillManager : MonoBehaviour
                 //初始化技能点显示
                 AbilityPointManager.PredictionChangePoint(SpecialSkillData.AbilityPointChange);
                 //相机移动
+                //技能图标变化
                 for (int i = 0; i < 10; i++)
                 {
                     Instance.BasicAttack.GetComponent<RectTransform>().sizeDelta = Vector2.Lerp(largeSize, smallSize, i * 0.1f);

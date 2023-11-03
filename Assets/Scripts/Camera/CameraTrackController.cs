@@ -12,7 +12,7 @@ public class CameraTrackManager : MonoBehaviour
     static Vector3 defaultEular;
     private void Update()
     {
-        Vector3 biasEular = new Vector3(0, SelectManager.currentSelectTarget.FirstOrDefault().Rank, 0);
+        Vector3 biasEular = new Vector3(0, SelectManager.currentSelectTargets.FirstOrDefault().Rank, 0);
         Camera.main.transform.position = defaultPos;
         Camera.main.transform.eulerAngles =Quaternion.Lerp(Camera.main.transform.rotation,Quaternion.Euler(defaultEular+ biasEular), Time.deltaTime*5).eulerAngles ;
         //Camera.main.transform.LookAt(SelectManager.currentSelectTarget.FirstOrDefault()?.transform);

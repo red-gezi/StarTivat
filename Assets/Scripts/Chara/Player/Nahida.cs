@@ -5,18 +5,23 @@ using System.Threading.Tasks;
 using UnityEngine;
 class Nahida : Character
 {
+    //初始赋值人物数据
     private void Awake()
     {
+        MaxElementalEnergy = 100;
         MaxActionPoint = 60;
+        EnergyRecharge = 100;
+        ElementalSkillName = "拍照";
+        ElementalBurstName = "房子";
     }
-    //获得基础攻击的一些数据，如消耗/回复技能点数，类型，生效对象，镜头控制数据等
+    //配置技能的基础数据，如消耗/回复技能点数，类型，生效对象，镜头控制数据等
     public override ActionData GetBasicAttackSkillData() => new ActionData()
     {
         CurrentSkillType = SkillType.SingleTarget,
         Icon = basicAttackIcon,
         AbilityPointChange = 1,
         CurrentActionType = ActionType.BasicAttack,
-        DefaultTargets = BattleManager.charaList.Where( chara=>chara.IsEnemy).Take(1).ToList(),
+        DefaultTargets = BattleManager.charaList.Where(chara => chara.IsEnemy).Take(1).ToList(),
         IsTargetEnemy = true,
         Sender = this,
     };
@@ -40,26 +45,6 @@ class Nahida : Character
         IsTargetEnemy = true,
         Sender = this,
     };
-    public override void WaitForSelectSkill()
-    {
-        //获取技能信息图标
-        //刷新图标
-        //设置摄像机位置和角度
-        //设置选择目标类型
-        //玩家按键执行下个操作
-        SkillManager.ShowBasicAndSpecialSkill(GetBasicAttackSkillData(), GetSpecialSkillData());
-    }
-    public override void OnCharaDead()
-    {
-
-    }
-
-
-    public override List<ActionData> GetEnemySkillActionData()
-    {
-        throw new System.NotImplementedException();
-    }
-
     public override void WaitForBrustSkill()
     {
         throw new System.NotImplementedException();
@@ -68,45 +53,40 @@ class Nahida : Character
     public override async Task BasicAttackAction()
     {
         Debug.Log("纳西妲进行普通攻击");
+        AbilityPointManager.ChangePoint(GetBasicAttackSkillData().AbilityPointChange);
         //播放动作
         PlayAnimation(AnimationType.BasicAttack);
         //调整摄像机
         //
         await Task.Delay(1000);
+        CalculateHitPoints(200, SelectManager.currentSelectTarget);
+
         ActionBarManager.BasicActionCompleted();
     }
 
     public override async Task SpecialSkillAction()
     {
         Debug.Log("纳西妲使用了元素战技");
+        AbilityPointManager.ChangePoint(GetSpecialSkillData().AbilityPointChange);
         PlayAnimation(AnimationType.SpecialAttack);
         //调整摄像机
         await Task.Delay(1000);
         ActionBarManager.BasicActionCompleted();
     }
 
-    public override Task BrustSkillAction()
+    public override async Task BrustSkillAction()
     {
-        throw new System.NotImplementedException();
+        Debug.Log("纳西妲使用了元素爆发");
+        AbilityPointManager.ChangePoint(GetSpecialSkillData().AbilityPointChange);
+        PlayAnimation(AnimationType.SpecialAttack);
+        //调整摄像机
+        await Task.Delay(1000);
+        ActionBarManager.BasicActionCompleted();
     }
-
-    public override void OnCharaLightHit()
+    public override async Task EnemySkillAction()
     {
-        throw new System.NotImplementedException();
-    }
-
-    public override void OnCharaHeavyHurt()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public override void PlayAnimation(AnimationType animationType)
-    {
-        animator.CrossFade(animationType.ToString(),0.2f);
-    }
-    public override void PlayAudio(AnimationType animationType)
-    {
-        audioSource.clip = null;
-        audioSource.Play();
+        Debug.Log("纳西妲作为敌人进行攻击");
+        await Task.Delay(1000);
+        ActionBarManager.BasicActionCompleted();
     }
 }

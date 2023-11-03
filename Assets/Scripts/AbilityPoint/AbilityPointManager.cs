@@ -50,6 +50,7 @@ public class AbilityPointManager : MonoBehaviour
                     var pointIconTransform = Instance.pointIcon[i].transform;
                     pointIconTransform.GetChild(0).gameObject.SetActive(true);
                     pointIconTransform.GetChild(0).GetComponent<Image>().material.SetFloat("_IsDecrease", 0);
+                    RenderTexture.ReleaseTemporary(RenderTexture.active);
                 }
                 else
                 {
@@ -68,6 +69,7 @@ public class AbilityPointManager : MonoBehaviour
                     var pointIconTransform = Instance.pointIcon[i-1].transform;
                     pointIconTransform.GetChild(0).gameObject.SetActive(true);
                     pointIconTransform.GetChild(0).GetComponent<Image>().material.SetFloat("_IsDecrease", 1);
+                    RenderTexture.ReleaseTemporary(RenderTexture.active);
                 }
                 else
                 {
@@ -94,6 +96,7 @@ public class AbilityPointManager : MonoBehaviour
                     var pointIconTransform = Instance.pointIcon[i - 1].transform;
                     pointIconTransform.GetChild(0).gameObject.SetActive(true);
                     pointIconTransform.GetChild(0).GetComponent<Image>().material.SetFloat("_IsDecrease", 1);
+                    RenderTexture.ReleaseTemporary(RenderTexture.active);
                 }
                 Instance.pointText.text = $"<size=40><color=cyan>{currentPoint}</color></size>/";
                 await Task.Delay(500);
@@ -106,6 +109,7 @@ public class AbilityPointManager : MonoBehaviour
                     var pointIconTransform = Instance.pointIcon[i].transform;
                     pointIconTransform.GetChild(0).gameObject.SetActive(true);
                     pointIconTransform.GetChild(0).GetComponent<Image>().material.SetFloat("_IsDecrease", 0);
+                    RenderTexture.ReleaseTemporary(RenderTexture.active);
                 }
                 Instance.pointText.text = $"<size=40><color=red>{currentPoint}</color></size>/";
                 await Task.Delay(500);

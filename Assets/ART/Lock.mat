@@ -10,8 +10,6 @@ Material:
   m_Name: Lock
   m_Shader: {fileID: -6465566751694194690, guid: 9251ee9b521ec714c8522e3353032f51,
     type: 3}
-  m_Parent: {fileID: 0}
-  m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _ALPHATEST_ON
   - _SURFACE_TYPE_TRANSPARENT
@@ -24,10 +22,13 @@ Material:
     RenderType: Transparent
   disabledShaderPasses:
   - DepthOnly
-  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _SampleTexture2D_4217009f73184b9bac23c199a20e6b1e_Texture_1:
+        m_Texture: {fileID: 2800000, guid: 0bc02e879e44f8b42a0b24dee37ceada, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _SampleTexture2D_4217009f73184b9bac23c199a20e6b1e_Texture_1_Texture2D:
         m_Texture: {fileID: 2800000, guid: 0bc02e879e44f8b42a0b24dee37ceada, type: 3}
         m_Scale: {x: 1, y: 1}

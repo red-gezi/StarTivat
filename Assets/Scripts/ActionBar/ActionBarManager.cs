@@ -2,12 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 class ActionBarManager : MonoBehaviour
 {
+    static ActionBarManager Instance { get; set; }
+    public GameObject actionIconPrefab;
+    static List<GameObject> actionIcons = new();
     static List<CharaActionTurn> charaActions = new();
+    private void Awake() => Instance = this;
     internal static void Init(List<Character> charaList)
     {
+        ////清空控件条
+        //actionIcons.ForEach(Destroy);
+        //actionIcons.Clear();
+
         charaActions.Clear();
         charaActions.AddRange(charaList.Select(chara => new CharaActionTurn(chara)));
         int minActionPoint = charaActions.Min(ca => ca.CurrentActionValue);
@@ -18,28 +27,56 @@ class ActionBarManager : MonoBehaviour
     /// </summary>
     public static void RunAction()
     {
+        //刷新行动条UI
+        RefreshActionBar();
+        //执行行动条
+        charaActions.First().RunAction();
+    }
+
+    private static void RefreshActionBar()
+    {
         Debug.LogWarning("重新计算行动队列");
         int minActionPoint = charaActions.Min(ca => ca.CurrentActionValue);
         charaActions.ForEach(x => x.CurrentActionValue -= minActionPoint);
         charaActions = charaActions.OrderBy(x => x.CurrentActionValue).ToList();
+
         //刷新行动条
 
+        int currentActionCount = charaActions.Count();
+        int currentActionIconCount = actionIcons.Count();
+        //创建数量不足的项
+        for (int i = currentActionIconCount; i < currentActionCount; i++)
+        {
+           var newIcon =Instantiate(Instance.actionIconPrefab, Instance.actionIconPrefab.transform.parent);
+            newIcon.name = charaActions[i].character.name;
+            actionIcons.Add(newIcon);
+        }
+        //修改每个项可见性和外观
+        for (int i = 0 ; i < actionIcons.Count(); i++)
+        {
+            GameObject currentActionIcon = actionIcons[i];
+            currentActionIcon.SetActive(i <= currentActionCount);
+            //设置行动值
+            currentActionIcon.transform.GetChild(0).GetChild(0).GetComponent<Text>().text = charaActions[i].CurrentActionValue.ToString();
+            //设置多回合
+            //设置图标
 
 
-
-        //执行行动条
-        charaActions.First().RunAction();
+        }
     }
+
     //新增一名角色/衍生物进入行动序列
     public void AddChara(CharaActionTurn chara)//廷加一个基础行动，一般为衍生物
     {
         //charaActions.AddRange(charaList.Select(chara => new CharaAction(chara)));
+        RefreshActionBar();
     }
     //插入某个角色某个类型的某个行动
     public void AddAction(Character chara, ActionType actionType, Action action)
     {
         Debug.LogWarning("追加角色行动");
         charaActions.First().AddAction(actionType, new CharaActionTurn.CharaAction(chara, action));
+        RefreshActionBar();
     }
     public static void BasicActionCompleted()
     {

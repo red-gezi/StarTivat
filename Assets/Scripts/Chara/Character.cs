@@ -13,23 +13,21 @@ public abstract class Character : MonoBehaviour
     public AudioSource audioSource => GetComponent<AudioSource>();
     private void OnMouseDown() => SelectManager.CharaClick(this);
     public bool IsEnemy { get; set; }//是否是敌人
-    public int HealthPoints { get; set; } // 生命值
     public int MaxHealthPoints { get; set; } // 生命值上限
-    public int Attack { get; set; } // 攻击力
-    public int Defense { get; set; } // 防御力
-    public int MaxActionPoint { get; set; } // 行动力基准值
-    public int ElementalMastery { get; set; } // 元素精通
+    public int CurrentHealthPoints { get; set; } // 当前生命值
+    public int Attack { get; set; } // 基础攻击力
+    public int Defense { get; set; } // 减伤比例
+    public int MaxActionPoint { get; set; } //行动力基准值
+    public float ElementalMastery { get; set; } // 元素反应加成
     public float ElementalDamageBonus { get; set; } // 元素伤害加成
     public float EnergyRecharge { get; set; } // 元素充能效率
     public float CriticalRate { get; set; } // 暴击率
     public float CriticalDamage { get; set; } // 暴击伤害
     public float HealingBonus { get; set; } // 治疗加成
-    public float ElementalEnergy { get; set; } // 元素能量
     public float MaxElementalEnergy { get; set; } // 元素能量上限
-    public string ElementalSkill { get; set; } // 元素战技
-    public string ElementalBurst { get; set; } // 元素爆发
-
-    //public bool IsBasicActionEnd = false;
+    public float CurrentElementalEnergy { get; set; } // 当前元素能量
+    public string ElementalSkillName { get; set; } // 元素战技
+    public string ElementalBurstName { get; set; } // 元素爆发
 
     //技能图标
     public Sprite basicAttackIcon;
@@ -42,20 +40,56 @@ public abstract class Character : MonoBehaviour
     public abstract ActionData GetBasicAttackSkillData();
     public abstract ActionData GetSpecialSkillData();
     public abstract ActionData GetBrustSkillData();
-    public abstract List<ActionData> GetEnemySkillActionData();
 
-    public abstract void WaitForSelectSkill();
+    public virtual void WaitForSelectSkill()
+    {
+        if (IsEnemy)
+        {
+            EnemySkillAction();
+        }
+        else
+        {
+            SkillManager.ShowBasicAndSpecialSkill(GetBasicAttackSkillData(), GetSpecialSkillData());
+        }
+    }
     public abstract void WaitForBrustSkill();
 
-    public abstract void PlayAnimation(AnimationType animationType);
-    public abstract void PlayAudio(AnimationType animationType);
+    public virtual void PlayAnimation(AnimationType animationType)
+    {
+        animator.CrossFade(animationType.ToString(), 0.2f);
+    }
+    public virtual void PlayAudio(AnimationType animationType)
+    {
+        audioSource.clip = null;
+        audioSource.Play();
+    }
 
     public abstract Task BasicAttackAction();
     public abstract Task SpecialSkillAction();
     public abstract Task BrustSkillAction();
+    public abstract  Task EnemySkillAction();
+    /// <summary>
+    /// 当玩家受到攻击时
+    /// </summary>
+    public virtual void OnCharaHit(int point)
+    {
+        point = (int)(point * ((100 - Defense) * 0.01f));
+        //判定护盾
+        //跳盾量减少
+        //判定血量
+        //跳数字
+        if (point > MaxActionPoint * 0.2f)
+        {
 
-    public abstract void OnCharaLightHit();
-    public abstract void OnCharaHeavyHurt();
+        }
+        else
+        {
+
+        }
+    }
+    /// <summary>
+    /// 当敌人受到攻击时
+    /// </summary>
     public virtual void OnEnemyHit() { }
     public virtual void OnCharaDead() { }
     public virtual void OnEnemyDead() { }
@@ -68,14 +102,11 @@ public abstract class Character : MonoBehaviour
     /// <param name="DamageMultipler"></param>
     /// <param name="target"></param>
     /// <returns></returns>
-    float CalculateHitPoints(int DamageMultipler, Character target)
+    public float CalculateHitPoints(int DamageMultipler, Character target)
     {
         bool isCritical = Random.Range(0f, 100f) > CriticalRate;
-        float point =
-            Attack
-            * ((100 + CriticalDamage) * 0.01f)
-            * ((100 - target.Defense) * 0.01f);
+        float point = Attack * ((100 + CriticalDamage) * 0.01f);
         return point;
     }
-    
+
 }
