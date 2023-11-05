@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 public abstract class Character : MonoBehaviour
 {
+    [HideInInspector]
     public GameObject model;
     public GameObject largeLock;
     public GameObject smallLock;
@@ -33,9 +34,10 @@ public abstract class Character : MonoBehaviour
     public Sprite basicAttackIcon;
     public Sprite specialSkillIcon;
     public Sprite brustSkillIcon;
+    public Sprite charaIcon;
 
     //在行动条上的图标
-    public Sprite actionBarIcon;
+    public Sprite turnIcon;
 
     public abstract ActionData GetBasicAttackSkillData();
     public abstract ActionData GetSpecialSkillData();

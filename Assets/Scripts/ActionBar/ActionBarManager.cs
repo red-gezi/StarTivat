@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -56,10 +57,14 @@ class ActionBarManager : MonoBehaviour
         {
             GameObject currentActionIcon = actionIcons[i];
             currentActionIcon.SetActive(i <= currentActionCount);
+           
+            //设置敌我标识
+            currentActionIcon.transform.GetChild(2).GetComponent<Image>().color = charaActions[i].character.IsEnemy?Color.red:Color.cyan;
             //设置行动值
-            currentActionIcon.transform.GetChild(0).GetChild(0).GetComponent<Text>().text = charaActions[i].CurrentActionValue.ToString();
+            currentActionIcon.transform.GetChild(3).GetChild(0).GetComponent<TextMeshProUGUI>().text = charaActions[i].CurrentActionValue.ToString();
             //设置多回合
             //设置图标
+            currentActionIcon.transform.GetChild(1).GetChild(0).GetComponent<Image>().sprite = charaActions[i].character.turnIcon;
 
 
         }
@@ -177,7 +182,7 @@ class ActionBarManager : MonoBehaviour
 
             public CharaAction(Character character, Action action)
             {
-                charaSprite = character.actionBarIcon;
+                charaSprite = character.turnIcon;
                 skillAction = action;
             }
         }

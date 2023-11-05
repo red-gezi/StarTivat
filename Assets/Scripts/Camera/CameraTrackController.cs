@@ -13,7 +13,7 @@ public class CameraTrackManager : MonoBehaviour
     private void Update()
     {
         Vector3 biasEular = new Vector3(0, SelectManager.currentSelectTargets.FirstOrDefault().Rank, 0);
-        Camera.main.transform.position = defaultPos;
+        //Camera.main.transform.position = defaultPos;
         Camera.main.transform.eulerAngles =Quaternion.Lerp(Camera.main.transform.rotation,Quaternion.Euler(defaultEular+ biasEular), Time.deltaTime*5).eulerAngles ;
         //Camera.main.transform.LookAt(SelectManager.currentSelectTarget.FirstOrDefault()?.transform);
     }
@@ -28,22 +28,15 @@ public class CameraTrackManager : MonoBehaviour
     [Button("设置点位")]
     public static void SetDefalutCharaRank(int rank)
     {
-        defaultPos = rank switch
-        {
-            1 => new Vector3(-2.5f, 1.4f, -2f),
-            2 => new Vector3(2f, 1.4f, -2f),
-            3 => new Vector3(2.5f, 1.4f, -2f),
-            4 => new Vector3(4.5f, 1.4f, 0f),
-            _ => Vector3.zero,
-        };
-        defaultEular = rank switch
-        {
-            1 => new Vector3(10, 370, 5),
-            2 => new Vector3(10, 340, 5),
-            3 => new Vector3(10, 340, 5),
-            4 => new Vector3(10, 310, 5),
-            _ => Vector3.zero,
-        };
+        //defaultPos = rank switch
+        //{
+        //    1 => new Vector3(-2.5f, 1.4f, -2f),
+        //    2 => new Vector3(2f, 1.4f, -2f),
+        //    3 => new Vector3(2.5f, 1.4f, -2f),
+        //    4 => new Vector3(4.5f, 1.4f, 0f),
+        //    _ => Vector3.zero,
+        //};
+        defaultEular = new Vector3(11, 350, 2);
         Camera.main.transform.eulerAngles = defaultEular + new Vector3(0, 10, 0);
     }
 }

@@ -98,7 +98,7 @@ public class AbilityPointManager : MonoBehaviour
                     pointIconTransform.GetChild(0).GetComponent<Image>().material.SetFloat("_IsDecrease", 1);
                     RenderTexture.ReleaseTemporary(RenderTexture.active);
                 }
-                Instance.pointText.text = $"<size=40><color=cyan>{currentPoint}</color></size>/";
+                Instance.pointText.text = $"<size=40><color=red>{currentPoint}</color></size>/";
                 await Task.Delay(500);
                 Instance.pointText.text = $"<size=40><color=white>{currentPoint}</color></size>/";
             }
@@ -111,7 +111,7 @@ public class AbilityPointManager : MonoBehaviour
                     pointIconTransform.GetChild(0).GetComponent<Image>().material.SetFloat("_IsDecrease", 0);
                     RenderTexture.ReleaseTemporary(RenderTexture.active);
                 }
-                Instance.pointText.text = $"<size=40><color=red>{currentPoint}</color></size>/";
+                Instance.pointText.text = $"<size=40><color=blue>{currentPoint}</color></size>/";
                 await Task.Delay(500);
                 Instance.pointText.text = $"<size=40><color=white>{currentPoint}</color></size>/";
             }

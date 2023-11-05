@@ -43,13 +43,12 @@ class Qiuqiu : Character
         throw new System.NotImplementedException();
     }
 
-    public override void WaitForSelectSkill()
+    public override async Task EnemySkillAction()
     {
-       
-    }
-
-    public override Task EnemySkillAction()
-    {
-        throw new System.NotImplementedException();
+        Debug.Log("丘丘人使用了随机攻击");
+        PlayAnimation(AnimationType.SpecialAttack);
+        //调整摄像机
+        await Task.Delay(1000);
+        ActionBarManager.BasicActionCompleted();
     }
 }

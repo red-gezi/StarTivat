@@ -1,20 +1,27 @@
 using Sirenix.OdinInspector;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
-
+//管理场上人物、位置数据
 public class BattleManager : MonoBehaviour
 {
     public static BattleManager Instance;
+    //登场双方战前配置
     public List<PlayerType> players;
     public List<EnemyType> enemies;
+    //登场双方模型预制体
     public List<GameObject> playerPrefebs;
     public List<GameObject> enemyPrefebs;
-    //当前战场上的角色集合
+    //登场双方集合
     public static List<Character> charaList = new();
+    public static List<Character> PlayerList => charaList.Where(chara => !chara.IsEnemy).ToList();
+    public static List<Character> EnemyList => charaList.Where(chara => chara.IsEnemy).ToList();
+    //站位配置
+    static float playerDistance = 2f;
+    static float PlayerOffset => (PlayerList.Count - 1) * playerDistance / 2f;
+    static float enemyDistance = 1.5f;
+    static float EnemyOffset => (EnemyList.Count - 1) * enemyDistance / 2f;
 
     private void Awake() => Instance = this;
     private void Start()
@@ -37,20 +44,16 @@ public class BattleManager : MonoBehaviour
     public void InitChara(List<PlayerType> playerList, List<EnemyType> enemyList)
     {
         charaList.Clear();
-        var playerDistance = 2f;
-        var playerOffset = (playerList.Count - 1) * playerDistance / 2f;
-        var enemyDistance = 1.5f;
-        var enemyOffset = (enemyList.Count - 1) * enemyDistance / 2f;
+        //根据配置创造场上人物
         for (int i = 0; i < playerList.Count; i++)
         {
             var charaName = playerList[i].ToString();
             GameObject charaModel = playerPrefebs.FirstOrDefault(prefeb => prefeb.name == playerList[i].ToString());
             GameObject chara = Instantiate(charaModel, charaModel.transform.parent);
-            chara.name = charaModel.name+ $"站位:{i + 1}";
+            chara.name = charaModel.name + $"站位:{i + 1}";
             chara.SetActive(true);
-            float x = i * playerDistance - playerOffset;
-            chara.transform.position = new Vector3(x, 0, -0.5f * MathF.Cos(x));
             Character charaScript = chara.GetComponent<Character>();
+            charaScript.model = chara;
             charaScript.IsEnemy = false;
             charaList.Add(charaScript);
         }
@@ -61,11 +64,33 @@ public class BattleManager : MonoBehaviour
             GameObject chara = Instantiate(charaModel, charaModel.transform.parent);
             chara.name = charaModel.name + $"站位:{i + 1}";
             chara.SetActive(true);
-            float x = i * enemyDistance - enemyOffset;
-            chara.transform.position = new Vector3(x, 0, 5 + 0.5f * MathF.Cos(x));
             Character charaScript = chara.GetComponent<Character>();
+            charaScript.model = chara;
             charaScript.IsEnemy = true;
             charaList.Add(charaScript);
         }
+        RefreshCharaPos(0);
     }
+    [Button("刷新位置")]
+    //根据当前站位索引刷新场上人物位置
+    public static void RefreshCharaPos(int rank)
+    {
+        //刷新玩家角色
+        for (int i = 0; i < PlayerList.Count; i++)
+        {
+            GameObject chara = PlayerList[i].model;
+            float x = i * playerDistance - PlayerOffset - ((rank - 1) * playerDistance);
+            float z = rank == i ? 0 : -2;
+            chara.transform.position = new Vector3(x, 0, z);
+        }
+        //刷新敌人角色
+        for (int i = 0; i < EnemyList.Count; i++)
+        {
+            GameObject chara = EnemyList[i].model;
+            float x = i * enemyDistance - EnemyOffset;
+            chara.transform.position = new Vector3(x, 0, 6 + 0.5f * MathF.Cos(x));
+            chara.transform.forward = PlayerList[rank].transform.position - chara.transform.position;
+        }
+    }
+
 }

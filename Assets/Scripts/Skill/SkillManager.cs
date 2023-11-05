@@ -46,7 +46,8 @@ public class SkillManager : MonoBehaviour
         Instance.SpecialSkill.transform.GetChild(0).GetChild(0).GetComponent<Text>().text = GetSkillTypeText(specialSkillData);
         Instance.BrustSkill.SetActive(false);
         //相机移动
-        CameraTrackManager.SetDefalutCharaRank(BasicAttackData.Sender.Rank + 1);
+        BattleManager.RefreshCharaPos(BasicAttackData.Sender.Rank);
+        CameraTrackManager.SetDefalutCharaRank(BasicAttackData.Sender.Rank);
         //进入选择普攻模式
         Instance.SelectBasicAttack();
     }
@@ -68,9 +69,11 @@ public class SkillManager : MonoBehaviour
         {
             if (currentActionType == ActionType.BasicAttack)
             {
+                //关闭技能选择
+                Close();
+                Instance.currentActionType = ActionType.None;
                 //如果当前已选择BasicAttack，则直接触发攻击
                 await BasicAttackData.Sender.BasicAttackAction();
-                Instance.currentActionType = ActionType.None;
             }
             else
             {
@@ -83,7 +86,7 @@ public class SkillManager : MonoBehaviour
                 Instance.SpecialSkill.transform.GetChild(0).gameObject.SetActive(false);
                 //初始化技能点显示
                 AbilityPointManager.PredictionChangePoint(BasicAttackData.AbilityPointChange);
-                
+
 
                 for (int i = 0; i < 10; i++)
                 {
@@ -104,9 +107,11 @@ public class SkillManager : MonoBehaviour
         {
             if (currentActionType == ActionType.SpecialSkill)
             {
+                //关闭技能选择
+                Close();
                 //如果当前已选择SpecialSkill，则直接触发攻击
-                await SpecialSkillData.Sender.SpecialSkillAction();
                 Instance.currentActionType = ActionType.None;
+                await SpecialSkillData.Sender.SpecialSkillAction();
             }
             else
             {
