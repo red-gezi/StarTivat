@@ -6,14 +6,36 @@ using UnityEngine;
 public abstract class Character : MonoBehaviour
 {
     [HideInInspector]
+    //角色类对应的模型
     public GameObject model;
+    //////////////////////////////////////////////////角色图标////////////////////////////////////////////////////////////////////////////
+    //锁定图标
+    [Header("大锁定图标")]
     public GameObject largeLock;
+    [Header("小锁定图标")]
     public GameObject smallLock;
-    public int Rank => BattleManager.charaList.Where(chara => chara.IsEnemy == IsEnemy).ToList().IndexOf(this);
-    public Animator animator => GetComponent<Animator>();
-    public AudioSource audioSource => GetComponent<AudioSource>();
-    private void OnMouseDown() => SelectManager.CharaClick(this);
+    //技能图标
+    public Sprite basicAttackIcon;
+    public Sprite specialSkillIcon;
+    public Sprite brustSkillIcon;
+    public Sprite charaIcon;
+    //在行动条上的图标
+    public Sprite turnIcon;
+    //////////////////////////////////////////////////角色相关信息////////////////////////////////////////////////////////////////////////////
     public bool IsEnemy { get; set; }//是否是敌人
+    //角色在自身排位置
+    public int Rank => BattleManager.charaList.Where(chara => chara.IsEnemy == IsEnemy).ToList().IndexOf(this);
+    //角色左侧的角色，可能为null
+    public Character Left => BattleManager.charaList.FirstOrDefault(chara => chara.IsEnemy == IsEnemy && chara.Rank == Rank - 1);
+    //角色右侧的角色，可能为null
+    public Character Right => BattleManager.charaList.FirstOrDefault(chara => chara.IsEnemy == IsEnemy && chara.Rank == Rank + 1);
+    //动画控制器
+    public Animator animator => GetComponent<Animator>();
+    //声音控制器
+    public AudioSource audioSource => GetComponent<AudioSource>();
+    //点击模型触发选中效果
+    private void OnMouseDown() => SelectManager.CharaClick(this);
+    //////////////////////////////////////////////////角色基础属性////////////////////////////////////////////////////////////////////////////
     public int MaxHealthPoints { get; set; } // 生命值上限
     public int CurrentHealthPoints { get; set; } // 当前生命值
     public int Attack { get; set; } // 基础攻击力
@@ -29,20 +51,16 @@ public abstract class Character : MonoBehaviour
     public float CurrentElementalEnergy { get; set; } // 当前元素能量
     public string ElementalSkillName { get; set; } // 元素战技
     public string ElementalBurstName { get; set; } // 元素爆发
-
-    //技能图标
-    public Sprite basicAttackIcon;
-    public Sprite specialSkillIcon;
-    public Sprite brustSkillIcon;
-    public Sprite charaIcon;
-
-    //在行动条上的图标
-    public Sprite turnIcon;
-
+    //////////////////////////////////////////////////角色技能的相关配置信息////////////////////////////////////////////////////////////////////////////
     public abstract ActionData GetBasicAttackSkillData();
     public abstract ActionData GetSpecialSkillData();
     public abstract ActionData GetBrustSkillData();
-
+    //////////////////////////////////////////////////角色技能的具体流程////////////////////////////////////////////////////////////////////////////
+    public abstract Task BasicAttackAction();
+    public abstract Task SpecialSkillAction();
+    public abstract Task BrustSkillAction();
+    public abstract Task EnemySkillAction();
+    //////////////////////////////////////////////////等待技能选择////////////////////////////////////////////////////////////////////////////
     public virtual void WaitForSelectSkill()
     {
         if (IsEnemy)
@@ -65,11 +83,7 @@ public abstract class Character : MonoBehaviour
         audioSource.clip = null;
         audioSource.Play();
     }
-
-    public abstract Task BasicAttackAction();
-    public abstract Task SpecialSkillAction();
-    public abstract Task BrustSkillAction();
-    public abstract  Task EnemySkillAction();
+    //////////////////////////////////////////////////游戏事件相应////////////////////////////////////////////////////////////////////////////
     /// <summary>
     /// 当玩家受到攻击时
     /// </summary>
@@ -99,7 +113,7 @@ public abstract class Character : MonoBehaviour
     public virtual void OnEnemyRevived() { }
     ///////////////////////////计算公式//////////////////////////////
     /// <summary>
-    /// 输入伤害倍率和目标，根据当前玩家的攻击力、暴击、爆伤、对方防御力和双方的状态、buff等决定伤害
+    /// 输入伤害倍率和目标，根据当前玩家的攻击力、暴击、爆伤、buff、debuff等决定伤害
     /// </summary>
     /// <param name="DamageMultipler"></param>
     /// <param name="target"></param>
@@ -110,5 +124,4 @@ public abstract class Character : MonoBehaviour
         float point = Attack * ((100 + CriticalDamage) * 0.01f);
         return point;
     }
-
 }

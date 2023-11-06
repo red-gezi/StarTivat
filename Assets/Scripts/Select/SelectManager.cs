@@ -25,6 +25,10 @@ public class SelectManager : MonoBehaviour
         //启动目标模型的大框
         currentSelectTargets.ForEach(chara => chara.largeLock.SetActive(true));
         //若果是扩散，启动两侧模型的小框
+        if (currentActionData.CurrentSkillType== SkillType.Diffusion)
+        {
+            currentSelectTarget
+        }
     }
 
     //结束选择模式
