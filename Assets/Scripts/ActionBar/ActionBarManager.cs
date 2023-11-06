@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,6 +10,7 @@ class ActionBarManager : MonoBehaviour
 {
     static ActionBarManager Instance { get; set; }
     public GameObject actionIconPrefab;
+    public GameObject actionBar;
     static List<GameObject> actionIcons = new();
     static List<CharaActionTurn> charaActions = new();
     private void Awake() => Instance = this;
@@ -34,32 +36,31 @@ class ActionBarManager : MonoBehaviour
         charaActions.First().RunAction();
     }
 
-    private static void RefreshActionBar()
+    private static async void RefreshActionBar()
     {
         Debug.LogWarning("重新计算行动队列");
         int minActionPoint = charaActions.Min(ca => ca.CurrentActionValue);
         charaActions.ForEach(x => x.CurrentActionValue -= minActionPoint);
         charaActions = charaActions.OrderBy(x => x.CurrentActionValue).ToList();
 
-        //刷新行动条
 
         int currentActionCount = charaActions.Count();
         int currentActionIconCount = actionIcons.Count();
         //创建数量不足的项
         for (int i = currentActionIconCount; i < currentActionCount; i++)
         {
-           var newIcon =Instantiate(Instance.actionIconPrefab, Instance.actionIconPrefab.transform.parent);
+            var newIcon = Instantiate(Instance.actionIconPrefab, Instance.actionIconPrefab.transform.parent);
             newIcon.name = charaActions[i].character.name;
             actionIcons.Add(newIcon);
         }
         //修改每个项可见性和外观
-        for (int i = 0 ; i < actionIcons.Count(); i++)
+        for (int i = 0; i < actionIcons.Count(); i++)
         {
             GameObject currentActionIcon = actionIcons[i];
             currentActionIcon.SetActive(i <= currentActionCount);
-           
+
             //设置敌我标识
-            currentActionIcon.transform.GetChild(2).GetComponent<Image>().color = charaActions[i].character.IsEnemy?Color.red:Color.cyan;
+            currentActionIcon.transform.GetChild(2).GetComponent<Image>().color = charaActions[i].character.IsEnemy ? Color.red : Color.cyan;
             //设置行动值
             currentActionIcon.transform.GetChild(3).GetChild(0).GetComponent<TextMeshProUGUI>().text = charaActions[i].CurrentActionValue.ToString();
             //设置多回合
@@ -67,6 +68,13 @@ class ActionBarManager : MonoBehaviour
             currentActionIcon.transform.GetChild(1).GetChild(0).GetComponent<Image>().sprite = charaActions[i].character.turnIcon;
 
 
+        }
+        //刷新行动条
+        for (int i = 0; i < 65; i++)
+        {
+            Instance.actionBar.GetComponent<GridLayoutGroup>().padding = new RectOffset(0, 0, 65 - i, 0);
+            LayoutRebuilder.MarkLayoutForRebuild(Instance.transform as RectTransform);
+            await Task.Delay(2);
         }
     }
 
@@ -113,7 +121,7 @@ class ActionBarManager : MonoBehaviour
         public void RunAction()
         {
             Debug.Log($"判定当前玩家{character.name}行动,额外回合数|{ExternActions.Count},大招回合数{BrustActions.Count}");
-            Debug.Log($"当前队列{charaActions.Select(action => $"{ action.character.gameObject.name}:剩余行动力：{ action.CurrentActionValue}/总行动力：{action.BasicActionValue}").ToJson()}");
+            Debug.Log($"当前队列{charaActions.Select(action => $"{action.character.gameObject.name}:剩余行动力：{action.CurrentActionValue}/总行动力：{action.BasicActionValue}").ToJson()}");
             //如果额外回合有无行动，则按顺序执行额外回合的
             if (ExternActions.Any())
             {

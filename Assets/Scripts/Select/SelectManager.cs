@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class SelectManager : MonoBehaviour
@@ -18,16 +19,44 @@ public class SelectManager : MonoBehaviour
         RefreshLock();
     }
 
-    private static void RefreshLock()
+    private static async void RefreshLock()
     {
         BattleManager.charaList.ForEach(chara => chara.largeLock.SetActive(false));
         BattleManager.charaList.ForEach(chara => chara.smallLock.SetActive(false));
         //启动目标模型的大框
         currentSelectTargets.ForEach(chara => chara.largeLock.SetActive(true));
+        _ = ChangeLargeLockSize();
         //若果是扩散，启动两侧模型的小框
-        if (currentActionData.CurrentSkillType== SkillType.Diffusion)
+        if (currentActionData.CurrentSkillType == SkillType.Diffusion)
         {
-            currentSelectTarget
+            currentSelectTarget.Left?.smallLock.SetActive(true);
+            currentSelectTarget.Right?.smallLock.SetActive(true);
+            _ = ChangeSmallLockSize();
+        }
+
+        static async Task ChangeLargeLockSize()
+        {
+            for (int i = 10; i > 0; i--)
+            {
+                currentSelectTargets.ForEach(chara => chara.largeLock.transform.parent.localScale = Vector3.one * (i * 0.1f + 1));
+                await Task.Delay(10);
+            }
+        }
+
+        static async Task ChangeSmallLockSize()
+        {
+            for (int i = 10; i > 0; i--)
+            {
+                if (currentSelectTarget.Left != null)
+                {
+                    currentSelectTarget.Left.smallLock.transform.parent.localScale = Vector3.one * (i * 0.1f + 1);
+                }
+                if (currentSelectTarget.Right != null)
+                {
+                    currentSelectTarget.Right.smallLock.transform.parent.localScale = Vector3.one * (i * 0.1f + 1);
+                }
+                await Task.Delay(10);
+            }
         }
     }
 

@@ -22,11 +22,11 @@ class Traveler : Character
     };
     public override ActionData GetSpecialSkillData() => new ActionData()
     {
-        CurrentSkillType = SkillType.SingleTarget,
+        CurrentSkillType = SkillType.Diffusion,
         Icon = specialSkillIcon,
         AbilityPointChange = -2,
         CurrentActionType = ActionType.SpecialSkill,
-        DefaultTargets = BattleManager.charaList.Where(chara => chara.IsEnemy).ToList(),
+        DefaultTargets = BattleManager.charaList.Where(chara => chara.IsEnemy).Skip(2).Take(1).ToList(),
         IsTargetEnemy = true,
         Sender = this,
     };
