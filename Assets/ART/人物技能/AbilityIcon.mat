@@ -46,6 +46,8 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _BgStrength: 0.29
+    - _Energy: 0.625
     - _Float: 2.68
     - _QueueControl: 0
     - _QueueOffset: 0
