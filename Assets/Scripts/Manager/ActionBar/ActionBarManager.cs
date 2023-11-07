@@ -79,13 +79,13 @@ class ActionBarManager : MonoBehaviour
     }
 
     //新增一名角色/衍生物进入行动序列
-    public void AddChara(CharaActionTurn chara)//廷加一个基础行动，一般为衍生物
+    public static void AddChara(CharaActionTurn chara)//廷加一个基础行动，一般为衍生物
     {
         //charaActions.AddRange(charaList.Select(chara => new CharaAction(chara)));
         RefreshActionBar();
     }
     //插入某个角色某个类型的某个行动
-    public void AddAction(Character chara, ActionType actionType, Action action)
+    public static void AddAction(Character chara, ActionType actionType, Action action)
     {
         Debug.LogWarning("追加角色行动");
         charaActions.First().AddAction(actionType, new CharaActionTurn.CharaAction(chara, action));

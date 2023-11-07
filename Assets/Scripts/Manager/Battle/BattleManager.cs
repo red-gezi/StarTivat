@@ -92,5 +92,4 @@ public class BattleManager : MonoBehaviour
             chara.transform.forward = PlayerList[rank].transform.position - chara.transform.position;
         }
     }
-
 }
