@@ -28,15 +28,9 @@ class ActionBarManager : MonoBehaviour
     /// <summary>
     /// 排序行动队列，触发首个目标
     /// </summary>
-    public static void RunAction()
-    {
-        //刷新行动条UI
-        RefreshActionBar();
-        //执行行动条
-        charaActions.First().RunAction();
-    }
+    public static void RunAction() => charaActions.First().RunAction();
 
-    private static async void RefreshActionBar()
+    private static async void RefreshActionBar(bool isNeedRefreshRank=false)
     {
         Debug.LogWarning("重新计算行动队列");
         int minActionPoint = charaActions.Min(ca => ca.CurrentActionValue);
@@ -63,18 +57,26 @@ class ActionBarManager : MonoBehaviour
             currentActionIcon.transform.GetChild(2).GetComponent<Image>().color = charaActions[i].character.IsEnemy ? Color.red : Color.cyan;
             //设置行动值
             currentActionIcon.transform.GetChild(3).GetChild(0).GetComponent<TextMeshProUGUI>().text = charaActions[i].CurrentActionValue.ToString();
-            //设置多回合
+            
+            //设置回合多操作
+            //计算当前回合操作数
+            int actionCount= charaActions[i].ExternActions.Count()+ charaActions[i].BrustActions.Count()+ charaActions[i].BasicActionState==2?0:1;
+            //设置操作控件
+
             //设置图标
             currentActionIcon.transform.GetChild(1).GetChild(0).GetComponent<Image>().sprite = charaActions[i].character.turnIcon;
 
 
         }
-        //刷新行动条
-        for (int i = 0; i < 65; i++)
+        if (isNeedRefreshRank)
         {
-            Instance.actionBar.GetComponent<GridLayoutGroup>().padding = new RectOffset(0, 0, 65 - i, 0);
-            LayoutRebuilder.MarkLayoutForRebuild(Instance.transform as RectTransform);
-            await Task.Delay(2);
+            //刷新行动条
+            for (int i = 0; i < 65; i++)
+            {
+                Instance.actionBar.GetComponent<GridLayoutGroup>().padding = new RectOffset(0, 0, 65 - i, 0);
+                LayoutRebuilder.MarkLayoutForRebuild(Instance.transform as RectTransform);
+                await Task.Delay(2);
+            }
         }
     }
 
@@ -94,7 +96,7 @@ class ActionBarManager : MonoBehaviour
     public static void BasicActionCompleted()
     {
         Debug.LogWarning("当前行动回合已完成基础行动");
-        charaActions.First().BasicActionCompleted = true;
+        charaActions.First().BasicActionState = 2;
         RunAction();
     }
     public class CharaActionTurn
@@ -102,7 +104,8 @@ class ActionBarManager : MonoBehaviour
         //行动格主体
         public Character character;
         public bool isTemp = false;
-        public bool BasicActionCompleted = false;
+        //0是未执行，1是执行中，2是执行完成
+        public int BasicActionState = 0;
         public string name = "";
         public int BasicActionValue { get; set; } = 0;
         public int CurrentActionValue { get; set; } = 0;
@@ -122,6 +125,8 @@ class ActionBarManager : MonoBehaviour
         {
             Debug.Log($"判定当前玩家{character.name}行动,额外回合数|{ExternActions.Count},大招回合数{BrustActions.Count}");
             Debug.Log($"当前队列{charaActions.Select(action => $"{action.character.gameObject.name}:剩余行动力：{action.CurrentActionValue}/总行动力：{action.BasicActionValue}").ToJson()}");
+            //是否需要改变顺序
+            bool isNeedRefreshRank = false;
             //如果额外回合有无行动，则按顺序执行额外回合的
             if (ExternActions.Any())
             {
@@ -136,19 +141,21 @@ class ActionBarManager : MonoBehaviour
                 BrustActions.Dequeue().skillAction();
             }
             //如果额外回合，爆发回合都为空，且普通行动未执行完，则执行该回合基础行动
-            else if (!BasicActionCompleted)
+            else if (BasicActionState==0)
             {
                 Debug.Log("进行了主回合操作");
-
+                BasicActionState = 1;
                 BasicAction.skillAction();
-                BasicActionCompleted = true;
             }
             //如果额外回合，爆发回合都为空，且普通行动执行完，则结束该人物回合
             else
             {
+                isNeedRefreshRank = true;
                 Debug.Log("操作都已执行完毕，跳过回合");
                 EndAction();
             }
+            //刷新行动条UI
+            RefreshActionBar(isNeedRefreshRank);
         }
         //首先插入普通行动
         public void AddAction(ActionType skillType, CharaActionTurn.CharaAction action)
@@ -179,7 +186,7 @@ class ActionBarManager : MonoBehaviour
             //如果存在依附主体，行动者buff回合减一，并重置行动值
             //否则直接消除该回合
             //如果所属角色存活，重置点数
-            BasicActionCompleted = false;
+            BasicActionState = 0;
             CurrentActionValue = BasicActionValue;
             ActionBarManager.RunAction();
         }
