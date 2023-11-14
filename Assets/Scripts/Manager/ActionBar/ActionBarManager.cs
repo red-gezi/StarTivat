@@ -64,7 +64,7 @@ class ActionBarManager : MonoBehaviour
             //设置操作控件
 
             //设置图标
-            currentActionIcon.transform.GetChild(1).GetChild(0).GetComponent<Image>().sprite = charaActions[i].character.turnIcon;
+            currentActionIcon.transform.GetChild(1).GetChild(0).GetComponent<Image>().sprite = charaActions[i].character.charaIcon;
 
 
         }
@@ -197,7 +197,7 @@ class ActionBarManager : MonoBehaviour
 
             public CharaAction(Character character, Action action)
             {
-                charaSprite = character.turnIcon;
+                charaSprite = character.charaIcon;
                 skillAction = action;
             }
         }

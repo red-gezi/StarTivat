@@ -8,6 +8,8 @@ class Anber : Character
     private void Awake()
     {
         MaxActionPoint = 60;
+        PlayerElement = ElementType.Pyro;
+
     }
     //配置技能的基础数据，如消耗/回复技能点数，类型，生效对象，镜头控制数据等
     public override ActionData GetBasicAttackSkillData() => new ActionData()

@@ -13,6 +13,7 @@ class Nahida : Character
         EnergyRecharge = 100;
         ElementalSkillName = "拍照";
         ElementalBurstName = "房子";
+        PlayerElement = ElementType.Dendro;
     }
     //配置技能的基础数据，如消耗/回复技能点数，类型，生效对象，镜头控制数据等
     public override ActionData GetBasicAttackSkillData() => new ActionData()

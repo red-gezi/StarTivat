@@ -47,12 +47,12 @@ Material:
     m_Ints: []
     m_Floats:
     - _BgStrength: 0.29
-    - _Energy: 0.625
+    - _Energy: 1
     - _Float: 2.68
     - _QueueControl: 0
     - _QueueOffset: 0
     m_Colors:
-    - _Color: {r: 0.94961476, g: 6.86313, b: 0.9852385, a: 0}
+    - _Color: {r: 8, g: 8, b: 8, a: 1}
   m_BuildTextureStacks: []
 --- !u!114 &7258219161577311284
 MonoBehaviour:

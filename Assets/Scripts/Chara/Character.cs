@@ -10,17 +10,17 @@ public abstract class Character : MonoBehaviour
     public GameObject model;
     //////////////////////////////////////////////////角色图标////////////////////////////////////////////////////////////////////////////
     //锁定图标
-    [Header("大锁定图标")]
+    [Header("锁定图标")]
     public GameObject largeLock;
-    [Header("小锁定图标")]
     public GameObject smallLock;
     //技能图标
+    [Header("技能图标")]
     public Sprite basicAttackIcon;
     public Sprite specialSkillIcon;
     public Sprite brustSkillIcon;
+    //在行动条与角色面板上的图标
     public Sprite charaIcon;
-    //在行动条上的图标
-    public Sprite turnIcon;
+    
     //////////////////////////////////////////////////角色相关信息////////////////////////////////////////////////////////////////////////////
     public bool IsEnemy { get; set; }//是否是敌人
     //角色在自身排位置
@@ -51,6 +51,7 @@ public abstract class Character : MonoBehaviour
     public float CurrentElementalEnergy { get; set; } // 当前元素能量
     public string ElementalSkillName { get; set; } // 元素战技
     public string ElementalBurstName { get; set; } // 元素爆发
+    public ElementType PlayerElement { get; set; }
     //////////////////////////////////////////////////角色技能的相关配置信息////////////////////////////////////////////////////////////////////////////
     public abstract ActionData GetBasicAttackSkillData();
     public abstract ActionData GetSpecialSkillData();
