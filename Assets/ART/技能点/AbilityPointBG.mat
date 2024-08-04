@@ -65,7 +65,7 @@ Material:
     m_Floats:
     - _Float: 2
     - _IsAdd: 0
-    - _IsDecrease: 1
+    - _IsDecrease: 0
     - _QueueControl: 0
     - _QueueOffset: -50
     m_Colors:

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -28,7 +27,7 @@ class CharaBoardManager : MonoBehaviour
             //开启需要数量的角色面板
             charaBoardList[i].SetActive(true);
             //设置角色图标
-            charaBoardList[i].transform.GetChild(0).GetComponent<Image>().sprite = BattleManager.PlayerList[i].charaIcon;
+            charaBoardList[i].transform.GetChild(0).GetComponent<Image>().sprite = BattleManager.PlayerList[i].miniCharaIcon;
             //设置元素爆发图标
             charaBoardList[i].transform.GetChild(1).GetComponent<Image>().sprite = BattleManager.PlayerList[i].brustSkillIcon;
             //设置元素爆发图标边缘颜色
@@ -38,13 +37,13 @@ class CharaBoardManager : MonoBehaviour
                 ElementType.Anemo => Color.green,
                 ElementType.Pyro => Color.red,
                 ElementType.Hydro => Color.blue,
-                ElementType.Electro => new Color(1,0,1),
+                ElementType.Electro => new Color(1, 0, 1),
                 ElementType.Cryo => Color.cyan,
                 ElementType.Geo => Color.yellow,
-                ElementType.Dendro => Color.green,
+                ElementType.Herb => Color.green,
                 _ => Color.white
-            }*3;
-           
+            } * 3;
+
         }
     }
     public static void Refresh()

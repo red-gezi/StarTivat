@@ -1,15 +1,17 @@
 ﻿public enum AnimationType
 {
-    Idle,                   // 待机
-    BasicAttack,            // 切换到普功
-    SpecialAttack,          // 切换到战技
-    UltimateAttack,         // 触发大招
-    NormalAttack,           // 普通攻击
-    ElementalSkill,         // 元素战技
-    ElementalBurst,         // 元素爆发
-    LightHit,               // 受到轻击
-    HeavyHit,               // 受到重击
-    Controlled,             // 被控制
-    Defeated,               // 倒下
-    Revive                  // 复活
+    Idle,          //待机
+    Attack_Pose,   //切换到普功
+    Skill_Pose,    //切换到战技
+    Burst_Pose,    //触发大招
+    Attack,        //普通攻击
+    Skill,         //元素战技
+    Burst,         //元素爆发
+    LightHit,      //受到轻击
+    HeavyHit,      //受到重击
+    Controlled,    //被控制
+    Defeated,      //倒下
+    Revive,        //复活
+    World_Attack,  //大世界攻击
+    World_Skill,   //大世界技能
 }

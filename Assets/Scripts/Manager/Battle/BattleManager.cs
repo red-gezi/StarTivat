@@ -39,9 +39,14 @@ public class BattleManager : MonoBehaviour
         CharaBoardManager.Init();
         //初始化行动条
         ActionBarManager.Init(charaList);
-        //开始行动
-        ActionBarManager.RunAction();
+        //初始技能点
+        AbilityPointManager.Init();
+        //通知战斗开始
 
+        //敌方目标巡视
+
+        //激活行动条
+        ActionBarManager.RunAction();
     }
     public void InitChara(List<PlayerType> playerList, List<EnemyType> enemyList)
     {
@@ -57,6 +62,7 @@ public class BattleManager : MonoBehaviour
             Character charaScript = chara.GetComponent<Character>();
             charaScript.model = chara;
             charaScript.IsEnemy = false;
+            //charaScript.RefreshElementsUI();
             charaList.Add(charaScript);
         }
         for (int i = 0; i < enemyList.Count; i++)
@@ -69,15 +75,19 @@ public class BattleManager : MonoBehaviour
             Character charaScript = chara.GetComponent<Character>();
             charaScript.model = chara;
             charaScript.IsEnemy = true;
+            charaScript.RefreshElementsUIAsync();
             charaList.Add(charaScript);
         }
         RefreshCharaPos(0);
     }
+    /// <summary>
+    /// 根据当前站位索引刷新场上人物位置
+    /// </summary>
+    /// <param name="rank"></param>
     [Button("刷新位置")]
-    //根据当前站位索引刷新场上人物位置
     public static void RefreshCharaPos(int rank)
     {
-        //刷新玩家角色
+        //刷新玩家角色位置
         for (int i = 0; i < PlayerList.Count; i++)
         {
             GameObject chara = PlayerList[i].model;
@@ -85,7 +95,7 @@ public class BattleManager : MonoBehaviour
             float z = rank == i ? 0 : -2;
             chara.transform.position = new Vector3(x, 0, z);
         }
-        //刷新敌人角色
+        //刷新敌人角色位置
         for (int i = 0; i < EnemyList.Count; i++)
         {
             GameObject chara = EnemyList[i].model;

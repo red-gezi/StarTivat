@@ -4,38 +4,16 @@
     BasicAttack,
     SpecialSkill,
     Brust,
-    CounterAttack,//反击
-    AdditionalAttack,//追加
-    ExtraAttack//额外
-}
-public enum ElementType
-{
     /// <summary>
-    /// 风元素
+    /// 反击
     /// </summary>
-    Anemo,
+    CounterAttack,
     /// <summary>
-    /// 火元素
+    /// 追加攻击
     /// </summary>
-    Pyro,
+    AdditionalAttack,
     /// <summary>
-    /// 水元素
+    /// 额外回合攻击
     /// </summary>
-    Hydro,
-    /// <summary>
-    /// 雷元素
-    /// </summary>
-    Electro,
-    /// <summary>
-    /// 冰元素
-    /// </summary>
-    Cryo,
-    /// <summary>
-    /// 岩元素
-    /// </summary>
-    Geo,
-    /// <summary>
-    /// 草元素
-    /// </summary>
-    Dendro
+    ExtraAttack
 }

@@ -1,76 +1,72 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 
 class Anber : Character
 {
-    private void Awake()
-    {
-        MaxActionPoint = 60;
-        PlayerElement = ElementType.Pyro;
-
-    }
+    private void Awake() => CharacterInit("安柏", 60, ElementType.Pyro, "兔兔伯爵", "箭如雨下");
     //配置技能的基础数据，如消耗/回复技能点数，类型，生效对象，镜头控制数据等
-    public override ActionData GetBasicAttackSkillData() => new ActionData()
+    public override ActionData BasicAttackSkillData => new ActionData()
     {
         CurrentSkillType = SkillType.SingleTarget,
-        Icon = basicAttackIcon,
-        AbilityPointChange = 1,
+        SkillIcon = basicAttackIcon,
+        SkillPointChange = 1,
         CurrentActionType = ActionType.BasicAttack,
-        DefaultTargets = BattleManager.charaList.Where(chara => chara.IsEnemy).Take(1).ToList(),
-        IsTargetEnemy = true,
+        DefaultTargets = BattleManager.EnemyList.Take(1).ToList(),
+        TargetIsEnemy = true,
         Sender = this,
     };
-    public override ActionData GetSpecialSkillData() => new ActionData()
+    public override ActionData SpecialSkillData => new ActionData()
     {
         CurrentSkillType = SkillType.AreaOfEffect,
-        Icon = specialSkillIcon,
-        AbilityPointChange = -1,
+        SkillIcon = specialSkillIcon,
+        SkillPointChange = -1,
         CurrentActionType = ActionType.SpecialSkill,
-        DefaultTargets = BattleManager.charaList.Where(chara => chara.IsEnemy).ToList(),
-        IsTargetEnemy = true,
+        DefaultTargets = BattleManager.EnemyList,
+        TargetIsEnemy = true,
         Sender = this,
     };
-    public override ActionData GetBrustSkillData() => new ActionData()
+    public override ActionData BrustSkillData => new ActionData()
     {
         CurrentSkillType = SkillType.AreaOfEffect,
-        Icon = brustSkillIcon,
-        AbilityPointChange = 0,
+        SkillIcon = brustSkillIcon,
+        BrustCharaIcon = largeCharaIcon,
+        SkillPointChange = 0,
         CurrentActionType = ActionType.Brust,
-        DefaultTargets = BattleManager.charaList.Where(chara => chara.IsEnemy).Skip(2).Take(1).ToList(),
-        IsTargetEnemy = true,
+        DefaultTargets = BattleManager.EnemyList.Skip(2).Take(1).ToList(),
+        TargetIsEnemy = true,
         Sender = this,
     };
-    public override void WaitForBrustSkill()
-    {
-        throw new System.NotImplementedException();
-    }
 
-    public override async Task BasicAttackAction()
+    public override async Task AttackAction()
     {
-        Debug.Log("纳西妲进行普通攻击");
+        Debug.Log(name + "进行普通攻击");
         //播放动作
-        PlayAnimation(AnimationType.BasicAttack);
+        PlayAnimation(AnimationType.Attack_Pose);
         //调整摄像机
-        //
+        await CalculateHitPointsAsync(200, ElementType.Pyro, 2, SelectManager.CurrentSelectTargets);
         await Task.Delay(1000);
         ActionBarManager.BasicActionCompleted();
     }
 
-    public override async Task SpecialSkillAction()
+    public override async Task SkillAction()
     {
-        Debug.Log("纳西妲使用了元素战技");
-        PlayAnimation(AnimationType.SpecialAttack);
+        Debug.Log(name + "使用了元素战技");
+        PlayAnimation(AnimationType.Skill_Pose);
         //调整摄像机
+        await CalculateHitPointsAsync(200, ElementType.Pyro, 2, SelectManager.CurrentSelectTargets);
         await Task.Delay(1000);
         ActionBarManager.BasicActionCompleted();
     }
 
-    public override Task BrustSkillAction()
+    public override async Task BrustAction()
     {
-        throw new System.NotImplementedException();
-
+        Debug.Log(name + "使用了元素爆发");
+        PlayAnimation(AnimationType.Skill_Pose);
+        //调整摄像机
+        await CalculateHitPointsAsync(200, ElementType.Pyro, 2, SelectManager.CurrentSelectTargets);
+        await Task.Delay(1000);
+        ActionBarManager.ActiveActionCompleted();
     }
     public override async Task EnemySkillAction()
     {

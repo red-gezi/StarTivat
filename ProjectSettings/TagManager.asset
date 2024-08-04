@@ -44,3 +44,6 @@ TagManager:
   - name: CharaIcon
     uniqueID: 1146469291
     locked: 0
+  - name: UiText
+    uniqueID: 117248375
+    locked: 0
