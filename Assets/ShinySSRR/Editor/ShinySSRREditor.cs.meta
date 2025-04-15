@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 94e1c60c374e64cae88f75dbe97bf27e
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - bulbOnIcon: {fileID: 2800000, guid: dd840e0a27f8e4bb5844722993c541be, type: 3}
+  - bulbOffIcon: {fileID: 2800000, guid: 7f28d2ee7b6104945a9761f8a6879afc, type: 3}
+  - deleteIcon: {fileID: 2800000, guid: d156c5754f844469b8874c1c5fb37e8b, type: 3}
+  - arrowRight: {fileID: 2800000, guid: cb3a0e4282dfb452884cb8f63e7975f5, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

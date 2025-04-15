@@ -1,0 +1,101 @@
+{
+  "format": 1,
+  "restore": {
+    "E:\\VSProject\\StarTivat\\HotfixServer\\Server.csproj": {}
+  },
+  "projects": {
+    "E:\\VSProject\\StarTivat\\HotfixServer\\Server.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\VSProject\\StarTivat\\HotfixServer\\Server.csproj",
+        "projectName": "Server",
+        "projectPath": "E:\\VSProject\\StarTivat\\HotfixServer\\Server.csproj",
+        "packagesPath": "C:\\Users\\50606\\.nuget\\packages\\",
+        "outputPath": "E:\\VSProject\\StarTivat\\HotfixServer\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "D:\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\50606\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "AntDesign": {
+              "target": "Package",
+              "version": "[0.15.5, )"
+            },
+            "AntDesign.Charts": {
+              "target": "Package",
+              "version": "[0.3.1, )"
+            },
+            "Blazored.LocalStorage": {
+              "target": "Package",
+              "version": "[4.4.0, )"
+            },
+            "Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson": {
+              "target": "Package",
+              "version": "[7.0.11, )"
+            },
+            "MongoDB.Bson": {
+              "target": "Package",
+              "version": "[2.21.0, )"
+            },
+            "MongoDB.Driver": {
+              "target": "Package",
+              "version": "[2.21.0, )"
+            },
+            "SSH.NET": {
+              "target": "Package",
+              "version": "[2020.0.2, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.403\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

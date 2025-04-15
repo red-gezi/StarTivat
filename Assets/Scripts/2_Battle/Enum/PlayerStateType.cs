@@ -1,0 +1,9 @@
+﻿public enum PlayerStateType
+{
+    //////////////////////////////Buff
+    yunzhongyin,
+    //////////////////////////////Debuff
+    caozhongzi=100,
+    ranshao ,
+    //////////////////////////////Special
+}
