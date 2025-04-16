@@ -16,6 +16,16 @@ public class OutBattleBuffList : IBaseBuffList
     public List<Buff> Buffs = new()
     {
         new Buff((int)BufferName.基础局外事件){rank=1}
+            .Register<OutBattleEventData>( BuffTriggerType.On, BuffEventType.GoldGain, async eventData=>
+            {
+               //算出真实事件
+                //打开ui
+                //await Task.Delay(1000);
+                OutBattleEventData outBattleEventData = ((OutBattleEventData)eventData);
+
+                outBattleEventData.AddLog($"已获得金币{outBattleEventData.TargetValue}");
+                OutBattleManager.CurrentOutBattleInfo.Gold += outBattleEventData.TargetValue;
+            })
             .Register<OutBattleEventData>( BuffTriggerType.On, BuffEventType.ItemGain, async eventData=>
             {
                 //根据算出符合要求的真实的的buffid
@@ -31,10 +41,10 @@ public class OutBattleBuffList : IBaseBuffList
                     eventData.TargetBuffs = new List<Buff> { targetBuff };
                     eventData.AddLog($"已获得道具{(MoNiYuZhouBuffList.BufferName)targetBuff.id},尝试触发道具的获得效果");
                     // 等待异步任务完成
-                    await BuffEventManager.TriggerTargetEventAsync(BuffEventType.ItemGainEffect, eventData);
+                    await GameEventManager.TriggerTargetEventAsync(BuffEventType.ItemGainEffect, eventData);
                 }
             })
-            .Register<OutBattleEventData>( BuffTriggerType.On, BuffEventType.ItemGain, async eventData=>
+            .Register<OutBattleEventData>( BuffTriggerType.On, BuffEventType.ItemSelect, async eventData=>
             {
                     //根据算出符合要求的真实的的buffid
                 //将真正的目标buff
@@ -49,7 +59,7 @@ public class OutBattleBuffList : IBaseBuffList
                     eventData.TargetBuffs = new List<Buff> { targetBuff };
                     eventData.AddLog($"已获得道具{(MoNiYuZhouBuffList.BufferName)targetBuff.id},尝试触发道具的获得效果");
                     // 等待异步任务完成
-                    await BuffEventManager.TriggerTargetEventAsync(BuffEventType.ItemGainEffect, eventData);
+                    await GameEventManager.TriggerTargetEventAsync(BuffEventType.ItemGainEffect, eventData);
                 }
             })
     };

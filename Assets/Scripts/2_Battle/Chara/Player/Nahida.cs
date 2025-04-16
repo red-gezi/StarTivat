@@ -12,43 +12,41 @@ class Nahida : Character
     //初始赋值人物数据
     private void Awake()
     {
-        CharacterInit(charaName: "纳西妲",
-            new CharaData()
-            {
-                BaseAttack = 1000,
-                BaseDefense = 0.5f,
-                BaseCriticalDamage = 50,
-                MaxElementalEnergy = 100,
-                MaxActionPoint = 60,
-                EnergyRecharge = 100,
-                PlayerElement = ElementType.Herb
-            });
-        AttackSkillName = "行相";
-        ElementalSkillName = "所闻遍计";
-        ElementalBurstName = "心景幻成";
-        PlayerAbilitys.RegisterAttackAction(AttackAction);
-        PlayerAbilitys.RegisterSkillAction(SkillAction);
-        PlayerAbilitys.RegisterBurstAction(BrustAction);
-        CharaInherentBuffs = new List<Buff>()
+        CharacterInit();
+        RegisterCharaData(new CharaData()
         {
-            new Buff((int)BufferName.天赋)
-            .Register<BattleEventData>( BuffTriggerType.On, BuffEventType.TurnStart,async (data)=>
+            CharaName = "纳西妲",
+            BaseAttack = 1000,
+            BaseDefense = 0.5f,
+            BaseCriticalDamage = 50,
+            MaxElementalEnergy = 100,
+            MaxActionPoint = 60,
+            EnergyRecharge = 100,
+            PlayerElement = ElementType.Herb
+        });
+        //注册作为玩家角色技能
+        RegisterAttackAction(AttackAction);
+        RegisterSkillAction(SkillAction);
+        RegisterBurstAction(BrustAction);
+        //注册作为敌人角色技能
+        //添加角色自带buff
+        RegisterBuff(new Buff((int)BufferName.天赋)
+            .Register<BattleEventData>(BuffTriggerType.On, BuffEventType.TurnStart, async (data) =>
             {
                 //回合开始,释放战技
             })
-            .Register<SkillData>( BuffTriggerType.After, BuffEventType.TakeDamage,async (data)=>
+            .Register<SkillData>(BuffTriggerType.After, BuffEventType.TakeDamage, async (data) =>
             {
                 //反击
             })
-        };
-        //添加角色自带buff
-        Buffs.Add(GetCharaInherentBuff((int)BufferName.天赋));
+        );
     }
     #endregion
     #region 技能数据配置
     //配置技能的基础数据，如消耗/回复技能点数，类型，生效对象，镜头控制数据等
     public override SkillData BasicSkillData => new SkillData()
     {
+        SkillNmae = "行相",
         SkillIcon = basicSkillIcon,
         SkillPointChange = 1,
         SkillTags = { SkillTag.SingleTarget, SkillTag.BasicAttack },
@@ -58,6 +56,7 @@ class Nahida : Character
     };
     public override SkillData SpecialSkillData => new SkillData()
     {
+        SkillNmae = "所闻遍计",
         SkillIcon = specialSkillIcon,
         SkillPointChange = -1,
         SkillTags = { SkillTag.AreaOfEffect, SkillTag.SpecialSkill },
@@ -67,6 +66,7 @@ class Nahida : Character
     };
     public override SkillData BrustSkillData => new SkillData()
     {
+        SkillNmae = "心景幻成",
         SkillIcon = brustSkillIcon,
         BrustCharaIcon = largeCharaIcon,
         SkillPointChange = 0,
@@ -76,7 +76,7 @@ class Nahida : Character
         Sender = this,
     };
     #endregion
-    #region 攻击流程
+    #region 招式演出
     [Header("人物普攻效果参数")]
     public GameObject attackPrefab;
 
@@ -89,11 +89,13 @@ class Nahida : Character
         SkillPointManager.ChangePoint(BasicSkillData.SkillPointChange);
         CameraTrackManager.SetAttackPose(this);
         PlayAnimation(AnimationType.Attack);
-        //BasicSkillData
-        //    .SendTo()
-        BuffEventManager.BoracstEvent(skilld)
+
+        //根据玩家当前数值和技能数据生成一个数值快照
+        GameEventManager.CalculateValueAsync(BasicSkillData);
+
+        //
         _ = CalculateHitPointsAsync(200, ElementType.Herb, 2, SelectManager.CurrentSelectTargets, 0.8f);
-        //攻击特效
+        //播放角色行为演出
         await AttackEffect(SelectManager.CurrentSelectTarget);
         await Task.Delay(1000);
         ActionBarManager.BasicActionCompleted();

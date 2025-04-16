@@ -56,6 +56,10 @@ public class Buff
         BufferEvents[(triggerType, eventType)] = handler;
         return this;
     }
+    public bool HasEvent(BuffTriggerType triggerType, BuffEventType eventType) 
+    {
+        return BufferEvents.ContainsKey((triggerType, eventType));
+    }
     public async Task TriggerAsync<T>(BuffTriggerType triggerType, BuffEventType eventType, T data) where T : GameEventData
     {
         var buffEvent = GetEvent<T>(triggerType, eventType);
@@ -70,22 +74,3 @@ public class Buff
         }
     }
 }
-//public event Action OnApply;        // 当Buff被施加时
-//public event Action OnExpire;       // 当Buff失效时
-//public event Action OnStackChange;  // 堆叠数变化时
-//                                    // 战斗事件
-
-//public event Action<CharaData> OnPlayerBaseValueChange;
-//public event Action<CharaData> OnEnemyBaseValueChange;
-
-//public event Func<SkillData, Task> BeforeSkillCast;    // 施放技能前
-//public event Func<SkillData, Task> OnSkillCast;        // 施放技能前
-//public event Func<SkillData, Task> AfterSkillCast;     // 施放技能后
-
-//public event Action<SkillData> BeforeTakeDamage;   // 受到伤害前
-//public event Action<SkillData> OnTakeDamage;       // 受到伤害时
-//public event Action<SkillData> AfterTakeDamage;    // 受到伤害后
-
-//public event Action<SkillData> OnTurnStart;        // 回合开始时
-//public event Action<SkillData> OnTurnEnd;          // 回合结束时
-//public event Action<OutBattleEventData> OnGetItem;          // 获得道具

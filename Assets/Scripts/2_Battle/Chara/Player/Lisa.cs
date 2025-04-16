@@ -6,23 +6,24 @@ class Lisa : Character
     //初始赋值人物数据
     private void Awake()
     {
-        CharacterInit(charaName: "丽莎",
-            new CharaData()
-            {
-                BaseAttack = 1000,
-                BaseDefense = 0.5f,
-                BaseCriticalDamage = 50,
-                MaxElementalEnergy = 100,
-                MaxActionPoint = 60,
-                EnergyRecharge = 100,
-                PlayerElement = ElementType.Electro
-            });
-        AttackSkillName = "行相";
-        ElementalSkillName = "拍照";
-        ElementalBurstName = "房子";
-        PlayerAbilitys.RegisterAttackAction(AttackAction);
-        PlayerAbilitys.RegisterSkillAction(SkillAction);
-        PlayerAbilitys.RegisterBurstAction(BrustAction);
+        //CharacterInit(charaName: "丽莎",
+        //    new CharaData()
+        //    {
+        //        BaseAttack = 1000,
+        //        BaseDefense = 0.5f,
+        //        BaseCriticalDamage = 50,
+        //        MaxElementalEnergy = 100,
+        //        MaxActionPoint = 60,
+        //        EnergyRecharge = 100,
+        //        PlayerElement = ElementType.Electro
+        //    });
+        //AttackSkillName = "行相";
+        //ElementalSkillName = "拍照";
+        //ElementalBurstName = "房子";
+
+        //PlayerAbilitys.RegisterAttackAction(AttackAction);
+        //PlayerAbilitys.RegisterSkillAction(SkillAction);
+        //PlayerAbilitys.RegisterBurstAction(BrustAction);
     }
     //配置技能的基础数据，如消耗/回复技能点数，类型，生效对象，镜头控制数据等
     public override SkillData BasicSkillData => new SkillData()

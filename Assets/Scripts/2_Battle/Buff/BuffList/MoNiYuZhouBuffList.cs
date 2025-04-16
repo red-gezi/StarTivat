@@ -38,7 +38,7 @@ public class MoNiYuZhouBuffList : IBaseBuffList
         new Buff((int)BufferName.每次获得奇物后获得30金币)
         .Register <OutBattleEventData>( BuffTriggerType.After, BuffEventType.ItemGain,async (data)=>
         {
-            await BuffEventManager.GetGoldAsync(30);
+            await GameEventManager.GetGoldAsync(30);
             data.AddLog("获得了碎片" + 30);
         }),
 
@@ -50,7 +50,7 @@ public class MoNiYuZhouBuffList : IBaseBuffList
             {
                 (int)MoNiYuZhouBuffList.BufferName.获得金币翻倍,
             };
-            await BuffEventManager.GetItem(MoNiYuZhouBuffList.BuffList,targets);
+            await GameEventManager.GetItem(MoNiYuZhouBuffList.BuffList,targets);
             data.AddLog("获得奇物——获得金币翻倍");
             //await Task.Delay(2000);
         }),
@@ -83,7 +83,7 @@ public class MoNiYuZhouBuffList : IBaseBuffList
                 {
                     (int)MoNiYuZhouBuffList.BufferName.欠条,
                 };
-                await BuffEventManager.GetItem(MoNiYuZhouBuffList.BuffList,targets);
+                await GameEventManager.GetItem(MoNiYuZhouBuffList.BuffList,targets);
                 data.AddLog("获得的金钱-50并得到欠条");
             }
         }),

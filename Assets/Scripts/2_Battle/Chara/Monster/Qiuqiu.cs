@@ -6,24 +6,25 @@ class Qiuqiu : Character
 {
     private async void Awake()
     {
-        CharacterInit(charaName: "丘丘人",
-            new CharaData()
-            {
-                BaseAttack = 1000,
-                BaseDefense = 0.5f,
-                BaseCriticalDamage = 50,
-                MaxElementalEnergy = 100,
-                MaxActionPoint = 60,
-                EnergyRecharge = 100,
-                PlayerElement = ElementType.Physical
-            });
+        CharacterInit();
+        RegisterCharaData(new CharaData()
+        {
+            CharaName = "丘丘人",
+            BaseAttack = 1000,
+            BaseDefense = 0.5f,
+            BaseCriticalDamage = 50,
+            MaxElementalEnergy = 100,
+            MaxActionPoint = 60,
+            EnergyRecharge = 100,
+            PlayerElement = ElementType.Physical
+        });
+        //注册作为玩家角色技能
+        RegisterAttackAction(EnemySkill1);
+        RegisterSkillAction(EnemySkill2);
+        RegisterBurstAction(EnemySkill2);
         AttackSkillName = "敲打";
         ElementalSkillName = "点燃火把";
         ElementalBurstName = "炎棒冲锋";
-        PlayerAbilitys
-            .RegisterAttackAction(EnemySkill1)
-            .RegisterSkillAction(EnemySkill2)
-            .RegisterBurstAction(EnemySkill2);
 
         EnemyAbilitys
             .Register(EnemySkill1, 0, () => true)

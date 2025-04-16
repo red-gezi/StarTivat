@@ -77,17 +77,17 @@ public class BuffTest : MonoBehaviour
     }
     private static async Task Test2()
     {
-        await BuffEventManager.GetItem(MoNiYuZhouBuffList.BuffList, new List<int> { (int)MoNiYuZhouBuffList.BufferName.获得金钱时若金钱大于50则减50并获得欠条 });
+        await GameEventManager.GetItem(MoNiYuZhouBuffList.BuffList, new List<int> { (int)MoNiYuZhouBuffList.BufferName.获得金钱时若金钱大于50则减50并获得欠条 });
         Debug.Log("人物总buff有" + OutBattleManager.CurrentOutBattleInfo.Buffs.Select(buff => ((MoNiYuZhouBuffList.BufferName)buff.id).ToString()).ToJson());
         Debug.Log("人物总金币有" + OutBattleManager.CurrentOutBattleInfo.Gold);
         Debug.Log("#########################1############################");
         //获得10块
-        await BuffEventManager.GetGoldAsync(10);
+        await GameEventManager.GetGoldAsync(10);
         Debug.Log("人物总buff有" + OutBattleManager.CurrentOutBattleInfo.Buffs.Select(buff => ((MoNiYuZhouBuffList.BufferName)buff.id).ToString()).ToJson());
         Debug.Log("人物总金币有" + OutBattleManager.CurrentOutBattleInfo.Gold);
         Debug.Log("#########################2############################");
         //获得100块
-        await BuffEventManager.GetGoldAsync(100);
+        await GameEventManager.GetGoldAsync(100);
         Debug.Log("人物总buff有" + OutBattleManager.CurrentOutBattleInfo.Buffs.Select(buff => ((MoNiYuZhouBuffList.BufferName)buff.id).ToString()).ToJson());
         Debug.Log("人物总金币有" + OutBattleManager.CurrentOutBattleInfo.Gold);
         Debug.Log("#########################3############################");
@@ -100,12 +100,12 @@ public class BuffTest : MonoBehaviour
         {
             (int)MoNiYuZhouBuffList.BufferName.获得1个金币翻倍奇物
         };
-        await BuffEventManager.GetItem(MoNiYuZhouBuffList.BuffList, targets);
+        await GameEventManager.GetItem(MoNiYuZhouBuffList.BuffList, targets);
         Debug.Log("人物总buff有" + OutBattleManager.CurrentOutBattleInfo.Buffs.Select(buff => ((MoNiYuZhouBuffList.BufferName)buff.id).ToString()).ToJson());
         Debug.Log("人物总金币有" + OutBattleManager.CurrentOutBattleInfo.Gold);
         Debug.Log("#########################1############################");
         //获得100金币
-        await BuffEventManager.GetGoldAsync(100);
+        await GameEventManager.GetGoldAsync(100);
         Debug.Log("人物总buff有" + OutBattleManager.CurrentOutBattleInfo.Buffs.Select(buff => ((MoNiYuZhouBuffList.BufferName)buff.id).ToString()).ToJson());
         Debug.Log("人物总金币有" + OutBattleManager.CurrentOutBattleInfo.Gold);
         Debug.Log("#########################2############################");
@@ -114,7 +114,7 @@ public class BuffTest : MonoBehaviour
         {
             (int)MoNiYuZhouBuffList.BufferName.每次获得奇物后获得30金币
         };
-        await BuffEventManager.GetItem(MoNiYuZhouBuffList.BuffList, targets);
+        await GameEventManager.GetItem(MoNiYuZhouBuffList.BuffList, targets);
         Debug.Log("人物总buff有" + OutBattleManager.CurrentOutBattleInfo.Buffs.Select(buff => ((MoNiYuZhouBuffList.BufferName)buff.id).ToString()).ToJson());
         Debug.Log("人物总金币有" + OutBattleManager.CurrentOutBattleInfo.Gold);
         Debug.Log("#########################3############################");
@@ -123,7 +123,7 @@ public class BuffTest : MonoBehaviour
         {
             (int)MoNiYuZhouBuffList.BufferName.空奇物
         };
-        await BuffEventManager.GetItem(MoNiYuZhouBuffList.BuffList, targets);
+        await GameEventManager.GetItem(MoNiYuZhouBuffList.BuffList, targets);
         Debug.Log("人物总buff有" + OutBattleManager.CurrentOutBattleInfo.Buffs.Select(buff => ((MoNiYuZhouBuffList.BufferName)buff.id).ToString()).ToJson());
         Debug.Log("人物总金币有" + OutBattleManager.CurrentOutBattleInfo.Gold);
         Debug.Log("#########################4############################");

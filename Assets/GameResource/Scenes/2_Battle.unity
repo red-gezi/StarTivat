@@ -15,30 +15,30 @@ RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 9
   m_Fog: 0
-  m_FogColor: {r: 1, g: 0.8528848, b: 0.15408784, a: 0.42352942}
-  m_FogMode: 3
+  m_FogColor: {r: 0.93710685, g: 0.93710685, b: 0.93710685, a: 0}
+  m_FogMode: 1
   m_FogDensity: 0.01
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
   m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
-  m_AmbientIntensity: 1.42
+  m_AmbientIntensity: 0.99
   m_AmbientMode: 0
-  m_SubtractiveShadowColor: {r: 0.52043027, g: 0.58317775, b: 0.74213827, a: 1}
-  m_SkyboxMaterial: {fileID: 2100000, guid: 6e00f8b39315691449f256740a5cb862, type: 2}
-  m_HaloStrength: 0.677
-  m_FlareStrength: 0.966
+  m_SubtractiveShadowColor: {r: 1, g: 1, b: 1, a: 1}
+  m_SkyboxMaterial: {fileID: 2100000, guid: 023808db2bfa00d44929aa2176d29c76, type: 2}
+  m_HaloStrength: 1
+  m_FlareStrength: 1
   m_FlareFadeSpeed: 3
   m_HaloTexture: {fileID: 0}
   m_SpotCookie: {fileID: 10001, guid: 0000000000000000e000000000000000, type: 0}
   m_DefaultReflectionMode: 0
   m_DefaultReflectionResolution: 128
   m_ReflectionBounces: 1
-  m_ReflectionIntensity: 0.017
+  m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 410087040}
-  m_IndirectSpecularColor: {r: 0.0030822179, g: 0.003857623, b: 0.005225175, a: 0.017}
+  m_IndirectSpecularColor: {r: 0.18130693, g: 0.226919, b: 0.3073632, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -136,10 +136,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 147
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &4525870
 GameObject:
   m_ObjectHideFlags: 0
@@ -186,6 +182,7 @@ MonoBehaviour:
   - {fileID: 852371268}
   enemyPrefebs:
   - {fileID: 919132147614810279}
+  charaList: []
 --- !u!4 &4525875
 Transform:
   m_ObjectHideFlags: 0
@@ -339,10 +336,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 155
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &11564247
 GameObject:
   m_ObjectHideFlags: 0
@@ -393,10 +386,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 418
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &11760431
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -409,10 +398,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 57
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &11762812
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -425,10 +410,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 347
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &14894177
 GameObject:
   m_ObjectHideFlags: 0
@@ -532,10 +513,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 223
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &19768177
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -548,10 +525,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 427
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &25392664
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -564,10 +537,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 272
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &27922685
 GameObject:
   m_ObjectHideFlags: 0
@@ -655,10 +624,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 413
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &33078982
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -671,10 +636,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 61
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &33460605
 GameObject:
   m_ObjectHideFlags: 0
@@ -725,10 +686,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 386
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &35526087
 GameObject:
   m_ObjectHideFlags: 0
@@ -876,10 +833,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 16
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &36120407
 GameObject:
   m_ObjectHideFlags: 0
@@ -971,10 +924,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 136
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &41306712
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -987,10 +936,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 225
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &41886339
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1003,10 +948,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 44
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &43715883
 GameObject:
   m_ObjectHideFlags: 0
@@ -5849,10 +5790,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 282
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &47705017
 GameObject:
   m_ObjectHideFlags: 0
@@ -5940,10 +5877,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 17
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &48875500
 GameObject:
   m_ObjectHideFlags: 0
@@ -6061,10 +5994,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 341
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &65170759
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6077,10 +6006,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 248
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &65832164
 GameObject:
   m_ObjectHideFlags: 0
@@ -6245,10 +6170,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 18
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &68103531
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6261,10 +6182,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 40
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &68718303
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6277,10 +6194,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 26
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &72133409
 GameObject:
   m_ObjectHideFlags: 0
@@ -6327,10 +6240,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 41
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &82407869
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6343,10 +6252,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 378
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &83256308
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6359,10 +6264,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 31
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &84411798
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6375,10 +6276,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 142
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &85223740
 GameObject:
   m_ObjectHideFlags: 0
@@ -6487,10 +6384,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 98
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &94704267
 GameObject:
   m_ObjectHideFlags: 0
@@ -6579,10 +6472,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 165
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &102419822
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6595,10 +6484,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 311
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &118572131
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6611,10 +6496,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 339
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &121679272
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6627,10 +6508,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 172
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &125094983
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6643,10 +6520,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 213
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &132719490
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6659,10 +6532,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 5
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &134631235
 GameObject:
   m_ObjectHideFlags: 0
@@ -6958,10 +6827,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 401
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &144793088
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6974,10 +6839,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 309
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &144906124
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6990,10 +6851,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 332
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &146108276
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7006,10 +6863,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 348
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &159037598
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7022,10 +6875,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 151
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &160717629
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7038,10 +6887,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 169
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &161287876
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7054,10 +6899,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 129
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &161493420
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7070,10 +6911,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 346
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &161809399
 GameObject:
   m_ObjectHideFlags: 0
@@ -7182,10 +7019,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 335
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &169410889
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7198,10 +7031,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 46
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &169936224
 GameObject:
   m_ObjectHideFlags: 0
@@ -7290,10 +7119,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 243
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &171989781
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7306,10 +7131,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 392
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &172466541
 GameObject:
   m_ObjectHideFlags: 0
@@ -7391,10 +7212,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 323
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &179950029
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7407,10 +7224,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 241
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &180863354
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7423,10 +7236,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 302
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &181569145
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7439,10 +7248,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 126
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &181729581
 GameObject:
   m_ObjectHideFlags: 0
@@ -7551,10 +7356,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 420
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &182046955
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7567,10 +7368,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 145
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &186095787
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7583,10 +7380,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 297
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &187844832
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7599,10 +7392,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 367
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &188451402
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7615,10 +7404,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 168
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &191758699
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7631,10 +7416,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 153
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &193545783
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7647,10 +7428,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 307
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &194135954
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7663,10 +7440,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 315
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &196428829
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7679,10 +7452,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 227
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &199440533
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7695,10 +7464,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 425
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &208978015
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7711,10 +7476,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 387
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &220009309
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7727,10 +7488,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 25
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &225479108
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7743,10 +7500,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 212
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &234655455
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7759,10 +7512,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 189
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &234682088
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7775,10 +7524,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 92
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &239472489
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7791,10 +7536,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 359
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &240211321
 GameObject:
   m_ObjectHideFlags: 0
@@ -7966,10 +7707,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 399
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &246578526
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7982,10 +7719,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 269
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &250270500
 GameObject:
   m_ObjectHideFlags: 0
@@ -8073,10 +7806,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 246
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &261548727
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8089,10 +7818,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 329
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &268882761
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8105,10 +7830,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 261
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &270662315
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8121,10 +7842,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 304
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &271198280
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8137,10 +7854,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 234
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &272667493
 GameObject:
   m_ObjectHideFlags: 0
@@ -8249,10 +7962,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 14
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &274971763
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8265,10 +7974,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 200
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &278156324
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8281,10 +7986,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 82
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &282590350
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8297,10 +7998,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 275
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &285166715
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8313,10 +8010,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 135
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &286006466
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8329,10 +8022,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 287
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &295574116
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8345,10 +8034,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 33
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &299068342
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8361,10 +8046,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 216
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &300173295
 GameObject:
   m_ObjectHideFlags: 0
@@ -8482,10 +8163,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 439
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &302756381
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8498,10 +8175,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 405
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &309431768
 GameObject:
   m_ObjectHideFlags: 0
@@ -8625,10 +8298,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 115
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &314021302
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8641,10 +8310,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 429
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &316457582
 GameObject:
   m_ObjectHideFlags: 0
@@ -8732,10 +8397,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 322
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &321437876
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8748,10 +8409,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 93
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &322351821
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8764,10 +8421,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 94
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -8881,7 +8534,7 @@ MonoBehaviour:
   m_RendererIndex: -1
   m_VolumeLayerMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 4294967295
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
   m_RenderPostProcessing: 1
@@ -8917,10 +8570,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 91
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &342915678
 GameObject:
   m_ObjectHideFlags: 0
@@ -9008,10 +8657,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 414
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &344752280
 GameObject:
   m_ObjectHideFlags: 0
@@ -9373,10 +9018,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 36
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &351432382
 GameObject:
   m_ObjectHideFlags: 0
@@ -9631,10 +9272,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 181
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &377310642
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9647,10 +9284,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 198
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &384960293
 GameObject:
   m_ObjectHideFlags: 0
@@ -9740,10 +9373,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 371
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &392477996
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9756,10 +9385,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 363
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &393128798
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9772,10 +9397,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 361
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &393647666
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9788,10 +9409,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 320
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &393699574
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9804,10 +9421,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 124
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &398078267
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9820,10 +9433,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 314
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &400015323
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9836,10 +9445,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 47
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -9913,7 +9518,7 @@ Light:
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
-  m_ColorTemperature: 3788
+  m_ColorTemperature: 6183
   m_UseColorTemperature: 1
   m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
   m_UseBoundingSphereOverride: 0
@@ -9928,13 +9533,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 410087039}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.07065676, y: 0.41795668, z: -0.8893462, w: -0.17141525}
+  m_LocalRotation: {x: -0.2064426, y: 0.23539875, z: -0.69311035, w: -0.64928186}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 715280483}
-  m_LocalEulerAnglesHint: {x: 45, y: 135, z: 0}
+  m_LocalEulerAnglesHint: {x: 143.531, y: 178.61, z: -86.71802}
 --- !u!114 &410087042
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9970,10 +9575,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 293
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &414556611
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9986,10 +9587,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 64
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &414760872
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10002,10 +9599,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 368
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &415396065
 GameObject:
   m_ObjectHideFlags: 0
@@ -10280,10 +9873,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 56
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &442628104
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10296,10 +9885,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 276
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &444466532
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10312,10 +9897,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 336
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &444793239
 GameObject:
   m_ObjectHideFlags: 0
@@ -10520,10 +10101,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 400
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &460350118
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10536,10 +10113,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 355
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &460437850
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10552,10 +10125,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 383
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &465234302
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10568,10 +10137,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 278
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &477358894
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10584,10 +10149,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 338
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &478544916
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10600,10 +10161,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 433
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &480236862
 GameObject:
   m_ObjectHideFlags: 0
@@ -10860,10 +10417,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 222
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &484921860
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10876,10 +10429,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 360
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &489050361
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10892,10 +10441,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 109
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &494891402
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10908,10 +10453,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 157
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &502437816
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10924,10 +10465,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 281
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &505759006
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10940,10 +10477,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 204
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &512959188
 GameObject:
   m_ObjectHideFlags: 0
@@ -11032,10 +10565,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 340
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &516402256
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11048,10 +10577,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 108
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &516789753
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11064,10 +10589,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 316
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &517415001
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11080,10 +10601,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 410
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &524616505
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11096,10 +10613,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 180
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &524733103
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11112,10 +10625,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 417
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &532080287
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11128,10 +10637,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 220
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &536412041
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11144,10 +10649,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 22
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &538971973
 GameObject:
   m_ObjectHideFlags: 0
@@ -11361,10 +10862,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 366
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &554423500
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11377,10 +10874,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 28
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &557994406
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11393,10 +10886,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 224
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &560836795
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11409,10 +10898,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 48
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &562660233
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11425,10 +10910,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 237
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &564150521
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11441,10 +10922,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 290
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &564403472
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11457,10 +10934,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 289
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &571760972
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11473,10 +10946,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 324
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &574468413
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11489,10 +10958,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 385
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &581208348
 GameObject:
   m_ObjectHideFlags: 0
@@ -11580,10 +11045,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 35
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &595797411
 GameObject:
   m_ObjectHideFlags: 0
@@ -11675,10 +11136,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 353
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &609882195
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11691,10 +11148,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 201
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &627993597
 GameObject:
   m_ObjectHideFlags: 0
@@ -11798,10 +11251,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 317
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &636169523
 GameObject:
   m_ObjectHideFlags: 0
@@ -11875,10 +11324,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 416
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &636803027
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11891,10 +11336,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 428
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &643306602
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11907,10 +11348,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 161
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &648151736
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11923,10 +11360,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 230
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &653367913
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11939,10 +11372,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 379
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &661142483
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11955,10 +11384,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 192
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &664495481
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11971,10 +11396,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 232
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &674196689
 GameObject:
   m_ObjectHideFlags: 0
@@ -12197,10 +11618,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 23
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &691620322
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12213,10 +11630,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 299
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &692606736
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12229,10 +11642,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 256
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &694829343
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12245,10 +11654,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 186
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &697831099
 GameObject:
   m_ObjectHideFlags: 0
@@ -12354,25 +11759,6 @@ MonoBehaviour:
   m_Script: {fileID: 357088651, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  globalWorldProperty:
-    accurateStep: 1
-    framePerSecond: 0
-    resetFrameRate: 0
-    limitDeltaFrames: 0
-    axisSweepDistance: 0
-    gravityScale: 10
-    gravityNoise: 0
-    gravityDirection: {x: 0, y: -1, z: 0}
-    vertexScale: 8
-    importScale: 0.01
-    worldSolverInfoNumIterations: 0
-    worldSolverInfoSplitImpulse: 1
-    worldAddFloorPlane: 0
-    optimizeSettings: 1
-    multiThreading: 1
-    multiThreadingSynchronize: 1
-    parallelDispatcher: 0
-    parallelSolver: 0
 --- !u!4 &704375303
 Transform:
   m_ObjectHideFlags: 0
@@ -12388,36 +11774,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!21 &707229587
-Material:
-  serializedVersion: 8
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: MMD4Mecanim/MMDLit-NEXTEdge-Pass4
-  m_Shader: {fileID: 4800000, guid: 684f8af9b4ff4bc459588db5b0f6275d, type: 3}
-  m_Parent: {fileID: 0}
-  m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
-  m_InvalidKeywords: []
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2001
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_LockedProperties: 
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs: []
-    m_Ints: []
-    m_Floats:
-    - _EdgeSize: 0.005
-    - _PostfixRenderQueue: 1
-    m_Colors:
-    - _EdgeColor: {r: 0.39999998, g: 1, b: 1, a: 1}
-  m_BuildTextureStacks: []
 --- !u!1 &707704772
 GameObject:
   m_ObjectHideFlags: 0
@@ -12505,10 +11861,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 215
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &710816407
 GameObject:
   m_ObjectHideFlags: 0
@@ -12606,10 +11958,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 89
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &725270054
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12622,10 +11970,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 442
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &726831337
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12638,10 +11982,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 239
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &727121186
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12654,10 +11994,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 206
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &729907845
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12670,10 +12006,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 53
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &730387427
 GameObject:
   m_ObjectHideFlags: 0
@@ -12791,10 +12123,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 130
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &743071185
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12807,10 +12135,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 221
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &747828930
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12823,10 +12147,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 219
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &755216439
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12839,10 +12159,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 193
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &755274000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12855,10 +12171,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 29
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &755851644
 GameObject:
   m_ObjectHideFlags: 0
@@ -12947,10 +12259,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 203
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &762758086
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12963,10 +12271,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 15
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &767775638
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12979,10 +12283,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 300
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &768525337
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12995,10 +12295,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 179
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &769028311
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13011,10 +12307,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 406
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &769122019
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13027,10 +12319,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 274
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &784305190
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13043,10 +12331,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 166
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &786626925
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13059,10 +12343,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 330
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &794102105
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13075,10 +12355,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 54
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &795941473
 GameObject:
   m_ObjectHideFlags: 0
@@ -13129,10 +12405,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 178
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &801869858
 GameObject:
   m_ObjectHideFlags: 0
@@ -13221,10 +12493,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 1
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &814765365
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13237,10 +12505,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 183
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &821478679
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13253,10 +12517,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 21
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &823472090
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13269,10 +12529,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 59
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &824712897
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13285,10 +12541,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 437
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &829960314
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13301,10 +12553,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 202
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -13338,7 +12586,7 @@ MonoBehaviour:
   priority: 0
   blendDistance: 0
   weight: 1
-  sharedProfile: {fileID: 11400000, guid: a6560a915ef98420e9faacc1c7438823, type: 2}
+  sharedProfile: {fileID: 11400000, guid: 97a967875bf270544ac76aa09cadc997, type: 2}
 --- !u!4 &832575519
 Transform:
   m_ObjectHideFlags: 0
@@ -13366,10 +12614,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 306
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &843862751
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13382,10 +12626,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 79
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &851252673
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13398,10 +12638,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 236
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1001 &852371266
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13594,10 +12830,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 411
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &854407643
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13610,10 +12842,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 138
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &856387535
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13626,10 +12854,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 247
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &862884632
 GameObject:
   m_ObjectHideFlags: 0
@@ -13843,10 +13067,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 260
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &868080123
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13859,10 +13079,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 68
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &869484755
 GameObject:
   m_ObjectHideFlags: 0
@@ -13984,10 +13200,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 55
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &879946940
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14000,10 +13212,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 228
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &880628487
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14016,10 +13224,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 159
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &888581251
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14032,10 +13236,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 60
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1001 &890423609
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -14275,10 +13475,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 351
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &903497206
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14291,10 +13487,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 266
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &904360486
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14307,10 +13499,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 66
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &910817906
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14323,10 +13511,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 284
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &910839863
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14339,10 +13523,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 132
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &917004263
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14355,10 +13535,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 305
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &917430236
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14371,10 +13547,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 235
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &919049560
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14387,10 +13559,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 321
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &920539422
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14403,10 +13571,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 146
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &923871892
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14419,10 +13583,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 175
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &929217673
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14435,10 +13595,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 337
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &931128214
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14451,10 +13607,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 421
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &938041614
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14467,10 +13619,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 313
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &942224682
 GameObject:
   m_ObjectHideFlags: 0
@@ -14559,10 +13707,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 133
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &955069521
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14575,10 +13719,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 395
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &959899119
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14591,10 +13731,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 298
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &964292632
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14607,10 +13743,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 217
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &966749178
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14623,10 +13755,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 51
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &967553791
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14639,10 +13767,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 391
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &968585822
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14655,10 +13779,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 171
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &971161317
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14671,10 +13791,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 381
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &971551338
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14687,10 +13803,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 356
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &985765864
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14703,10 +13815,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 150
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &989001422
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14719,10 +13827,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 377
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &989077724
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14735,10 +13839,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 99
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &989364545
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14751,10 +13851,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 163
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &992567628
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14767,10 +13863,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 195
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &994344448
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14783,10 +13875,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 374
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &998174567
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14799,10 +13887,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 422
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &999292564
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14815,10 +13899,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 34
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1003299812
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14831,10 +13911,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 63
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1004183760
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14847,10 +13923,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 440
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1006053173
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14863,10 +13935,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 39
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1010550008
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14879,10 +13947,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 268
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1010770895
 GameObject:
   m_ObjectHideFlags: 0
@@ -15166,10 +14230,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 226
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1028526921
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15182,10 +14242,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 190
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1029422695
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15198,10 +14254,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 118
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1038292701
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15214,10 +14266,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 375
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1040420277
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15230,10 +14278,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 333
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1042654246
 GameObject:
   m_ObjectHideFlags: 0
@@ -15322,10 +14366,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 88
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1049076402
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15338,10 +14378,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 52
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1050950014
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15354,10 +14390,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 344
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1051499509
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15370,10 +14402,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 9
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1051869884
 GameObject:
   m_ObjectHideFlags: 0
@@ -15461,10 +14489,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 446
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1059987830
 GameObject:
   m_ObjectHideFlags: 0
@@ -15510,10 +14534,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 253
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1077259153
 GameObject:
   m_ObjectHideFlags: 0
@@ -15638,10 +14658,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 185
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1086124834
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15654,10 +14670,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 30
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1089748363
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15670,10 +14682,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 319
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1091752788
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15686,10 +14694,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 141
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1092286986
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15702,10 +14706,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 143
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1093824988
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15718,10 +14718,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 90
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1094442682
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15734,10 +14730,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 408
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1097552628
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15750,10 +14742,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 11
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1101498044
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15766,10 +14754,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 13
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1102040322
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15782,10 +14766,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 37
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1105181826
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15798,10 +14778,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 149
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1107098113
 GameObject:
   m_ObjectHideFlags: 0
@@ -15919,10 +14895,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 69
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1117670674
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15935,10 +14907,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 255
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1118728745
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15951,10 +14919,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 211
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1119250387
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15967,10 +14931,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 273
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1125591429
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15983,10 +14943,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 303
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1127325810
 GameObject:
   m_ObjectHideFlags: 0
@@ -16075,10 +15031,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 107
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1128139544
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16091,10 +15043,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 238
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1134965199
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16107,10 +15055,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 208
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1135468279
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16123,10 +15067,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 267
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1136883543
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16139,10 +15079,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 10
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1143965808
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16155,10 +15091,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 8
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1144308582
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16171,10 +15103,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 352
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1152626498
 GameObject:
   m_ObjectHideFlags: 0
@@ -16300,10 +15228,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 123
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1166088708
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16316,10 +15240,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 373
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1001 &1177587904
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -16588,36 +15508,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fec85310c4d8d2d45b4d217584568673, type: 3}
---- !u!21 &1178416404
-Material:
-  serializedVersion: 8
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: MMD4Mecanim/MMDLit-NEXTEdge-Pass8
-  m_Shader: {fileID: 4800000, guid: ff1e1d0bbf6980244a107d25ff535f9a, type: 3}
-  m_Parent: {fileID: 0}
-  m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
-  m_InvalidKeywords: []
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2001
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_LockedProperties: 
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs: []
-    m_Ints: []
-    m_Floats:
-    - _EdgeSize: 0.005
-    - _PostfixRenderQueue: 1
-    m_Colors:
-    - _EdgeColor: {r: 0.39999998, g: 1, b: 1, a: 1}
-  m_BuildTextureStacks: []
 --- !u!114 &1178439897
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16630,10 +15520,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 445
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1188411280
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16646,10 +15532,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 85
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1189354884
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16662,10 +15544,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 242
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1192237398
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16678,10 +15556,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 245
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1193515512
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16694,10 +15568,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 218
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1193603972
 GameObject:
   m_ObjectHideFlags: 0
@@ -16715,7 +15585,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1193603973
 RectTransform:
   m_ObjectHideFlags: 0
@@ -16785,10 +15655,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 42
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1196196587
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16801,10 +15667,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 73
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1203806813
 GameObject:
   m_ObjectHideFlags: 0
@@ -16855,10 +15717,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 194
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1212086383
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16871,10 +15729,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 229
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1212659290
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16887,10 +15741,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 254
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1215595384
 GameObject:
   m_ObjectHideFlags: 0
@@ -17228,10 +16078,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 404
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1242673120
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17244,10 +16090,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 209
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1248857339
 GameObject:
   m_ObjectHideFlags: 0
@@ -22149,10 +20991,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 407
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1250490295
 GameObject:
   m_ObjectHideFlags: 0
@@ -22270,10 +21108,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 403
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1257316753
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22286,10 +21120,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 160
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1258785886
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22302,10 +21132,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 134
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1258839854
 GameObject:
   m_ObjectHideFlags: 0
@@ -27281,10 +26107,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 277
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1265820884
 GameObject:
   m_ObjectHideFlags: 0
@@ -27425,10 +26247,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 409
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1269600955
 GameObject:
   m_ObjectHideFlags: 0
@@ -27516,10 +26334,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 343
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1282261987
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27532,10 +26346,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 312
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1286518455
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27548,10 +26358,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 259
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1286879296
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27564,10 +26370,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 84
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1292293616
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27580,10 +26382,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 173
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1292913459
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27596,10 +26394,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 412
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1296527177
 GameObject:
   m_ObjectHideFlags: 0
@@ -27652,7 +26446,7 @@ MonoBehaviour:
   m_Padding:
     m_Left: 0
     m_Right: 0
-    m_Top: 32
+    m_Top: 51
     m_Bottom: 0
   m_ChildAlignment: 0
   m_StartCorner: 0
@@ -27854,10 +26648,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 432
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1314794034
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27870,10 +26660,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 74
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1315340672
 GameObject:
   m_ObjectHideFlags: 0
@@ -27961,10 +26747,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 65
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1320287033
 GameObject:
   m_ObjectHideFlags: 0
@@ -28302,10 +27084,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 100
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1333446288
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28318,10 +27096,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 67
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1342085080
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28334,10 +27108,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 372
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1357804372
 GameObject:
   m_ObjectHideFlags: 0
@@ -28560,10 +27330,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 325
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1367332370
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28576,10 +27342,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 396
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1376264926
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28592,10 +27354,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 423
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1378968987
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28608,10 +27366,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 102
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1380757753
 GameObject:
   m_ObjectHideFlags: 0
@@ -28758,10 +27512,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 164
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1383020871
 GameObject:
   m_ObjectHideFlags: 0
@@ -28930,10 +27680,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 358
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1395888351
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28946,10 +27692,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 345
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1398669176
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28962,10 +27704,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 45
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1405107017
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28978,10 +27716,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 127
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1405483307
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28994,10 +27728,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 244
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1410409616
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29010,10 +27740,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 71
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1413258038
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29026,10 +27752,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 441
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1413827850
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29042,10 +27764,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 43
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1441506354
 GameObject:
   m_ObjectHideFlags: 0
@@ -29163,10 +27881,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 431
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1457527876
 GameObject:
   m_ObjectHideFlags: 0
@@ -29284,10 +27998,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 191
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1464242575
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29300,10 +28010,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 308
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1470893069
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29316,10 +28022,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 110
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1472798406
 GameObject:
   m_ObjectHideFlags: 0
@@ -29408,10 +28110,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 111
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1491730141
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29424,10 +28122,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 350
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1493273354
 GameObject:
   m_ObjectHideFlags: 0
@@ -29505,10 +28199,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 369
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1510897597
 GameObject:
   m_ObjectHideFlags: 0
@@ -29671,10 +28361,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 12
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1525226409
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29687,10 +28373,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 72
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1527632743
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29703,10 +28385,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 86
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1529425714
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29719,10 +28397,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 270
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1530965170
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29735,10 +28409,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 122
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1531926942
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29751,10 +28421,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 177
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1532519391
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29767,10 +28433,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 271
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1539166544
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29783,10 +28445,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 419
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1545376592
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29799,10 +28457,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 398
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1547460113
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29815,10 +28469,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 131
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1549256374
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29831,10 +28481,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 62
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1551111547
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29847,10 +28493,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 148
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1551386183
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29863,10 +28505,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 75
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1551578825
 GameObject:
   m_ObjectHideFlags: 0
@@ -29912,10 +28550,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 152
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1557830182
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29928,10 +28562,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 101
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1558078607
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29944,10 +28574,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 19
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1572889529
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29960,10 +28586,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 4
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1573556048
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29976,10 +28598,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 342
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1581331997
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29992,10 +28610,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 156
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1585153002
 GameObject:
   m_ObjectHideFlags: 0
@@ -30113,10 +28727,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 120
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1586189201
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -30129,10 +28739,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 104
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1598394483
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -30145,10 +28751,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 376
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1598590707
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -30161,10 +28763,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 6
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!4 &1601026185 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 12825d401bf18ce47b916a51691fc889,
@@ -30183,10 +28781,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 443
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1615548968
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -30199,10 +28793,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 263
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1627009116
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -30215,10 +28805,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 288
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1627290392
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -30231,10 +28817,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 50
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1635614650
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -30247,10 +28829,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 252
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1637227022 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 1e560a5170ca1f145a8393435005c12d,
@@ -30415,10 +28993,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 140
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1642915243
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -30431,10 +29005,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 394
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1648970033
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -30447,10 +29017,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 326
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1656331161
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -30463,10 +29029,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 285
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1657130098
 GameObject:
   m_ObjectHideFlags: 0
@@ -30612,10 +29174,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 197
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1666611812
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -30628,10 +29186,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 364
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1671478173
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -30644,10 +29198,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 119
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1001 &1671929380
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -30754,10 +29304,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 265
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1676662663
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -30770,10 +29316,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 49
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1679048389
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -30786,10 +29328,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 424
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1685308035
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -30802,10 +29340,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 187
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1689471598
 GameObject:
   m_ObjectHideFlags: 0
@@ -31019,10 +29553,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 27
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1702228211
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31035,10 +29565,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 435
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1704201337
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31051,10 +29577,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 3
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1706218657
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31067,10 +29589,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 137
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1710989214
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31083,10 +29601,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 251
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1711110504
 GameObject:
   m_ObjectHideFlags: 0
@@ -31174,10 +29688,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 32
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1724133178
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31190,10 +29700,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 357
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1727421174
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31206,10 +29712,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 199
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1728946907
 GameObject:
   m_ObjectHideFlags: 0
@@ -31297,10 +29799,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 382
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1737166441
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31313,10 +29811,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 231
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1743743538
 GameObject:
   m_ObjectHideFlags: 0
@@ -31405,10 +29899,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 354
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1756225248
 GameObject:
   m_ObjectHideFlags: 0
@@ -31529,10 +30019,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 162
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1765036700
 GameObject:
   m_ObjectHideFlags: 0
@@ -31621,10 +30107,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 370
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1770718597
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31637,10 +30119,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 388
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1774488531
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31653,10 +30131,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 292
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1777344753
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31669,10 +30143,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 167
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1789416029
 GameObject:
   m_ObjectHideFlags: 0
@@ -31723,10 +30193,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 24
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1794953327
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31739,10 +30205,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 334
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1797467633
 GameObject:
   m_ObjectHideFlags: 0
@@ -31846,10 +30308,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 210
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1798081040
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31862,10 +30320,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 188
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1804400038
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31878,10 +30332,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 310
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1809334985
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31894,10 +30344,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 125
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1812779821
 GameObject:
   m_ObjectHideFlags: 0
@@ -32006,10 +30452,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 176
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1814356547
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -32022,10 +30464,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 174
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1815363066
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -32100,10 +30538,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 349
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1820834992
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -32116,10 +30550,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 106
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1821170918
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -32132,10 +30562,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 87
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1001 &1821943627
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -32585,10 +31011,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 205
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1831457126
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -32601,10 +31023,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 434
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1831761455
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -32617,10 +31035,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 380
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1832004648
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -32633,10 +31047,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 128
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1836602925
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -32649,10 +31059,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 331
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1838363977
 GameObject:
   m_ObjectHideFlags: 0
@@ -37388,10 +35794,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 97
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1844302690
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37404,10 +35806,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 96
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1844302691
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37420,10 +35818,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 95
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1844302692
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37436,10 +35830,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 7
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1844302693
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37452,10 +35842,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 444
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1845223039
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37468,10 +35854,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 154
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1846055002
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37484,10 +35866,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 0
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1849156149
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37500,10 +35878,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 283
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1857257830
 GameObject:
   m_ObjectHideFlags: 0
@@ -37552,10 +35926,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 20
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1865262556
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37568,10 +35938,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 77
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1865279089
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37584,10 +35950,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 70
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1865727623
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37600,10 +35962,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 113
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1875040186
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37616,10 +35974,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 250
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1875851814
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37632,10 +35986,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 438
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1876500951
 GameObject:
   m_ObjectHideFlags: 0
@@ -37753,10 +36103,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 196
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1876813820
 GameObject:
   m_ObjectHideFlags: 0
@@ -37816,10 +36162,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 258
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1883130766
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37832,10 +36174,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 182
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1885247042
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37848,10 +36186,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 291
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1891287826
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37864,10 +36198,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 103
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1898477393
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37880,10 +36210,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 318
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1899950446
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37896,10 +36222,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 280
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1903889216
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37912,10 +36234,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 214
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1908677013
 GameObject:
   m_ObjectHideFlags: 0
@@ -38011,10 +36329,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 207
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1917237712
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -38027,10 +36341,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 170
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1918260174
 GameObject:
   m_ObjectHideFlags: 0
@@ -38178,10 +36488,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 262
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1921449462
 GameObject:
   m_ObjectHideFlags: 0
@@ -38299,10 +36605,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 257
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1923576601
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -38315,10 +36617,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 121
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1926175622
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -38331,10 +36629,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 184
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1928313849
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -38347,10 +36641,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 114
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &1939529921
 GameObject:
   m_ObjectHideFlags: 0
@@ -38574,10 +36864,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 295
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1946024608
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -38590,10 +36876,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 436
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1950197253
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -38606,10 +36888,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 116
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1950255691
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -38622,10 +36900,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 286
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1957510510
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -38638,10 +36912,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 117
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1958353826
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -38654,10 +36924,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 279
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1965365880
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -38670,10 +36936,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 264
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1967901970
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -38686,10 +36948,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 80
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1970727220
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -38702,10 +36960,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 240
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1977078632
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -38718,10 +36972,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 430
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1001 &1981051980
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -38920,10 +37170,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 144
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1001 &1988823135
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -39059,10 +37305,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 112
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1991979808
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -39075,10 +37317,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 362
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1997165912
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -39091,10 +37329,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 384
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &1997982350
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -39107,10 +37341,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 327
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &2003868331
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -39123,10 +37353,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 397
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &2005710345
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -39139,10 +37365,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 139
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &2009732182
 GameObject:
   m_ObjectHideFlags: 0
@@ -39230,10 +37452,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 249
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &2016218950 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: b5abd34dfcda0bd41908b236717aeaa7,
@@ -39258,2578 +37476,6 @@ MonoBehaviour:
   m_Script: {fileID: -737916791, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nextEdgeMaterial_Pass4: {fileID: 707229587}
-  nextEdgeMaterial_Pass8: {fileID: 1178416404}
-  nextEdgePass: 0
-  nextEdgeSize: 1
-  nextEdgeColor: {r: 0.4, g: 1, b: 1, a: 1}
-  supportNEXTEdge: 0
-  importScale: 0.01
-  initializeOnAwake: 0
-  postfixRenderQueue: 1
-  renderQueueAfterSkybox: 0
-  updateWhenOffscreen: 1
-  animEnabled: 1
-  animSyncToAudio: 1
-  modelFile: {fileID: 4900000, guid: de4eff582c9d2c544a1b5796a3e1962c, type: 3}
-  indexFile: {fileID: 4900000, guid: fd40375352e4b3a4090184161ee25667, type: 3}
-  vertexFile: {fileID: 4900000, guid: c90365e094dbb9442a46c61148f02c4d, type: 3}
-  audioSource: {fileID: 0}
-  animDelayedAwakeFrame: 1
-  boneInherenceEnabled: 0
-  boneMorphEnabled: 0
-  pphEnabled: 1
-  pphEnabledNoAnimation: 1
-  pphShoulderEnabled: 1
-  pphShoulderFixRate: 0.7
-  ikEnabled: 0
-  fullBodyIKEnabled: 0
-  vertexMorphEnabled: 1
-  materialMorphEnabled: 1
-  blendShapesEnabled: 1
-  xdefEnabled: 0
-  xdefNormalEnabled: 0
-  xdefMobileEnabled: 0
-  generatedColliderMargin: 0.01
-  tessEnabled: 1
-  tessEdgeLengthRate: 1
-  tessPhongStrengthRate: 1
-  tessExtrusionAmountRate: 1
-  physicsEngine: 1
-  bulletPhysics:
-    joinLocalWorld: 1
-    useOriginalScale: 1
-    useCustomResetTime: 0
-    resetMorphTime: 1.8
-    resetWaitTime: 1.2
-    worldProperty:
-      accurateStep: 1
-      framePerSecond: 30
-      resetFrameRate: 0
-      limitDeltaFrames: 0
-      axisSweepDistance: 0
-      gravityScale: 10
-      gravityNoise: 0
-      gravityDirection: {x: 0, y: -1, z: 0}
-      vertexScale: 8
-      importScale: 0.01
-      worldSolverInfoNumIterations: 0
-      worldSolverInfoSplitImpulse: 1
-      worldAddFloorPlane: 0
-      optimizeSettings: 1
-      multiThreading: 1
-      multiThreadingSynchronize: 1
-      parallelDispatcher: 0
-      parallelSolver: 0
-    mmdModelProperty:
-      worldScale: 0
-      importScale: 0
-      lossyScale: {x: 1, y: 1, z: 1}
-      keepIKTargetBoneFlag: -1
-      forceIKResetBoneFlag: -1
-      enableIKSecondPassFlag: -1
-      secondPassLimitAngle: -1
-      enableIKInnerLockFlag: -1
-      enableIKInnerLockKneeFlag: -1
-      innerLockKneeClamp: -1
-      innerLockKneeRatioL: -1
-      innerLockKneeRatioU: -1
-      innerLockKneeScale: -1
-      enableIKMuscleFlag: -1
-      enableIKMuscleHipFlag: -1
-      enableIKMuscleFootFlag: -1
-      muscleHipUpperXAngle: -1
-      muscleHipLowerXAngle: -1
-      muscleHipInnerYAngle: -1
-      muscleHipOuterYAngle: -1
-      muscleHipInnerZAngle: -1
-      muscleHipOuterZAngle: -1
-      muscleFootUpperXAngle: -1
-      muscleFootLowerXAngle: -1
-      muscleFootInnerYAngle: -1
-      muscleFootOuterYAngle: -1
-      muscleFootInnerZAngle: -1
-      muscleFootOuterZAngle: -1
-      rigidBodyIsAdditionalDamping: 1
-      rigidBodyIsEnableSleeping: 0
-      rigidBodyIsUseCcd: 1
-      rigidBodyCcdMotionThreshold: 0.1
-      rigidBodyShapeScale: 1
-      rigidBodyMassRate: 1
-      rigidBodyLinearDampingRate: 1
-      rigidBodyAngularDampingRate: 1
-      rigidBodyRestitutionRate: 1
-      rigidBodyFrictionRate: 1
-      rigidBodyAntiJitterRate: 1
-      rigidBodyAntiJitterRateOnKinematic: 1
-      rigidBodyPreBoneAlignmentLimitLength: 0.01
-      rigidBodyPreBoneAlignmentLossRate: 0.01
-      rigidBodyPostBoneAlignmentLimitLength: 0.01
-      rigidBodyPostBoneAlignmentLossRate: 0.01
-      rigidBodyLinearDampingLossRate: -1
-      rigidBodyLinearDampingLimit: -1
-      rigidBodyAngularDampingLossRate: -1
-      rigidBodyAngularDampingLimit: -1
-      rigidBodyLinearVelocityLimit: -1
-      rigidBodyAngularVelocityLimit: -1
-      rigidBodyIsUseForceAngularVelocityLimit: 1
-      rigidBodyIsUseForceAngularAccelerationLimit: 1
-      rigidBodyForceAngularVelocityLimit: 600
-      rigidBodyIsAdditionalCollider: 0
-      rigidBodyAdditionalColliderBias: 0.99
-      rigidBodyIsForceTranslate: 1
-      jointRootAdditionalLimitAngle: -1
-      jointAdditionalLimitAngle: -1
-      jointAdditionalLimitForcibly: 0
-  rigidBodyList:
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  - freezed: 0
-    _freezedCached: -1
-    mass: -1
-    linearDamping: -1
-    angularDamping: -1
-    restitution: -1
-    friction: -1
-  animList: []
-  editorViewPage: 5
-  editorViewMorphBits: 15
-  editorViewRigidBodies: 0
-  editorViewMorphNameType: 0
 --- !u!114 &2023346980
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -41842,10 +37488,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 393
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &2031570010
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -41858,10 +37500,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 83
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &2038786733
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -41874,10 +37512,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 294
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &2039519131
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -41890,10 +37524,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 390
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &2042169162
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -41906,10 +37536,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 389
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &2044636079
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -41922,10 +37548,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 38
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &2048738341
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -41938,10 +37560,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 296
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &2062882158
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -41954,10 +37572,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 328
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &2065040865
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -41970,10 +37584,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 76
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &2067435219
 GameObject:
   m_ObjectHideFlags: 0
@@ -42061,10 +37671,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 78
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &2078462424
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -42077,10 +37683,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 158
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &2089932093
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -42093,10 +37695,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 415
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &2090596645
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -42109,10 +37707,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 301
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &2094596701
 GameObject:
   m_ObjectHideFlags: 0
@@ -42208,10 +37802,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 81
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &2099393500
 GameObject:
   m_ObjectHideFlags: 0
@@ -42299,10 +37889,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 58
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &2100875707
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -42315,10 +37901,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 402
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &2102555663
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -42331,10 +37913,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 233
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &2106443100
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -42347,10 +37925,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 105
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &2114879052
 GameObject:
   m_ObjectHideFlags: 0
@@ -42496,10 +38070,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 2
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &2120020078
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -42512,10 +38082,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 426
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!114 &2132528271
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -42528,10 +38094,6 @@ MonoBehaviour:
   m_Script: {fileID: 1173603533, guid: 237a2ace0fe23084c9cdd0d1311ed775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  model: {fileID: 2016218952}
-  boneID: 365
-  ikEnabled: 0
-  ikWeight: 1
 --- !u!1 &2138135911
 GameObject:
   m_ObjectHideFlags: 0

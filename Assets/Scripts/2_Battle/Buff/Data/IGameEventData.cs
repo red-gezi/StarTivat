@@ -5,8 +5,8 @@ public class GameEventData
 {
     public Character Sender { get; set; }
     public Character Target { get; set; }
-    //实际执行的buff
-    public List<Buff> exceBuff { get; set; }
+    //当前事件执行的buff
+    public Buff exceBuff { get; set; }
 
     //可能会与buff产生连锁触发的buff列表
     public List<Buff> ListenerBuffs { get; set; }

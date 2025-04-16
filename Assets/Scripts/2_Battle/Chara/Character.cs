@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -72,8 +73,8 @@ public abstract partial class Character : MonoBehaviour
     /// <summary>
     /// 角色固有buff
     /// </summary>
-    public List<Buff> CharaInherentBuffs { get; set; } = new();
-    public Buff GetCharaInherentBuff(int bufferId) => Buffs.FirstOrDefault(buff => buff.id == bufferId).Clone();
+    //public List<Buff> CharaInherentBuffs { get; set; } = new();
+    //public Buff GetCharaInherentBuff(int bufferId) => Buffs.FirstOrDefault(buff => buff.id == bufferId).Clone();
 
     //角色在自身排位置
     public int Rank => BattleManager.CurrentBattle.charaList.Where(chara => chara.IsEnemy == IsEnemy).ToList().IndexOf(this);
@@ -87,7 +88,12 @@ public abstract partial class Character : MonoBehaviour
     public AudioSource audioSource => GetComponent<AudioSource>();
     //点击模型触发选中效果
     private void OnMouseDown() => SelectManager.CharaClick(this);
-
+    //////////////////////////////////////////////////信息注册////////////////////////////////////////////////////////////////////////////
+    public void RegisterCharaData(CharaData charaData) => BasicCharaData = charaData;
+    public void RegisterBuff(Buff buff) => Buffs.Add(buff);
+    public void RegisterAttackAction(Func<Task> action) => PlayerAbilitys.AttackAction = action;
+    public void RegisterSkillAction(Func<Task> action) => PlayerAbilitys.SkillAction = action;
+    public void RegisterBurstAction(Func<Task> action) => PlayerAbilitys.BurstAction = action;
     //////////////////////////////////////////////////角色基础属性////////////////////////////////////////////////////////////////////////////
     public CharaData BasicCharaData { get; set; }
     public CharaData CurrentCharaData
@@ -101,12 +107,11 @@ public abstract partial class Character : MonoBehaviour
     }
 
     //角色初始化
-    public void CharacterInit(string charaName, CharaData charaData)
+    public void CharacterInit ()
     {
 
         InitElements();
-        charaName = name;
-        BasicCharaData = charaData;
+       
     }
 
     //////////////////////////////////////////////////角色技能的相关配置数据////////////////////////////////////////////////////////////////////////////
@@ -124,6 +129,7 @@ public abstract partial class Character : MonoBehaviour
     public virtual PlayerAbilityManager PlayerAbilitys { get; set; } = new();
 
     public virtual EnemyAbilityManager EnemyAbilitys { get; set; } = new();
+    
     //////////////////////////////////////////////////角色流程////////////////////////////////////////////////////////////////////////////
 
     //角色入场（作为敌人）
