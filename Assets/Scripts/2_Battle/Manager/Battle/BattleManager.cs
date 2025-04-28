@@ -9,8 +9,8 @@ public class BattleManager : MonoBehaviour
 {
     public static BattleManager CurrentBattle;
     //登场双方战前配置
-    public List<PlayerType> players;
-    public List<EnemyType> enemies;
+    public List<PlayerName> players;
+    public List<EnemyName> enemies;
     //登场双方模型预制体
     public List<GameObject> playerPrefebs;
     public List<GameObject> enemyPrefebs;
@@ -61,7 +61,7 @@ public class BattleManager : MonoBehaviour
         ActionBarManager.RunAction();
     }
 
-    public async void InitChara(List<PlayerType> playerList, List<EnemyType> enemyList)
+    public async void InitChara(List<PlayerName> playerList, List<EnemyName> enemyList)
     {
         charaList.Clear();
         //根据配置创造场上人物
@@ -106,6 +106,27 @@ public class BattleManager : MonoBehaviour
     [Button("刷新位置")]
     public void RefreshCharaPos(int rank)
     {
+        //刷新玩家角色位置
+        for (int i = 0; i < PlayerList.Count; i++)
+        {
+            GameObject chara = PlayerList[i].model;
+            float x = i * playerDistance - PlayerOffset - ((rank - 1) * playerDistance);
+            float z = rank == i ? 0 : -2;
+            chara.transform.position = new Vector3(x, 0, z);
+        }
+        //刷新敌人角色位置
+        for (int i = 0; i < EnemyList.Count; i++)
+        {
+            GameObject chara = EnemyList[i].model;
+            float x = i * enemyDistance - EnemyOffset;
+            chara.transform.position = new Vector3(x, 0, 6 + 0.5f * MathF.Cos(x));
+            chara.transform.forward = PlayerList[rank].transform.position - chara.transform.position;
+        }
+    }
+    //重构
+    public void RefreshCharaPosNew(int rank)
+    {
+        //玩家位置4个相似位置 敌人位置 玩家身前
         //刷新玩家角色位置
         for (int i = 0; i < PlayerList.Count; i++)
         {

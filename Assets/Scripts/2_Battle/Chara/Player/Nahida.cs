@@ -1,14 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 class Nahida : Character
 {
     #region 人物属性配置
-    public enum BufferName
-    {
-        天赋,
-    }
     //初始赋值人物数据
     private void Awake()
     {
@@ -20,7 +15,7 @@ class Nahida : Character
             BaseDefense = 0.5f,
             BaseCriticalDamage = 50,
             MaxElementalEnergy = 100,
-            MaxActionPoint = 60,
+            MaxActionPoint = 40,
             EnergyRecharge = 100,
             PlayerElement = ElementType.Herb
         });
@@ -30,12 +25,12 @@ class Nahida : Character
         RegisterBurstAction(BrustAction);
         //注册作为敌人角色技能
         //添加角色自带buff
-        RegisterBuff(new Buff((int)BufferName.天赋)
-            .Register<BattleEventData>(BuffTriggerType.On, BuffEventType.TurnStart, async (data) =>
+        RegisterBuff(new Buff(0)
+            .RegisterEvent<BattleEventData>(BuffTriggerType.On, BuffEventType.TurnStart, async (data) =>
             {
                 //回合开始,释放战技
             })
-            .Register<SkillData>(BuffTriggerType.After, BuffEventType.TakeDamage, async (data) =>
+            .RegisterEvent<SkillData>(BuffTriggerType.After, BuffEventType.ReceiveSkillData, async (data) =>
             {
                 //反击
             })
@@ -91,8 +86,9 @@ class Nahida : Character
         PlayAnimation(AnimationType.Attack);
 
         //根据玩家当前数值和技能数据生成一个数值快照
-        GameEventManager.CalculateValueAsync(BasicSkillData);
-
+        BasicSkillData.CurrentCharaData = await GameEventManager.GetCurrentCharaData(this);
+        await GameEventManager.SendSkillData(BasicSkillData);
+        //_ = SendSkillData(BasicSkillData);
         //
         _ = CalculateHitPointsAsync(200, ElementType.Herb, 2, SelectManager.CurrentSelectTargets, 0.8f);
         //播放角色行为演出

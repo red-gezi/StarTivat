@@ -43,7 +43,8 @@ public abstract partial class Character : MonoBehaviour
     Transform playerPointGroup => transform.Find("PlayerPointGroup");
     Transform enemyPointGroup => transform.Find("EnemyPointGroup");
     public Transform Idle_Pose => playerPointGroup.GetChild(0);
-    public Transform Idle_Show => playerPointGroup.GetChild(1);
+    //角色展示状态时的位置
+    public Transform Idle_Show => IsEnemy ? enemyPointGroup.GetChild(1) : playerPointGroup.GetChild(1);
     public Transform Attack_Pose => playerPointGroup.GetChild(2);
     public Transform Attack_Start => playerPointGroup.GetChild(3);
     public Transform Attack_End => playerPointGroup.GetChild(4);
@@ -70,6 +71,8 @@ public abstract partial class Character : MonoBehaviour
     /// 角色身上buff
     /// </summary>
     public List<Buff> Buffs { get; set; } = new();
+    //
+    public  List<Buff> GetCurrentBuff() => new List<Buff>(Buffs).Concat(BattleManager.CurrentBattle.GoblePlayerBuffs).ToList();
     /// <summary>
     /// 角色固有buff
     /// </summary>
@@ -82,6 +85,7 @@ public abstract partial class Character : MonoBehaviour
     public Character Left => BattleManager.CurrentBattle.charaList.FirstOrDefault(chara => chara.IsEnemy == IsEnemy && chara.Rank == Rank - 1);
     //角色右侧的角色，可能为null
     public Character Right => BattleManager.CurrentBattle.charaList.FirstOrDefault(chara => chara.IsEnemy == IsEnemy && chara.Rank == Rank + 1);
+    public List<Character> SameCamp => BattleManager.CurrentBattle.charaList.Where(chara => chara.IsEnemy == IsEnemy ).ToList();
     //动画控制器
     public Animator animator => transform.GetChild(0).GetComponent<Animator>();
     //声音控制器
@@ -96,24 +100,12 @@ public abstract partial class Character : MonoBehaviour
     public void RegisterBurstAction(Func<Task> action) => PlayerAbilitys.BurstAction = action;
     //////////////////////////////////////////////////角色基础属性////////////////////////////////////////////////////////////////////////////
     public CharaData BasicCharaData { get; set; }
-    public CharaData CurrentCharaData
-    {
-        get
-        {
-            //BuffEventManager.BoracstEvent
-
-            return BasicCharaData.GetCurrentCharaData(Buffs.Concat(IsEnemy ? BattleManager.CurrentBattle.GobleEnemyBuffs : BattleManager.CurrentBattle.GoblePlayerBuffs).ToList());
-        }
-    }
-
+    public CharaData CurrentCharaData => BasicCharaData.GetCurrentCharaData(Buffs.Concat(IsEnemy ? BattleManager.CurrentBattle.GobleEnemyBuffs : BattleManager.CurrentBattle.GoblePlayerBuffs).ToList());
     //角色初始化
-    public void CharacterInit ()
+    public void CharacterInit()
     {
-
         InitElements();
-       
     }
-
     //////////////////////////////////////////////////角色技能的相关配置数据////////////////////////////////////////////////////////////////////////////
     public abstract SkillData BasicSkillData { get; }
     public abstract SkillData SpecialSkillData { get; }
@@ -129,7 +121,7 @@ public abstract partial class Character : MonoBehaviour
     public virtual PlayerAbilityManager PlayerAbilitys { get; set; } = new();
 
     public virtual EnemyAbilityManager EnemyAbilitys { get; set; } = new();
-    
+
     //////////////////////////////////////////////////角色流程////////////////////////////////////////////////////////////////////////////
 
     //角色入场（作为敌人）
@@ -164,10 +156,7 @@ public abstract partial class Character : MonoBehaviour
     /// 播放动画
     /// </summary>
     /// <param name="animationType"></param>
-    public virtual void PlayAnimation(AnimationType animationType)
-    {
-        animator.CrossFade(animationType.ToString(), 0.2f);
-    }
+    public virtual void PlayAnimation(AnimationType animationType) => animator.CrossFade(animationType.ToString(), 0.2f);
     /// <summary>
     /// 播放语音
     /// </summary>
@@ -253,255 +242,255 @@ public abstract partial class Character : MonoBehaviour
     /// </summary>
     public virtual async Task OnCharaHit(bool isCritical, ElementType elementType, int timer, int point, ReactionType reactionType = ReactionType.None)
     {
-        //如果是超载\超导或者感电反应衍生伤害，只结算伤害，不触发元素附着
-        if (reactionType == ReactionType.Overload || reactionType == ReactionType.SuperConductor || reactionType == ReactionType.ElectricShock)
-        {
-            await CharaUiManager.CreatElementReaction(model, reactionType);
-        }
-        else
-        {
-            //判断是否起元素反应
-            switch (elementType)
-            {
-                case ElementType.Anemo://风
-                    if (HasElements(ElementType.Pyro))
-                    {
-                        _ = Left?.OnCharaHit(false, ElementType.Pyro, timer, (int)(point * 0.25f));
-                        await Right?.OnCharaHit(false, ElementType.Pyro, timer, (int)(point * 0.25f));
-                        await CharaUiManager.CreatElementReaction(model, ReactionType.Disperse);
-                    }
-                    else if (HasElements(ElementType.Hydro))
-                    {
-                        _ = Left?.OnCharaHit(false, ElementType.Hydro, timer, (int)(point * 0.25f));
-                        await Right?.OnCharaHit(false, ElementType.Hydro, timer, (int)(point * 0.25f));
-                        await CharaUiManager.CreatElementReaction(model, ReactionType.Disperse);
-                    }
-                    else if (HasElements(ElementType.Electro))
-                    {
-                        Left?.OnCharaHit(false, ElementType.Electro, timer, (int)(point * 0.25f));
-                        Right?.OnCharaHit(false, ElementType.Electro, timer, (int)(point * 0.25f));
-                        await CharaUiManager.CreatElementReaction(model, ReactionType.Disperse);
-                    }
-                    else if (HasElements(ElementType.Cryo) || HasElements(ElementType.Frozen))
-                    {
-                        Left?.OnCharaHit(false, ElementType.Cryo, timer, (int)(point * 0.25f));
-                        Right?.OnCharaHit(false, ElementType.Cryo, timer, (int)(point * 0.25f));
-                        await CharaUiManager.CreatElementReaction(model, ReactionType.Disperse);
-                    }
-                    break;
-                case ElementType.Pyro:
-                    //火-水 蒸发
-                    if (HasElements(ElementType.Hydro))
-                    {
-                        point = (int)(point * 1.5f);
-                        await AddElementsAcync(ElementType.Pyro, timer);
+        ////如果是超载\超导或者感电反应衍生伤害，只结算伤害，不触发元素附着
+        //if (reactionType == ReactionType.Overload || reactionType == ReactionType.SuperConductor || reactionType == ReactionType.ElectricShock)
+        //{
+        //    await CharaUiManager.CreatReactionText(model, reactionType);
+        //}
+        //else
+        //{
+        //    //判断是否起元素反应
+        //    switch (elementType)
+        //    {
+        //        case ElementType.Anemo://风
+        //            if (HasElements(ElementType.Pyro))
+        //            {
+        //                _ = Left?.OnCharaHit(false, ElementType.Pyro, timer, (int)(point * 0.25f));
+        //                await Right?.OnCharaHit(false, ElementType.Pyro, timer, (int)(point * 0.25f));
+        //                await CharaUiManager.CreatReactionText(model, ReactionType.Disperse);
+        //            }
+        //            else if (HasElements(ElementType.Hydro))
+        //            {
+        //                _ = Left?.OnCharaHit(false, ElementType.Hydro, timer, (int)(point * 0.25f));
+        //                await Right?.OnCharaHit(false, ElementType.Hydro, timer, (int)(point * 0.25f));
+        //                await CharaUiManager.CreatReactionText(model, ReactionType.Disperse);
+        //            }
+        //            else if (HasElements(ElementType.Electro))
+        //            {
+        //                Left?.OnCharaHit(false, ElementType.Electro, timer, (int)(point * 0.25f));
+        //                Right?.OnCharaHit(false, ElementType.Electro, timer, (int)(point * 0.25f));
+        //                await CharaUiManager.CreatReactionText(model, ReactionType.Disperse);
+        //            }
+        //            else if (HasElements(ElementType.Cryo) || HasElements(ElementType.Frozen))
+        //            {
+        //                Left?.OnCharaHit(false, ElementType.Cryo, timer, (int)(point * 0.25f));
+        //                Right?.OnCharaHit(false, ElementType.Cryo, timer, (int)(point * 0.25f));
+        //                await CharaUiManager.CreatReactionText(model, ReactionType.Disperse);
+        //            }
+        //            break;
+        //        case ElementType.Pyro:
+        //            //火-水 蒸发
+        //            if (HasElements(ElementType.Hydro))
+        //            {
+        //                point = (int)(point * 1.5f);
+        //                await AddElementsAcync(ElementType.Pyro, timer);
 
-                        _ = RemoveElementsAcync(ElementType.Pyro);
-                        await RemoveElementsAcync(ElementType.Hydro);
-                        await CharaUiManager.CreatElementReaction(model, ReactionType.Evaporation);
-                    }
-                    //火-雷 超载
-                    else if (HasElements(ElementType.Electro))
-                    {
-                        await AddElementsAcync(ElementType.Pyro, timer);
-                        await RemoveElementsAcync(ElementType.Electro);
-                        await CharaUiManager.CreatElementReaction(model, ReactionType.Overload);
-                        this?.OnCharaHit(false, ElementType.Electro, timer, (int)(point * 0.25f), ReactionType.Overload);
-                        Left?.OnCharaHit(false, ElementType.Electro, timer, (int)(point * 0.25f), ReactionType.Overload);
-                        Right?.OnCharaHit(false, ElementType.Electro, timer, (int)(point * 0.25f), ReactionType.Overload);
-                    }
-                    //火-冰/冻 融化
-                    else if (HasElements(ElementType.Cryo) || HasElements(ElementType.Frozen))
-                    {
-                        point = (int)(point * 2f);
-                        await RemoveElementsAcync(ElementType.Cryo);
-                        await RemoveElementsAcync(ElementType.Frozen);
-                        await CharaUiManager.CreatElementReaction(model, ReactionType.Melting);
-                    }
-                    //火-草 燃烧
-                    else if (HasElements(ElementType.Herb) || HasElements(ElementType.Stimulus))
-                    {
-                        await AddElementsAcync(ElementType.Pyro, 2);
-                        _ = RemoveElementsAcync(ElementType.Pyro);
-                        await RemoveElementsAcync(ElementType.Herb);
-                        await RemoveElementsAcync(ElementType.Stimulus);
-                        await AddElementsAcync(ElementType.Burn, 2);
-                        await CharaUiManager.CreatElementReaction(model, ReactionType.Combustion);
-                    }
-                    else
-                    {
-                        await AddElementsAcync(ElementType.Pyro, timer);
-                    }
-                    break;
-                case ElementType.Hydro:
-                    break;
-                case ElementType.Electro:
-                    //雷-火/燃 超载
-                    if (HasElements(ElementType.Pyro) || HasElements(ElementType.Burn))
-                    {
+        //                _ = RemoveElementsAcync(ElementType.Pyro);
+        //                await RemoveElementsAcync(ElementType.Hydro);
+        //                await CharaUiManager.CreatReactionText(model, ReactionType.Evaporation);
+        //            }
+        //            //火-雷 超载
+        //            else if (HasElements(ElementType.Electro))
+        //            {
+        //                await AddElementsAcync(ElementType.Pyro, timer);
+        //                await RemoveElementsAcync(ElementType.Electro);
+        //                await CharaUiManager.CreatReactionText(model, ReactionType.Overload);
+        //                this?.OnCharaHit(false, ElementType.Electro, timer, (int)(point * 0.25f), ReactionType.Overload);
+        //                Left?.OnCharaHit(false, ElementType.Electro, timer, (int)(point * 0.25f), ReactionType.Overload);
+        //                Right?.OnCharaHit(false, ElementType.Electro, timer, (int)(point * 0.25f), ReactionType.Overload);
+        //            }
+        //            //火-冰/冻 融化
+        //            else if (HasElements(ElementType.Cryo) || HasElements(ElementType.Frozen))
+        //            {
+        //                point = (int)(point * 2f);
+        //                await RemoveElementsAcync(ElementType.Cryo);
+        //                await RemoveElementsAcync(ElementType.Frozen);
+        //                await CharaUiManager.CreatReactionText(model, ReactionType.Melting);
+        //            }
+        //            //火-草 燃烧
+        //            else if (HasElements(ElementType.Herb) || HasElements(ElementType.Stimulus))
+        //            {
+        //                await AddElementsAcync(ElementType.Pyro, 2);
+        //                _ = RemoveElementsAcync(ElementType.Pyro);
+        //                await RemoveElementsAcync(ElementType.Herb);
+        //                await RemoveElementsAcync(ElementType.Stimulus);
+        //                await AddElementsAcync(ElementType.Burn, 2);
+        //                await CharaUiManager.CreatReactionText(model, ReactionType.Combustion);
+        //            }
+        //            else
+        //            {
+        //                await AddElementsAcync(ElementType.Pyro, timer);
+        //            }
+        //            break;
+        //        case ElementType.Hydro:
+        //            break;
+        //        case ElementType.Electro:
+        //            //雷-火/燃 超载
+        //            if (HasElements(ElementType.Pyro) || HasElements(ElementType.Burn))
+        //            {
 
-                        await AddElementsAcync(ElementType.Electro, timer);
-                        _ = RemoveElementsAcync(ElementType.Pyro);
-                        _ = RemoveElementsAcync(ElementType.Burn);
-                        await RemoveElementsAcync(ElementType.Electro);
-                        await CharaUiManager.CreatElementReaction(model, ReactionType.Overload);
-                        this?.OnCharaHit(false, ElementType.Electro, timer, (int)(point * 0.25f), ReactionType.Overload);
-                        Left?.OnCharaHit(false, ElementType.Electro, timer, (int)(point * 0.25f), ReactionType.Overload);
-                        Right?.OnCharaHit(false, ElementType.Electro, timer, (int)(point * 0.25f), ReactionType.Overload);
-                    }
-                    //雷-水 感电
-                    else if (HasElements(ElementType.Hydro))
-                    {
-                        BattleManager.CurrentBattle.charaList
-                             .Where(chara => chara.HasElements(ElementType.Hydro))
-                             .ToList()
-                             .ForEach(async chara => await chara.OnCharaHit(false, ElementType.Electro, timer, (int)(point * 0.25f), ReactionType.ElectricShock));
-                        RemoveElementsAcync(ElementType.Hydro);
-                        await CharaUiManager.CreatElementReaction(model, ReactionType.Overload);
-                    }
-                    //雷-冰/冻 超导
-                    else if (HasElements(ElementType.Cryo) || HasElements(ElementType.Frozen))
-                    {
-                        this?.OnCharaHit(false, ElementType.Electro, timer, (int)(point * 0.25f), ReactionType.SuperConductor);
-                        Left?.OnCharaHit(false, ElementType.Electro, timer, (int)(point * 0.25f), ReactionType.SuperConductor);
-                        Right?.OnCharaHit(false, ElementType.Electro, timer, (int)(point * 0.25f), ReactionType.SuperConductor);
-                        RemoveElementsAcync(ElementType.Cryo);
-                        RemoveElementsAcync(ElementType.Frozen);
-                        await CharaUiManager.CreatElementReaction(model, ReactionType.SuperConductor);
-                    }
-                    //雷-草 原激化
-                    else if (HasElements(ElementType.Herb))
-                    {
-                        await AddElementsAcync(ElementType.Electro, timer);
+        //                await AddElementsAcync(ElementType.Electro, timer);
+        //                _ = RemoveElementsAcync(ElementType.Pyro);
+        //                _ = RemoveElementsAcync(ElementType.Burn);
+        //                await RemoveElementsAcync(ElementType.Electro);
+        //                await CharaUiManager.CreatReactionText(model, ReactionType.Overload);
+        //                this?.OnCharaHit(false, ElementType.Electro, timer, (int)(point * 0.25f), ReactionType.Overload);
+        //                Left?.OnCharaHit(false, ElementType.Electro, timer, (int)(point * 0.25f), ReactionType.Overload);
+        //                Right?.OnCharaHit(false, ElementType.Electro, timer, (int)(point * 0.25f), ReactionType.Overload);
+        //            }
+        //            //雷-水 感电
+        //            else if (HasElements(ElementType.Hydro))
+        //            {
+        //                BattleManager.CurrentBattle.charaList
+        //                     .Where(chara => chara.HasElements(ElementType.Hydro))
+        //                     .ToList()
+        //                     .ForEach(async chara => await chara.OnCharaHit(false, ElementType.Electro, timer, (int)(point * 0.25f), ReactionType.ElectricShock));
+        //                RemoveElementsAcync(ElementType.Hydro);
+        //                await CharaUiManager.CreatReactionText(model, ReactionType.Overload);
+        //            }
+        //            //雷-冰/冻 超导
+        //            else if (HasElements(ElementType.Cryo) || HasElements(ElementType.Frozen))
+        //            {
+        //                this?.OnCharaHit(false, ElementType.Electro, timer, (int)(point * 0.25f), ReactionType.SuperConductor);
+        //                Left?.OnCharaHit(false, ElementType.Electro, timer, (int)(point * 0.25f), ReactionType.SuperConductor);
+        //                Right?.OnCharaHit(false, ElementType.Electro, timer, (int)(point * 0.25f), ReactionType.SuperConductor);
+        //                RemoveElementsAcync(ElementType.Cryo);
+        //                RemoveElementsAcync(ElementType.Frozen);
+        //                await CharaUiManager.CreatReactionText(model, ReactionType.SuperConductor);
+        //            }
+        //            //雷-草 原激化
+        //            else if (HasElements(ElementType.Herb))
+        //            {
+        //                await AddElementsAcync(ElementType.Electro, timer);
 
-                        _ = RemoveElementsAcync(ElementType.Electro);
-                        await RemoveElementsAcync(ElementType.Herb);
+        //                _ = RemoveElementsAcync(ElementType.Electro);
+        //                await RemoveElementsAcync(ElementType.Herb);
 
-                        await AddElementsAcync(ElementType.Stimulus, timer);
-                        await CharaUiManager.CreatElementReaction(model, ReactionType.OriginalActivation);
-                    }
-                    //雷-激 超激化
-                    else if (HasElements(ElementType.Stimulus))
-                    {
-                        point = (int)(point * 1.5f);
-                        await AddElementsAcync(ElementType.Electro, timer);
-                        await RemoveElementsAcync(ElementType.Electro);
-                        await AddElementsAcync(ElementType.Stimulus, timer);
-                        await CharaUiManager.CreatElementReaction(model, ReactionType.SuperActivation);
-                    }
-                    else
-                    {
-                        await AddElementsAcync(ElementType.Electro, timer);
-                    }
-                    break;
-                case ElementType.Cryo:
-                    if (HasElements(ElementType.Pyro))
-                    {
+        //                await AddElementsAcync(ElementType.Stimulus, timer);
+        //                await CharaUiManager.CreatReactionText(model, ReactionType.OriginalActivation);
+        //            }
+        //            //雷-激 超激化
+        //            else if (HasElements(ElementType.Stimulus))
+        //            {
+        //                point = (int)(point * 1.5f);
+        //                await AddElementsAcync(ElementType.Electro, timer);
+        //                await RemoveElementsAcync(ElementType.Electro);
+        //                await AddElementsAcync(ElementType.Stimulus, timer);
+        //                await CharaUiManager.CreatReactionText(model, ReactionType.SuperActivation);
+        //            }
+        //            else
+        //            {
+        //                await AddElementsAcync(ElementType.Electro, timer);
+        //            }
+        //            break;
+        //        case ElementType.Cryo:
+        //            if (HasElements(ElementType.Pyro))
+        //            {
 
-                    }
-                    else if (HasElements(ElementType.Hydro))
-                    {
+        //            }
+        //            else if (HasElements(ElementType.Hydro))
+        //            {
 
-                    }
-                    else if (HasElements(ElementType.Electro))
-                    {
+        //            }
+        //            else if (HasElements(ElementType.Electro))
+        //            {
 
-                    }
-                    else if (HasElements(ElementType.Cryo))
-                    {
+        //            }
+        //            else if (HasElements(ElementType.Cryo))
+        //            {
 
-                    }
-                    else
-                    {
-                        await AddElementsAcync(ElementType.Cryo, timer);
-                    }
-                    break;
-                case ElementType.Geo:
-                    if (HasElements(ElementType.Pyro))
-                    {
-                        await CharaUiManager.CreatElementReaction(model, ReactionType.Crystallize);
-                    }
-                    else if (HasElements(ElementType.Hydro))
-                    {
-                        await CharaUiManager.CreatElementReaction(model, ReactionType.Crystallize);
-                    }
-                    else if (HasElements(ElementType.Electro))
-                    {
-                        await CharaUiManager.CreatElementReaction(model, ReactionType.Crystallize);
-                    }
-                    else if (HasElements(ElementType.Cryo) || HasElements(ElementType.Frozen))
-                    {
-                        await CharaUiManager.CreatElementReaction(model, ReactionType.Crystallize); ;
-                    }
-                    break;
-                case ElementType.Herb:
-                    //草-火/燃 燃烧
-                    if (HasElements(ElementType.Pyro) || HasElements(ElementType.Burn))
-                    {
-                        await RemoveElementsAcync(ElementType.Pyro);
-                        await AddElementsAcync(ElementType.Burn, 2);
-                        await CharaUiManager.CreatElementReaction(model, ReactionType.Combustion);
-                    }
-                    //草-水 绽放
-                    else if (HasElements(ElementType.Hydro))
-                    {
-                        await RemoveElementsAcync(ElementType.Hydro);
-                        await CharaUiManager.CreatElementReaction(model, ReactionType.Bloom);
-                        //添加一个种子状态
-                    }
-                    //草-雷 原激化
-                    else if (HasElements(ElementType.Electro))
-                    {
-                        await RemoveElementsAcync(ElementType.Electro);
-                        await AddElementsAcync(ElementType.Stimulus, timer);
-                        await CharaUiManager.CreatElementReaction(model, ReactionType.OriginalActivation);
-                    }
-                    //草-激 蔓激化
-                    else if (HasElements(ElementType.Stimulus))
-                    {
-                        point = (int)(point * 1.5f);
-                        await AddElementsAcync(ElementType.Stimulus, timer);
-                        await CharaUiManager.CreatElementReaction(model, ReactionType.RapidActivation);
-                    }
-                    else
-                    {
-                        await AddElementsAcync(ElementType.Herb, timer);
-                    }
-                    break;
-                case ElementType.Physical:
-                    if (HasElements(ElementType.Frozen))
-                    {
-                        point = (int)(point * 3f);
-                        await RemoveElementsAcync(ElementType.Frozen);
-                        await CharaUiManager.CreatElementReaction(model, ReactionType.ShatteredIce);
-                    }
-                    break;
-                case ElementType.Cure:
-                    break;
-                case ElementType.Shield:
-                    break;
-                default:
-                    break;
-            }
-        }
-        switch (elementType)
-        {
-            case ElementType.Cure:
-                break;
-            case ElementType.Shield:
-                break;
-            default:
-                //判定防御减伤
-                point = (int)(point * ((100 - CurrentCharaData.BaseDefense) * 0.01f));
-                //判定护盾
-                //跳盾量减少
-                //判定血量
-                break;
-        }
-        //跳数字
-        await CharaUiManager.CreatNumber(isCritical, model, elementType, point);
-        BroadcastManager.BroadcastEvent(BoardcastHitEvent, new CharaEvent());
-        //await Task.Delay(4000);
+        //            }
+        //            else
+        //            {
+        //                await AddElementsAcync(ElementType.Cryo, timer);
+        //            }
+        //            break;
+        //        case ElementType.Geo:
+        //            if (HasElements(ElementType.Pyro))
+        //            {
+        //                await CharaUiManager.CreatReactionText(model, ReactionType.Crystallize);
+        //            }
+        //            else if (HasElements(ElementType.Hydro))
+        //            {
+        //                await CharaUiManager.CreatReactionText(model, ReactionType.Crystallize);
+        //            }
+        //            else if (HasElements(ElementType.Electro))
+        //            {
+        //                await CharaUiManager.CreatReactionText(model, ReactionType.Crystallize);
+        //            }
+        //            else if (HasElements(ElementType.Cryo) || HasElements(ElementType.Frozen))
+        //            {
+        //                await CharaUiManager.CreatReactionText(model, ReactionType.Crystallize); ;
+        //            }
+        //            break;
+        //        case ElementType.Herb:
+        //            //草-火/燃 燃烧
+        //            if (HasElements(ElementType.Pyro) || HasElements(ElementType.Burn))
+        //            {
+        //                await RemoveElementsAcync(ElementType.Pyro);
+        //                await AddElementsAcync(ElementType.Burn, 2);
+        //                await CharaUiManager.CreatReactionText(model, ReactionType.Combustion);
+        //            }
+        //            //草-水 绽放
+        //            else if (HasElements(ElementType.Hydro))
+        //            {
+        //                await RemoveElementsAcync(ElementType.Hydro);
+        //                await CharaUiManager.CreatReactionText(model, ReactionType.Bloom);
+        //                //添加一个种子状态
+        //            }
+        //            //草-雷 原激化
+        //            else if (HasElements(ElementType.Electro))
+        //            {
+        //                await RemoveElementsAcync(ElementType.Electro);
+        //                await AddElementsAcync(ElementType.Stimulus, timer);
+        //                await CharaUiManager.CreatReactionText(model, ReactionType.OriginalActivation);
+        //            }
+        //            //草-激 蔓激化
+        //            else if (HasElements(ElementType.Stimulus))
+        //            {
+        //                point = (int)(point * 1.5f);
+        //                await AddElementsAcync(ElementType.Stimulus, timer);
+        //                await CharaUiManager.CreatReactionText(model, ReactionType.RapidActivation);
+        //            }
+        //            else
+        //            {
+        //                await AddElementsAcync(ElementType.Herb, timer);
+        //            }
+        //            break;
+        //        case ElementType.Physical:
+        //            if (HasElements(ElementType.Frozen))
+        //            {
+        //                point = (int)(point * 3f);
+        //                await RemoveElementsAcync(ElementType.Frozen);
+        //                await CharaUiManager.CreatReactionText(model, ReactionType.ShatteredIce);
+        //            }
+        //            break;
+        //        case ElementType.Cure:
+        //            break;
+        //        case ElementType.Shield:
+        //            break;
+        //        default:
+        //            break;
+        //    }
+        //}
+        //switch (elementType)
+        //{
+        //    case ElementType.Cure:
+        //        break;
+        //    case ElementType.Shield:
+        //        break;
+        //    default:
+        //        //判定防御减伤
+        //        point = (int)(point * ((100 - CurrentCharaData.TotalDefenseBonus) * 0.01f));
+        //        //判定护盾
+        //        //跳盾量减少
+        //        //判定血量
+        //        break;
+        //}
+        ////跳数字
+        //await CharaUiManager.CreatNumber(isCritical, model, elementType, point);
+        //BroadcastManager.BroadcastEvent(BoardcastHitEvent, new CharaEvent());
+        ////await Task.Delay(4000);
     }
     public virtual void BoardcastHitEvent(CharaEvent e)
     {
@@ -534,6 +523,34 @@ public abstract partial class Character : MonoBehaviour
 
     }
     ///////////////////////////计算公式//////////////////////////////
+    public async Task SendSkillData(SkillData basicSkillData)
+    {
+        basicSkillData.Sender = this;
+        //获得当前面板数值
+        //传送给每个生效对象
+
+        if (basicSkillData.SkillTags.Contains(SkillTag.AreaOfEffect))
+        {
+
+        }
+        else if (basicSkillData.SkillTags.Contains(SkillTag.AreaOfEffect))
+        {
+            _ = basicSkillData.Receiver.ReceiveSkillData(basicSkillData);
+            _ = basicSkillData.Receiver.Left?.ReceiveSkillData(basicSkillData);
+            _ = basicSkillData.Receiver.Right?.ReceiveSkillData(basicSkillData);
+        }
+        else
+        {
+            _ = basicSkillData.Receiver.ReceiveSkillData(basicSkillData);
+        }
+        //return Task.CompletedTask;
+    }
+    public async Task ReceiveSkillData(SkillData skillData)
+    {
+
+        //return Task.CompletedTask;
+    }
+
     /// <summary>
     /// 输入伤害倍率和目标，根据当前玩家的攻击力、暴击、爆伤、buff、debuff等决定伤害
     /// </summary>

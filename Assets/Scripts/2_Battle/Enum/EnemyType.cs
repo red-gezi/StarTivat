@@ -1,4 +1,4 @@
-﻿public enum EnemyType
+﻿public enum EnemyName
 {
     Qiuqiu,
     Cube,

@@ -2,7 +2,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
-
+//管理技能图标的操作
 public class SkillManager : MonoBehaviour
 {
     public static SkillManager Instance;
@@ -154,7 +154,6 @@ public class SkillManager : MonoBehaviour
                 BasicAttackData.Sender.OnSelectAttackPose();
                 //行动条预测点数变动
                 SkillPointManager.PredictionChangePoint(BasicAttackData.SkillPointChange);
-
             }
         }
     }
@@ -214,6 +213,30 @@ public class SkillManager : MonoBehaviour
         //直接触发元素爆发
         await SpecialSkillData.Sender.BrustAction();
         Instance.currentActionType = ActionType.None;
+    }
+    public async void ResetPose()
+    {
+        currentActionType = ActionType.BasicAttack;
+
+        //开启选择框
+        SelectManager.Show(BasicAttackData);
+        //初始化技能图标
+        Instance.BasicAttack.transform.GetChild(0).gameObject.SetActive(true);
+        Instance.SpecialSkill.transform.GetChild(0).gameObject.SetActive(false);
+        //初始化技能点显示
+        SkillPointManager.PredictionChangePoint(BasicAttackData.SkillPointChange);
+        await CustomThread.TimerAsync(0.1f, (progress) =>
+        {
+            Instance.BasicAttack.GetComponent<RectTransform>().sizeDelta = Vector2.Lerp(smallSize, largeSize, progress);
+            Instance.SpecialSkill.GetComponent<RectTransform>().sizeDelta = Vector2.Lerp(largeSize, smallSize, progress);
+        });
+        SoundEffectManager.Play("button");
+        //播放动作
+        CameraTrackManager.SetAttackPose(BasicAttackData.Sender);
+        BasicAttackData.Sender.PlayAnimation(AnimationType.Attack_Pose);
+        BasicAttackData.Sender.OnSelectAttackPose();
+        //行动条预测点数变动
+        SkillPointManager.PredictionChangePoint(BasicAttackData.SkillPointChange);
     }
     public static void Close()
     {

@@ -14,7 +14,7 @@ class Qiuqiu : Character
             BaseDefense = 0.5f,
             BaseCriticalDamage = 50,
             MaxElementalEnergy = 100,
-            MaxActionPoint = 60,
+            MaxActionPoint = 50,
             EnergyRecharge = 100,
             PlayerElement = ElementType.Physical
         });
@@ -78,6 +78,7 @@ class Qiuqiu : Character
         });
         PlayAnimation(AnimationType.Attack);
         await Task.Delay(1000);
+        //改成后跳
         PlayAnimation(AnimationType.Walk);
 
         await CustomThread.TimerAsync(0.5f, progress =>

@@ -3,23 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
+using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
 public class CameraTrackManager : MonoBehaviour
 {
-    //static Vector3 defaultPos = new(0.45f, 1.6f, -2.3f);
-    //static Vector3 brustPos = new(0.55f, 0.55f, -2.7f);
+    //摄像机状态
+    enum CameraState
+    {
 
-    //static Vector3 defaultEular;
-    //private void Update()
-    //{
-    //    int rank = SelectManager.CurrentSelectTargets.Any() ? SelectManager.CurrentSelectTargets.First().Rank : 0;
-    //    Vector3 biasEular = new Vector3(0, rank, 0);
-    //    //Camera.main.transform.position = defaultPos;
-    //    Camera.main.transform.eulerAngles = Quaternion.Lerp(Camera.main.transform.rotation, Quaternion.Euler(defaultEular + biasEular), Time.deltaTime * 5).eulerAngles;
-    //    //Camera.main.transform.LookAt(SelectManager.currentSelectTarget.FirstOrDefault()?.transform);
-    //}
+    }
     public static Transform targetCameraPoint;
-    private void Update()
+    //角度逼近目标点位
+    private void FixedUpdate()
     {
         Vector3 biasEular = Vector3.zero;
         //叠加选中不同敌方索引时的角度偏置
@@ -56,6 +51,15 @@ public class CameraTrackManager : MonoBehaviour
         BattleManager.CurrentBattle.RefreshCharaPos(character.Rank);
         targetCameraPoint = character.Idle_Pose;
     }
+    [Button("设置展示点位")]
+    public static void SetIdleShow(Character character)
+    {
+        //重置人物位置
+        BattleManager.CurrentBattle.RefreshCharaPos(character.Rank);
+        targetCameraPoint = character.Idle_Show;
+        Camera.main.transform.position = targetCameraPoint.transform.position;
+        Camera.main.transform.eulerAngles = targetCameraPoint.transform.eulerAngles;
+    }
     [Button("设置普攻点位")]
     public static void SetAttackPose(Character character)
     {
@@ -78,7 +82,7 @@ public class CameraTrackManager : MonoBehaviour
         BattleManager.CurrentBattle.RefreshCharaPos(character.Rank);
         targetCameraPoint = character.Brust_Pose;
     }
-    [Button("设置战技点位")]
+    [Button("设置攻击点位")]
     public static void SetAttackPos(Character character)
     {
         //重置人物位置

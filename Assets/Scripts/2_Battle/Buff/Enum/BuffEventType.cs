@@ -1,16 +1,20 @@
 ﻿public enum BuffEventType
 {
-    //角色显示事件
-    GetCurrentCharaData,
     //局外事件
     ItemSelect,//道具获得事件
     ItemGain,//道具获得事件
     ItemGainEffect,//道具获得生效事件
     GoldGain,
     GoldGainEffect,
-    //局内事件
-    SkillCast,
-    TakeDamage,
+    //流程事件
     TurnStart,
-    TurnEnd
+    TurnEnd,
+
+    //获得角色数值
+    GetCurrentCharaData,
+    //发送技能数据
+    SendSkillData,
+    //接收技能数据
+    ReceiveSkillData,
+    ElementalReaction,
 }

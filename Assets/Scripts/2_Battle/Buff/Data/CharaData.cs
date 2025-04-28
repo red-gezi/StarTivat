@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 public class CharaData : GameEventData
 {
@@ -15,13 +17,13 @@ public class CharaData : GameEventData
     public float BaseAttack { get; set; } // 基础攻击力
     public float AttackPercentageBonus { get; set; }//攻击力百分比加成
     public float AttackFlatBonus { get; set; }//基础攻击力固定值加成
-    public float TotalAttack => BaseAttack + BaseAttack * AttackPercentageBonus + AttackFlatBonus;//总攻击力
+    public float AttackBonus => BaseAttack * AttackPercentageBonus + AttackFlatBonus;//总攻击力
+    public float TotalAttack => BaseAttack + AttackBonus;//总攻击力
 
     public float BaseDefense { get; set; } // 基础防御减伤比例
-    public int BaseDefenseBonus { get; set; }//防御减伤加成
-    public int TotalDefenseBonus { get; set; }//经过增益减益后的实际防御减伤加成
+    public float DefenseBonus { get; set; } = 1;//防御减伤加成
+    public float TotalDefenseBonus => BaseDefense * DefenseBonus;//经过增益减益后的实际防御减伤加成
 
-    public float CurrentDefense { get; set; } // 当前减伤比例
     public int MaxActionPoint { get; set; } //行动力基准值
     public float ElementalMastery { get; set; } // 元素反应加成
     public float ElementalDamageBonus { get; set; } // 元素伤害加成
@@ -33,6 +35,7 @@ public class CharaData : GameEventData
     public float CurrentElementalEnergy { get; set; } // 当前元素能量
 
     public ElementType PlayerElement { get; set; }
+    [JsonIgnore]
     public Color PlayerColor => PlayerElement switch
     {
         ElementType.Anemo => new Color(0, 1, 0.4f),

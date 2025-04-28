@@ -1,4 +1,4 @@
-﻿public enum PlayerType
+﻿public enum PlayerName
 {
     Traveler,           // 旅行者
     Amber,              // 安柏

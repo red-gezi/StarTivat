@@ -2,6 +2,7 @@
 using System;
 using System.Threading.Tasks;
 using UnityEngine;
+using System.Linq;
 
 public class Buff
 {
@@ -13,6 +14,7 @@ public class Buff
     public ElementType element;
     //奇物专项
     public CurioType curio;
+    public List<BuffTag> tags;
     public string buffName;
     public string buffAbility;
     //执行顺序权重，越大的越后
@@ -41,6 +43,13 @@ public class Buff
         this.id = id;
         this.curio = curio;
         this.rank = rank;
+        switch (rank)
+        {
+            case 1: tags.Add(BuffTag.rank1); break;
+            case 2: tags.Add(BuffTag.rank2); break;
+            case 3: tags.Add(BuffTag.rank3); break;
+            default: break;
+        }
         this.buffName = buffName;
         this.buffAbility = buffAbility;
     }
@@ -51,12 +60,17 @@ public class Buff
     {
         return (Func<T, Task>)(BufferEvents.ContainsKey((triggerType, eventType)) ? BufferEvents[(triggerType, eventType)] : null);
     }
-    public Buff Register<T>(BuffTriggerType triggerType, BuffEventType eventType, Func<T, Task> handler) where T : GameEventData
+    public Buff RegisterTag(params BuffTag[] tags)
+    {
+        this.tags = tags.ToList();
+        return this;
+    }
+    public Buff RegisterEvent<T>(BuffTriggerType triggerType, BuffEventType eventType, Func<T, Task> handler) where T : GameEventData
     {
         BufferEvents[(triggerType, eventType)] = handler;
         return this;
     }
-    public bool HasEvent(BuffTriggerType triggerType, BuffEventType eventType) 
+    public bool HasEvent(BuffTriggerType triggerType, BuffEventType eventType)
     {
         return BufferEvents.ContainsKey((triggerType, eventType));
     }

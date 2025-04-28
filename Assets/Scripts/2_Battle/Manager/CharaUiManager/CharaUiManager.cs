@@ -64,11 +64,11 @@ public class CharaUiManager : MonoBehaviour
         DestroyImmediate(pointPrefab);
     }
     [Button("创造反应文字")]
-    public static async Task CreatElementReaction(GameObject target, ReactionType reaction)
+    public static async Task CreatReactionText(Character target, ReactionType reaction)
     {
         GameObject reactionPrefab = Instantiate(Instance.elementReactionPrefab, Instance.elementReactionPrefab.transform.parent);
         reactionPrefab.SetActive(true);
-        Vector3 screenPosition = Camera.main.WorldToScreenPoint(target.transform.position + Vector3.up + Random.onUnitSphere * 0.2f);
+        Vector3 screenPosition = Camera.main.WorldToScreenPoint(target.model.transform.position + Vector3.up + Random.onUnitSphere * 0.2f);
         screenPosition -= new Vector3(Screen.width / 2, Screen.height / 2);
 
         reactionPrefab.transform.localPosition = screenPosition;
@@ -157,7 +157,7 @@ public class CharaUiManager : MonoBehaviour
             int j = Random.Range(0, 5);
             //CreatSmallPoint(targets[j], Random.Range(555, 15555));
             //CreatLargePoint(targets[j], Random.Range(555, 15555));
-            CreatElementReaction(targets[j], (ReactionType)Random.Range(0, 10));
+            CreatReactionText(targets[j], (ReactionType)Random.Range(0, 10));
             await Task.Delay(1000);
         }
     }
