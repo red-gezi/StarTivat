@@ -159,6 +159,7 @@ PlayerSettings:
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
     Android: com.DefaultCompany.StarTivat
+    Standalone: com.DefaultCompany.StarTivat
   buildNumber:
     Bratwurst: 0
     Standalone: 0

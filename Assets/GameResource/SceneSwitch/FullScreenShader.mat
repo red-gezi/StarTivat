@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: FullScreenShader
+  m_Shader: {fileID: -6465566751694194690, guid: f364dbeb551e9964b875d2085d3525e0,
+    type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _SampleTexture2D_d9a8a1e7211542008cff77424a202e2b_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 98a8c600be4d32b47ae54405b7c69bf6, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_efb06407b0a64df2886e87a5cc80c34c_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: e69384d54135816479169a38a648ba93, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_fab964d2cad14a44957b30f1e9bc379b_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 000412744cf53e3479075a0ab76a3448, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Texture2DAsset_9328d84143ff4ca999f367dd66fc17b4_Out_0_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 40f44f7f98cb6924aaaec8c2b4015422, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Texture2DAsset_b029584cc30344d4b6bf57e5069330f1_Out_0_Texture2D:
+        m_Texture: {fileID: 2800000, guid: e475f2bb691380043bc98967106c73db, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _Float: 1
+    - _Fullscreen_DepthWrite: 1
+    - _IsAlpha: 0
+    - _QueueControl: 0
+    - _QueueOffset: 0
+    - _progress1: 0
+    - _progress2: 0
+    - _progress3: 0
+    m_Colors:
+    - _Vector3: {r: 1, g: 0, b: 0, a: 0}
+  m_BuildTextureStacks: []
