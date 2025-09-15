@@ -3,7 +3,12 @@ guid: b4bb751f248e28a42949fa793eb3d5f1
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: SkillObj_Xiangling_Panda_Mat
+    second: {fileID: 2100000, guid: 190417326b296e2468e86f269fbc36d5, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -105,5 +110,5 @@ ModelImporter:
   remapMaterialsIfMaterialImportModeIsNone: 0
   additionalBone: 0
   userData: 
-  assetBundleName: 
+  assetBundleName: model.gezi
   assetBundleVariant: 

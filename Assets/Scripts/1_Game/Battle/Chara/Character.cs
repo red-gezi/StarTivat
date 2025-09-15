@@ -1,76 +1,10 @@
-﻿using Sirenix.OdinInspector;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
-class CameraTrackManager
-{
-    public static List<CameraTrack> CameraTrackDatas { get; set; }
-
-    public static void Save()
-    {
-        File.WriteAllText("CameraTrack.json", CameraTrackDatas.ToJson());
-    }
-    public static void Load()
-    {
-        CameraTrackDatas= File.ReadAllText("CameraTrack.json").ToObject<List<CameraTrack>>();
-
-    }
-    public static void GetTrackData(string charaName)
-    {
-        CameraTrackDatas.FirstOrDefault(data => data.trackName == charaName);
-    }
-}
-public enum CameraType
-{
-    attack,
-    skill,
-    brust,
-    Enemyskill_1,
-    Enemyskill_2
-}
-[Serializable]
-public class CameraTrack
-{
-    public string trackName;
-    public CameraType trackType;
-    public List<CameraTrackPoint> points;
-    [Serializable]
-    public class CameraTrackPoint
-    {
-        public int delay;
-        public GameObject points;
-
-        public CameraTrackPoint(GameObject newPoint)
-        {
-            points = newPoint;
-        }
-
-        [Button("更新当前点位")]
-        public void UpdatePoint()
-        {
-            points.transform.position = SceneView.lastActiveSceneView.camera.transform.position;
-            points.transform.rotation = SceneView.lastActiveSceneView.camera.transform.rotation;
-        }
-    }
-    [Button("新增当前点位")]
-    public void AddPoint()
-    {
-        var newPoint = GameObject.Instantiate(GameManager.Instance.pointPrefab);
-        newPoint.transform.position = SceneView.lastActiveSceneView.camera.transform.position;
-        newPoint.transform.rotation = SceneView.lastActiveSceneView.camera.transform.rotation;
-        points.Add(new CameraTrackPoint(newPoint));
-    }
-    [Button("播放摄像机")]
-    public void PlayCamera()
-    {
-
-    }
-}
 public abstract partial class Character : MonoBehaviour
 {
     [HideInInspector]

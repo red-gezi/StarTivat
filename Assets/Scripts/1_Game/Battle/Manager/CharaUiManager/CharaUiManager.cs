@@ -1,5 +1,4 @@
 using Sirenix.OdinInspector;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TMPro;
@@ -45,7 +44,7 @@ public class CharaUiManager : MonoBehaviour
         };
         pointPrefab.GetComponent<TextMeshProUGUI>().color = color;
         pointPrefab.GetComponent<TextMeshProUGUI>().outlineColor = color * 0.8f;
-        
+
         pointPrefab.transform.localPosition = screenPosition;
         pointPrefab.transform.localScale = Vector3.one;
         await CustomThread.TimerAsync(0.2f, progress =>
@@ -59,7 +58,7 @@ public class CharaUiManager : MonoBehaviour
         //±äÍ¸Ã÷
         await CustomThread.TimerAsync(1f, progress =>
         {
-            pointPrefab.transform.localScale = Vector3.one ;
+            pointPrefab.transform.localScale = Vector3.one;
         });
         DestroyImmediate(pointPrefab);
     }

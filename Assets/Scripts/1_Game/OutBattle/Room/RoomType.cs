@@ -2,8 +2,14 @@
 {
     InitRoom,
     StartRoom,
-    EliteRoom,
-    BoosRoom,
-    EventRoom,
     BattleRoom,
+    EncounterRoom,
+    EliteRoom,
+    BossRoom,
+    EventRoom,
+    RewardRoom,
+    ShopRoom,
+    GameRoom,
+    MiracleRoom,
+    RestRoom,
 }

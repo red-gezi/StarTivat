@@ -7,10 +7,10 @@ public class FocusManager : MonoBehaviour
     public GameObject focusIcon;
     //被注视的焦点权重
     public float focusWeight;
-    
+
     public float distance;
     public float direDot;
-    public UnityEvent hitEvent; 
+    public UnityEvent hitEvent;
     //刷新标识位置和状态
     private void Start()
     {
@@ -30,7 +30,7 @@ public class FocusManager : MonoBehaviour
         }
         else
         {
-            focusWeight = (10-distance) * direDot * direDot;
+            focusWeight = (10 - distance) * direDot * direDot;
         }
     }
     public async void ShowFocusIcon()

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class AttackAreaManager:MonoBehaviour
+public class AttackAreaManager : MonoBehaviour
 {
     private void OnTriggerEnter(Collider other)
     {
@@ -13,7 +13,7 @@ public class AttackAreaManager:MonoBehaviour
             Destroy(gameObject);
         }
         //角色被怪物攻击
-        PlayerManager  player = other.GetComponent<PlayerManager>();
+        PlayerManager player = other.GetComponent<PlayerManager>();
         if (player != null)
         {
             Debug.Log("碰撞到角色");

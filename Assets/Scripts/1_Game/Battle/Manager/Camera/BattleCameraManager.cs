@@ -36,10 +36,10 @@ public class BattleCameraManager : MonoBehaviour
         float centerX = childrenPositions.Average(pos => pos.x);
         float centerY = childrenPositions.Average(pos => pos.y);
         float centerZ = childrenPositions.Average(pos => pos.z);
-        var targetPoint= new Vector3(centerX, centerY, centerZ);
+        var targetPoint = new Vector3(centerX, centerY, centerZ);
         await CustomThread.TimerAsync(1, progress =>
         {
-            Camera.main.transform.position = targetPoint + new Vector3(Mathf.Cos((progress*0.4f+1.2f)*Mathf.PI)*5, 3, Mathf.Sin((progress * 0.4f + 1.2f) * Mathf.PI) *5);
+            Camera.main.transform.position = targetPoint + new Vector3(Mathf.Cos((progress * 0.4f + 1.2f) * Mathf.PI) * 5, 3, Mathf.Sin((progress * 0.4f + 1.2f) * Mathf.PI) * 5);
             Camera.main.transform.LookAt(targetPoint);
         });
     }

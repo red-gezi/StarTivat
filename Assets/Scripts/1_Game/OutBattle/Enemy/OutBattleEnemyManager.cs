@@ -1,10 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
-using static MMD4MecanimImporterImpl.MMDModel;
 
 public class OutBattleEnemyManager : MonoBehaviour
 {
@@ -151,7 +148,7 @@ public class OutBattleEnemyManager : MonoBehaviour
 
     }
 }
-public class SceneObjectManager : MonoBehaviour
+public class BreakableObjectManager : MonoBehaviour
 {
     internal void OnHit()
     {

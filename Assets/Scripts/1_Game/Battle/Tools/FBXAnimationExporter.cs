@@ -25,7 +25,7 @@ public class FBXAnimationExporter : EditorWindow
                 {
                     // 导出 AnimationClip 到文件夹
                     string oldValue = Directory.GetCurrentDirectory();
-                    string clipPath = Path.Combine(folderPath.Replace(oldValue + "\\Assets\\",""), Path.GetFileName(clip.name) + ".fbx");
+                    string clipPath = Path.Combine(folderPath.Replace(oldValue + "\\Assets\\", ""), Path.GetFileName(clip.name) + ".fbx");
                     AssetDatabase.ExtractAsset(clip, clipPath);
                 }
                 Debug.Log("Animations exported successfully to: " + folderPath);

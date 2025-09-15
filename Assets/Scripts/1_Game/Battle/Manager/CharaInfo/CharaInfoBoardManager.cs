@@ -78,16 +78,16 @@ public class CharaInfoBoardManager : MonoBehaviour
         var targetData = character.CurrentCharaData;
         Debug.Log(targetData.ToJson());
         //刷新数值
-        BrustIcon.sprite= character.brustSkillIcon;
-        BrustValue.text= $"{targetData.CurrentElementalEnergy}/{targetData.MaxElementalEnergy}";
+        BrustIcon.sprite = character.brustSkillIcon;
+        BrustValue.text = $"{targetData.CurrentElementalEnergy}/{targetData.MaxElementalEnergy}";
         charaNname.text = targetData.CharaName;
         hp.text = $"{targetData.BaseHP}/{targetData.MaxHP}";
-        attack.text = $"{targetData.BaseAttack}+<color={(targetData.AttackBonus>0? "#16D2EB":"red")}>{targetData.AttackBonus}</color>";
+        attack.text = $"{targetData.BaseAttack}+<color={(targetData.AttackBonus > 0 ? "#16D2EB" : "red")}>{targetData.AttackBonus}</color>";
         criticalRate.text = $"{targetData.CriticalRate}%";
         speed.text = $"{targetData.MaxActionPoint}+<color={(targetData.AttackBonus > 0 ? "#16D2EB" : "red")}>{5}</color>";
         defense.text = $"{targetData.TotalDefenseBonus}%";
         criticalDamage.text = $"{targetData.BaseCriticalDamage}%";
-        buffCount.text ="5";
+        buffCount.text = "5";
         debuffCount.text = "14";
 
     }

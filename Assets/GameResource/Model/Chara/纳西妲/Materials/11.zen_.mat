@@ -61,6 +61,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _Ice_a53a0ab7c2c54ff78c05f9a0c2e3ece9_MainTex_3404481131_Texture2D:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 2800000, guid: ca17ddc5eb8f2f248bdde55e718c3b84, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -75,6 +79,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _ParallaxMap:
         m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_5223307b818c410080df358c5a55176c_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 259deb20a48ff8c4e8ad1612d01fb57d, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecGlossMap:

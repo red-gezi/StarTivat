@@ -40,7 +40,7 @@ public class BattleManager : MonoBehaviour
         //清空角色列表
         charaList.Clear();
         //初始化双方角色
-        InitChara(players, enemyData );
+        InitChara(players, enemyData);
 
         //关闭角色选择图标
         SelectManager.Close();

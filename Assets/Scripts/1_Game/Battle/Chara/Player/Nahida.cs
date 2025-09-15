@@ -7,6 +7,11 @@ class Nahida : Character
     //初始赋值人物数据
     private void Awake()
     {
+        BattleCharaInit();
+    }
+
+    private void BattleCharaInit()
+    {
         CharacterInit();
         RegisterCharaData(new CharaData()
         {
@@ -86,8 +91,8 @@ class Nahida : Character
         PlayAnimation(AnimationType.Attack);
 
         //根据玩家当前数值和技能数据生成一个数值快照
-        BasicSkillData.CurrentCharaData = await GameEventManager.GetCurrentCharaData(this);
-        await GameEventManager.SendSkillData(BasicSkillData);
+        BasicSkillData.CurrentCharaData = await BattleGameEventManager.GetCurrentCharaData(this);
+        await BattleGameEventManager.SendSkillData(BasicSkillData);
         //_ = SendSkillData(BasicSkillData);
         //
         _ = CalculateHitPointsAsync(200, ElementType.Herb, 2, SelectManager.CurrentSelectTargets, 0.8f);

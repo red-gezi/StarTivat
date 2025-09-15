@@ -8,11 +8,11 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: 5.mayu
-  m_Shader: {fileID: 4800000, guid: 41967839717f3204caa5496de418121e, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 6351b27924f660c459165374ce8c0656,
+    type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
-  - _DOUBLE_SIDED
+  m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -84,6 +84,18 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_5223307b818c410080df358c5a55176c_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 259deb20a48ff8c4e8ad1612d01fb57d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_7a2cc2a839bd4b91ab201495f4b86bd0_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: b62cbdd187083a44aa756f4ab0c8713c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_cadce5b7d7fc41798b8769f0bc18bbb4_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 394655ab898dba3449bf9ef73a9e68da, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _ShadowRamp:
         m_Texture: {fileID: 2800000, guid: b51a2de16ca3c154fbf3454d7b4af8c8, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -94,6 +106,18 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _ToonTex:
         m_Texture: {fileID: 2800000, guid: 411fd543387ac7c498435df2570b2a5e, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
@@ -114,9 +138,11 @@ Material:
     - _EmissionIntensity: 1
     - _FaceBlushStrength: 1
     - _FaceShadowOffset: 0
+    - _Float: 0.62
     - _GlossMapScale: 1
     - _Glossiness: 0
     - _GlossyReflections: 1
+    - _Ice: 0
     - _IsDay: 1
     - _IsFace: 0
     - _Metallic: 0
@@ -125,8 +151,12 @@ Material:
     - _NoShadowCasting: 0
     - _NonmetallicIntensity: 1
     - _OcclusionStrength: 1
+    - _OpenIce: 1
+    - _OpenIcePiton: 0
     - _OutlineWidth: 1
     - _Parallax: 0.02
+    - _QueueControl: 0
+    - _QueueOffset: 0
     - _Revision: -1
     - _RimIntensity: 1
     - _RimOffset: 1
@@ -167,3 +197,16 @@ Material:
     - _Specular: {r: 1, g: 1, b: 1, a: 1}
     - _ToonTone: {r: 1, g: 0.5, b: 0.5, a: 0}
   m_BuildTextureStacks: []
+--- !u!114 &8376079168957914800
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 7

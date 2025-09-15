@@ -73,7 +73,7 @@ class Traveler : Character
         await Task.Delay(1000);
         ActionBarManager.ActiveActionCompleted();
     }
-    
+
 
     public override Task StrengthenAttackAction()
     {

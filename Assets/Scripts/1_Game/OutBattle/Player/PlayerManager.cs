@@ -1,4 +1,4 @@
-using System;
+using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,6 +26,9 @@ public class PlayerManager : MonoBehaviour
     public float currentDistance = 2f;
     public float mouseX;
     public float mouseY;
+    public bool canMove = true;
+    public bool canAttack = true;
+    public bool isBusy = false;
     //摄像机位置
     public Transform cameraPos;
     public Transform focusPos;
@@ -34,6 +37,9 @@ public class PlayerManager : MonoBehaviour
     public List<FocusManager> focusTargetList;
     public FocusManager focusTarget;
     public GameObject bullet;
+    //所有角色的模型数据
+    public GameObject CharaList;
+    public Character currentChara => transform.GetChild(0).GetComponent<Character>();
     public CameraMode CurrentCameraMode { get; set; }
     public AttackMode CurrentAttackMode { get; set; }
     private void Awake() => Instance = this;
@@ -70,32 +76,42 @@ public class PlayerManager : MonoBehaviour
             Camera.main.transform.position = cameraPos.transform.position;
             Camera.main.transform.eulerAngles = cameraPos.transform.eulerAngles;
             //////////////////////////////////////////////////////控制角色朝向//////////////////////////////////////////////////////
-            float verticalInput = Input.GetAxis("Vertical");
-            float horizontalInput = Input.GetAxis("Horizontal");
-
-            // 获取摄像机的前向和右向向量（在世界坐标系中）
-            Vector3 cameraForward = Vector3.ProjectOnPlane(Camera.main.transform.forward, Vector3.up).normalized;
-            Vector3 cameraRight = Vector3.ProjectOnPlane(Camera.main.transform.right, Vector3.up).normalized;
-
-            // 根据摄像机的前向和右向向量来计算输入方向
-            Vector3 inputDirection = (cameraRight * horizontalInput + cameraForward * verticalInput);
-
-            if (inputDirection != Vector3.zero)
+            if (!isBusy)
             {
-                inputDirection.Normalize();  // 归一化输入方向
+                float verticalInput = Input.GetAxis("Vertical");
+                float horizontalInput = Input.GetAxis("Horizontal");
 
-                // 根据输入方向计算目标朝向
-                float angle = Vector3.SignedAngle(transform.forward, inputDirection, transform.up);
-                transform.GetChild(0).localEulerAngles = new Vector3(0, angle, 0);
+                // 获取摄像机的前向和右向向量（在世界坐标系中）
+                Vector3 cameraForward = Vector3.ProjectOnPlane(Camera.main.transform.forward, Vector3.up).normalized;
+                Vector3 cameraRight = Vector3.ProjectOnPlane(Camera.main.transform.right, Vector3.up).normalized;
 
-                // 根据输入方向计算移动向量
-                Vector3 moveVector = inputDirection * Mathf.Clamp01(Mathf.Abs(verticalInput) + Mathf.Abs(horizontalInput)) * moveSpeed * Time.fixedDeltaTime;
-                //transform.position += (moveVector);
-                GetComponent<Rigidbody>().MovePosition(transform.position + moveVector);
+                // 根据摄像机的前向和右向向量来计算输入方向
+                Vector3 inputDirection = (cameraRight * horizontalInput + cameraForward * verticalInput);
 
+                if (inputDirection != Vector3.zero)
+                {
+                    if (animator.GetCurrentAnimatorStateInfo(0).IsName("Attack"))
+                    {
+                        Debug.Log("中断攻击状态");
+                        animator.SetTrigger("IsInterrupt");
+                    }
+                    inputDirection.Normalize();  // 归一化输入方向
+
+                    // 根据输入方向计算目标朝向
+                    float angle = Vector3.SignedAngle(transform.forward, inputDirection, transform.up);
+                    transform.GetChild(0).localEulerAngles = new Vector3(0, angle, 0);
+
+                    // 根据输入方向计算移动向量
+                    Vector3 moveVector = inputDirection * Mathf.Clamp01(Mathf.Abs(verticalInput) + Mathf.Abs(horizontalInput)) * moveSpeed * Time.fixedDeltaTime;
+                    //transform.position += (moveVector);
+                    GetComponent<Rigidbody>().MovePosition(transform.position + moveVector);
+                }
+
+                animator.SetBool("IsRun", inputDirection != Vector3.zero);
             }
+
             //设置动画
-            animator.SetBool("IsRun", verticalInput != 0 || horizontalInput != 0);
+            //animator.SetBool("IsRun", verticalInput != 0 || horizontalInput != 0);
         }
         else
         {
@@ -112,11 +128,19 @@ public class PlayerManager : MonoBehaviour
             await ScreenWarpManager.CloseScreen();
         }
     }
-    private async void Update()
+    public async void OnMouseCliceCanve()
     {
-
-        if (Input.GetMouseButtonDown(0))
+        if (!isBusy)
         {
+            isBusy = true;
+            Debug.Log("进入繁忙状态");
+            currentChara.transform.localPosition = Vector3.zero;
+            animator.SetBool("IsRun", false);
+            if (animator.GetCurrentAnimatorStateInfo(0).IsName("Attack"))
+            {
+                Debug.Log("中断攻击状态");
+                animator.SetTrigger("IsInterrupt");
+            }
             //朝向最近的单位
             if (focusTarget != null)
             {
@@ -126,18 +150,30 @@ public class PlayerManager : MonoBehaviour
                 float angle = Vector3.SignedAngle(transform.forward, horizontalDirection, transform.up);
                 transform.GetChild(0).localEulerAngles = new Vector3(0, angle, 0);
             }
+            await Task.Delay(200);
             //攻击
             switch (CurrentAttackMode)
             {
                 case AttackMode.MeleeAttack: await MeleeAttackAsync(); break;
                 case AttackMode.RangedAttack: await RangedAttackAsync(); break;
             }
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(1000);
+                isBusy = false;
+                Debug.Log("解除繁忙状态");
+            });
         }
-        if (Input.GetMouseButtonDown(1))
-        {
-            //加速
-            animator.SetTrigger("IsAttack2");
-        }
+    }
+    private async void Update()
+    {
+
+        
+        //if (Input.GetMouseButtonDown(1))
+        //{
+        //    //加速
+        //    animator.SetTrigger("IsAttack2");
+        //}
         //设置玩家注视敌人
         FocusManager currentFocusEnemy = focusTargetList
                .Where(enemy => enemy.focusWeight > 0)
@@ -151,23 +187,58 @@ public class PlayerManager : MonoBehaviour
 
         }
     }
+    [Button("切换人物")]
+    public void SwitchChara(CharaName charaName)
+    {
+        // 查找子物体（直接子物体，不递归）
+        if (currentChara.name == charaName.ToString())
+        {
+            Debug.LogWarning("同人物无法切换");
+            return;
+        }
+        currentChara.gameObject.SetActive(false);
+        Transform targetChara = transform.Find(charaName.ToString());
+        if (targetChara == null)
+        {
+            //拷贝一个
+            var originalChara = CharaList.transform.Find(charaName.ToString());
+            Debug.Log(originalChara);
+            targetChara = Instantiate(originalChara, transform);
+            targetChara.name = originalChara.name;
+        }
+        if (targetChara != null)
+        {
+            // 将子物体移动到首位
+            targetChara.SetAsFirstSibling();
+            targetChara.gameObject.SetActive(true);
+            Debug.Log($"已将 {charaName} 移动到首位");
+            //播放个特效
+        }
+        else
+        {
+            Debug.LogError($"未找到名称为 {charaName} 的子物体");
+        }
+    }
     public async Task MeleeAttackAsync()
     {
-        await Task.Delay(2000);
+        Debug.Log("进入攻击");
+        animator.SetTrigger("IsAttack");
+        await Task.Delay(400);
         var newBullet = Instantiate(bullet);
         newBullet.SetActive(true);
         newBullet.transform.position = bullet.transform.position;
         newBullet.GetComponent<Rigidbody>().AddForce(transform.GetChild(0).forward * 10, ForceMode.Impulse);
-        animator.SetTrigger("IsAttack");
+
     }
     public async Task RangedAttackAsync()
     {
-        await Task.Delay(2000);
+        Debug.Log("进入攻击");
+        animator.SetTrigger("IsAttack");
+        await Task.Delay(400);
         var newBullet = Instantiate(bullet);
         newBullet.SetActive(true);
         newBullet.transform.position = bullet.transform.position;
         newBullet.GetComponent<Rigidbody>().AddForce(transform.GetChild(0).forward * 10, ForceMode.Impulse);
-        animator.SetTrigger("IsAttack");
     }
 
     internal void OnHit()

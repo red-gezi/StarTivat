@@ -11,7 +11,7 @@ public class PlayerAbilityManager
     public Func<Task> BurstAction;
     public virtual async Task StrengthenAttackAction() { await Task.CompletedTask; }
     public virtual async Task StrengthenSkillAction() { await Task.CompletedTask; }
-   
+
 }
 public class EnemyAbilityManager
 {

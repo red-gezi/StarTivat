@@ -1,3 +1,4 @@
+using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +24,16 @@ public class OutBattleUIManager : MonoBehaviour
         Instance = this;
         InitBlessingSelection();
         InitCurioSelection();
+    }
+    private void Update()
+    {
+        if (true)
+        {
+            if (Input.GetKeyDown(KeyCode.Alpha1)) SwitchChara(1);
+            if (Input.GetKeyDown(KeyCode.Alpha2)) SwitchChara(2);
+            if (Input.GetKeyDown(KeyCode.Alpha3)) SwitchChara(3);
+            if (Input.GetKeyDown(KeyCode.Alpha4)) SwitchChara(4);
+        }
     }
     public void InitBlessingSelection()
     {
@@ -237,6 +248,281 @@ public class OutBattleUIManager : MonoBehaviour
         // 2. 更新背包数据
         // 3. 执行界面关闭过渡
     }
+    // ==================== 选择人物界面 ====================
+    public enum CharaSelectCanvasMode
+    {
+        TeamCreat,
+        TeamSwap,
+        CharacterDownload,
+        CharacterRevive,
+        AttributeModification,
+    }
+    [Header("人物选择界面")]
+    public GameObject ConfirmButton;
+    public GameObject CloseButton;
+    public GameObject CharaSelectCanvas;
+    public Transform TeamPoolContent;
+    public Transform TempTeamAppearanceContent;
+    CharaSelectCanvasMode currentCharaSelectInitMode;
+    List<TeamCharaData> targetCharaDatas;
+    public List<Sprite> elements;
+    public void OpenCharaSelectTeamCreatCanvas()
+    {
+        CharaSelectCanvas.SetActive(true);
+        InitCharaSelectCanves(CharaSelectCanvasMode.TeamCreat);
+        //展开动画
+    }
+    public void OpenCharaSelectTeamSwapCanvas()
+    {
+        CharaSelectCanvas.SetActive(true);
+        InitCharaSelectCanves(CharaSelectCanvasMode.TeamSwap);
+        //展开动画
+    }
+    public void OpenCharaSelectCharacterDownloadCanvas()
+    {
+        CharaSelectCanvas.SetActive(true);
+        InitCharaSelectCanves(CharaSelectCanvasMode.CharacterDownload);
+        //展开动画
+    }
+    public void OpenCharaSelectCharacterReviveCanvas()
+    {
+        CharaSelectCanvas.SetActive(true);
+        InitCharaSelectCanves(CharaSelectCanvasMode.CharacterRevive);
+        //展开动画
+    }
+    public void CloseCharaSelectCanvas()
+    {
+        CharaSelectCanvas.SetActive(false);
+        //收起动画
+    }
+    //初始化人物选择列表，有多种模式
+    //游戏进入模式，从TeamManager.AllCharaData获取全人物模板数据,选择至多4个组队
+    //队伍换人模式，从GameManager.gameData.TeamCharaPool;获得角色池人物数据
+    //人物下载模式，从TeamManager.AllCharaData获取全人物模板数据,剔除已有人物，选择一个加入队伍池子
+    //人物复活模式，从GameManager.gameData.TeamCharaPool,剔除未死亡人物，选择一个复活
+    //属性变更模式，从TeamManager.AllCharaData获取全人物模板数据，选择一个进行修改
+    public void InitCharaSelectCanves(CharaSelectCanvasMode charaPoolInitMode)
+    {
+        //初始化按钮
+        ConfirmButton.GetComponent<Button>().onClick.RemoveAllListeners();
+        CloseButton.GetComponent<Button>().onClick.RemoveAllListeners();
+        CloseButton.GetComponent<Button>().onClick.AddListener(CloseCharaSelectCanvas);
+        switch (currentCharaSelectInitMode)
+        {
+            case CharaSelectCanvasMode.TeamCreat:
+                ConfirmButton.GetComponent<Button>().onClick.AddListener(() =>
+                {
+                    List<CharaName> charaNameList = GameManager.gameData.TempTeamAppearanceList
+                                                                            .Where(chara => chara != null)
+                                                                            .Select(chara => chara.CharaNameType)
+                                                                            .ToList();
+                    TeamManager.SetTeamAppearanceList(charaNameList);
+                    CloseCharaSelectCanvas();
+                });
+                break;
+            case CharaSelectCanvasMode.TeamSwap:
+                ConfirmButton.GetComponent<Button>().onClick.AddListener(() =>
+                {
+                    List<CharaName> charaNameList = GameManager.gameData.TempTeamAppearanceList
+                                                                            .Where(chara => chara != null)
+                                                                            .Select(chara => chara.CharaNameType)
+                                                                            .ToList();
+                    TeamManager.SetTeamAppearanceList(charaNameList);
+                    CloseCharaSelectCanvas();
+                });
+                break;
+            case CharaSelectCanvasMode.CharacterDownload:
+                break;
+            case CharaSelectCanvasMode.CharacterRevive:
+                break;
+        }
+        //初始化角色列表UI
+        currentCharaSelectInitMode = charaPoolInitMode;
+        targetCharaDatas = currentCharaSelectInitMode switch
+        {
+            CharaSelectCanvasMode.TeamCreat => TeamManager.AllCharaData,
+            CharaSelectCanvasMode.TeamSwap => GameManager.gameData.TeamCharaPool,
+            CharaSelectCanvasMode.CharacterDownload => TeamManager.AllCharaData.Where(chara => !GameManager.gameData.TeamCharaPool.Select(teamChara => teamChara.CharaNameType).ToList().Contains(chara.CharaNameType)).ToList(),
+            CharaSelectCanvasMode.CharacterRevive => GameManager.gameData.TeamCharaPool.Where(chara => chara.IsDead).ToList(),
+            _ => throw new NotImplementedException(),
+        };
+        //初始化角色池UI
+        var itemTemplate = TeamPoolContent.GetChild(0);
+        for (int i = TeamPoolContent.childCount; i < targetCharaDatas.Count; i++)
+        {
+            Instantiate(itemTemplate, itemTemplate.parent);
+        }
+        foreach (Transform item in TeamPoolContent)
+        {
+            item.gameObject.SetActive(false);
+        }
+        //刷新指定数量的人物条目数据
+        for (int i = 0; i < targetCharaDatas.Count; i++)
+        {
+            int rank = i;
+            Transform item = TeamPoolContent.GetChild(i);
+            item.gameObject.SetActive(true);
+            item.GetComponent<Button>().onClick.RemoveAllListeners();
+            item.Find("Mask").Find("Icon").GetComponent<Image>().sprite = AssetBundleManager.Load<Sprite>("CharaIcon", targetCharaDatas[i].CharaNameType.ToString());
+            item.Find("Name").GetComponent<Text>().text = targetCharaDatas[i].ShowCharaName["ch"];
+            // 设置选中框
+            int index = Array.FindIndex(GameManager.gameData.TempTeamAppearanceList,
+                chara => chara?.CharaNameType == targetCharaDatas[i].CharaNameType);
+            bool isActive = index != -1;
+            item.Find("Select").gameObject.SetActive(isActive);
+            item.Find("Mask").Find("Index").gameObject.SetActive(isActive);
+            item.Find("Mask").Find("Index").GetChild(0).GetComponent<Text>().text = (index + 1).ToString();
+            //设置元素
+            int elementIndex = ((int)targetCharaDatas[i].CharaNameType) % 1000 / 100;
+            item.Find("Mask").Find("Element").GetComponent<Image>().sprite = elements[elementIndex];
+            //设置背景颜色
+            item.Find("Mask").Find("Bg_G").gameObject.SetActive(targetCharaDatas[i].IsGold);
+            item.Find("Mask").Find("Bg_P").gameObject.SetActive(!targetCharaDatas[i].IsGold);
+            switch (currentCharaSelectInitMode)
+            {
+                case CharaSelectCanvasMode.TeamCreat:
+
+                    //设置点击事件
+                    item.GetComponent<Button>().onClick.AddListener(() =>
+                    {
+                        if (!GameManager.gameData.TempTeamAppearanceList.Contains(targetCharaDatas[rank]))
+                        {
+                            AddCharaIntoTeamPool(targetCharaDatas[rank].CharaNameType);
+                            AddCharaIntoTempTeamAppearanceList(targetCharaDatas[rank].CharaNameType);
+                        }
+                        else
+                        {
+                            RemoveCharaFromTeamPool(targetCharaDatas[rank].CharaNameType);
+                            RemoveCharaFromTempTeamAppearanceList(targetCharaDatas[rank].CharaNameType);
+                        }
+                    });
+                    break;
+                case CharaSelectCanvasMode.TeamSwap:
+                    break;
+                case CharaSelectCanvasMode.CharacterDownload:
+                    break;
+                case CharaSelectCanvasMode.CharacterRevive:
+                    break;
+                default:
+                    break;
+            }
+        }
+        //刷新临时队伍ui
+        RefreshTempTeamAppearanceList();
+        //刷新属性配置ui
+    }
+    public void AddCharaIntoTeamPool(CharaName charaName) => TeamManager.AddCharaIntoTeamPool(charaName);
+    public void AddCharaIntoTempTeamAppearanceList(CharaName charaName) => TeamManager.AddCharaIntoTempTeamAppearanceList(charaName);
+    [Button("刷新角色池列表ui")]
+    public void RefreshCharaList()
+    {
+        //刷新指定数量的人物条目数据
+        for (int i = 0; i < targetCharaDatas.Count; i++)
+        {
+            int rank = i;
+            Transform item = TeamPoolContent.GetChild(i);
+            // 设置选中框
+            int index = Array.FindIndex(GameManager.gameData.TempTeamAppearanceList,
+                chara => chara?.CharaNameType == targetCharaDatas[i].CharaNameType);
+            bool isActive = index != -1;
+            item.Find("Select").gameObject.SetActive(isActive);
+            item.Find("Mask").Find("Index").gameObject.SetActive(isActive);
+            item.Find("Mask").Find("Index").GetChild(0).GetComponent<Text>().text = (index + 1).ToString();
+            switch (currentCharaSelectInitMode)
+            {
+                case CharaSelectCanvasMode.TeamCreat:
+
+                    break;
+                case CharaSelectCanvasMode.TeamSwap:
+                    break;
+                case CharaSelectCanvasMode.CharacterDownload:
+                    break;
+                case CharaSelectCanvasMode.CharacterRevive:
+                    break;
+                default:
+                    break;
+            }
+            //item6.GetComponent<Button>().onClick.AddListener(() => SelectCharaVoiceListOnConfig(rank));
+        }
+    }
+    [Button("刷新临时出战列表ui")]
+
+    public void RefreshTempTeamAppearanceList()
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            var item = TempTeamAppearanceContent.GetChild(i);
+            item.GetComponent<Button>().onClick.RemoveAllListeners();
+            var icon = item.Find("Mask").Find("Icon");
+            var charaData = GameManager.gameData.TempTeamAppearanceList[i];
+            icon.gameObject.SetActive(charaData != null);
+            int rank = i;
+            if (charaData != null)
+            {
+                icon.GetComponent<Image>().sprite = AssetBundleManager.Load<Sprite>("CharaIcon", charaData.CharaNameType.ToString());
+                item.GetComponent<Button>().onClick.AddListener(() =>
+                {
+                    var charaData = GameManager.gameData.TempTeamAppearanceList[rank];
+                    RemoveCharaFromTempTeamAppearanceList(charaData.CharaNameType);
+                    RemoveCharaFromTeamPool(charaData.CharaNameType);
+
+                });
+            }
+        }
+    }
+
+    private void RemoveCharaFromTempTeamAppearanceList(CharaName charaName)
+    {
+        TeamManager.RemoveCharaFromTempTeamAppearanceList(charaName);
+    }
+    public void RemoveAllFromTeamPool() => TeamManager.RemoveAllFromTeamPool();
+    // public void RemoveCharaFromTeamPool(CharaName charaName) => TeamManager.RemoveCharaFromTeamPool(charaName);
+
+    [Button("队伍池移除人物")]
+    public void RemoveCharaFromTeamPool(CharaName charaName) => TeamManager.RemoveCharaFromTeamPool(charaName);
+    public void RemoveFromTeamAppearanceList(CharaName charaName) => TeamManager.RemoveCharaFromTeamAppearanceList(charaName);
+    public void RemoveAllFromTeamAppearanceList() => TeamManager.RemoveAllFromTeamAppearanceList();
+
+
+    public void SetCurrentChara(CharaData chara)
+    {
+        Debug.Log("按钮点击" + chara.ToString());
+        //如果游戏池子存在，则
+        //CharaConfigManager.Instance.SelectModel(chara);
+        CloseCharaSelectCanvas();
+    }
+    // ==================== 队伍与出战人物界面 ====================
+    public Transform TeamAvatarContent;
+    //[Button("队伍池添加人物")]
+    //public void AddCharaIntoTeamPool(CharaName charaName) => TeamManager.AddCharaIntoTeamPool(charaName);
+    //
+    [Button("设置出战人物")]
+    public void SetTeamAppearanceList(List<CharaName> charaNameList) => TeamManager.SetTeamAppearanceList(charaNameList);
+    [Button("队伍切换人物")]
+    public void SwitchChara(int index) => TeamManager.SwitchChara(index);
+    [Button("刷新出战人物ui")]
+    public void RefreshTeamAppearanceList()
+    {
+        var datas = GameManager.gameData.TeamAppearanceList;
+        for (int i = 0; i < 4; i++)
+        {
+            Transform item = TeamAvatarContent.GetChild(i);
+            item.gameObject.SetActive(i < datas.Count);
+            if (i >= datas.Count)
+            {
+                continue;
+            }
+            //TeamAvatarContent.GetChild(i).Find("Hp").GetComponent<Text>().text = datas[i].ShowCharaName["ch"];
+            item.Find("Name").GetComponent<Text>().text = datas[i].ShowCharaName["ch"];
+            item.Find("Mask").GetChild(0).GetComponent<Image>().sprite = AssetBundleManager.Load<Sprite>("CharaIcon", datas[i].CharaNameType.ToString());
+            item.Find("Number").GetChild(0).GetComponent<Text>().text = i.ToString();
+            item.Find("bg_w").gameObject.SetActive(i + 1 == GameManager.gameData.TeamAppearanceIndex);
+            item.Find("bg_b").gameObject.SetActive(i + 1 != GameManager.gameData.TeamAppearanceIndex);
+        }
+    }
+
+
+
 
     internal static void ShowUI()
     {
@@ -247,4 +533,21 @@ public class OutBattleUIManager : MonoBehaviour
     {
         throw new NotImplementedException();
     }
+    // ==================== 道具获得提示界面 ====================
+    [Header("道具获得提示")]
+    public GameObject GetItemPrefab;
+
+    public enum ItemType
+    {
+        Mora,
+        Cecelia,
+    }
+    [Button("通知道具获得")]
+    internal void NoticeItemGet(ItemType itemType, int count)
+    {
+        var newItem = Instantiate(GetItemPrefab, GetItemPrefab.transform.transform.parent);
+        newItem.SetActive(true);
+        Destroy(newItem, 3);
+    }
+
 }

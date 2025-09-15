@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: f21b62775a606104390d346d23534f39
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: charaeffect.gezi
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 60072b568d64c40a485e0fc55012dc9f, type: 3}

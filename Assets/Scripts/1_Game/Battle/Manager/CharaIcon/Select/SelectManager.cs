@@ -21,8 +21,8 @@ public class SelectManager : MonoBehaviour
 
     private static void RefreshLock()
     {
-       BattleManager.Instance.charaList.ForEach(chara => chara.largeLock.SetActive(false));
-       BattleManager.Instance.charaList.ForEach(chara => chara.smallLock.SetActive(false));
+        BattleManager.Instance.charaList.ForEach(chara => chara.largeLock.SetActive(false));
+        BattleManager.Instance.charaList.ForEach(chara => chara.smallLock.SetActive(false));
         //启动目标模型的大框
         CurrentSelectTargets.ForEach(chara => chara.largeLock.SetActive(true));
         _ = ChangeLargeLockSize();
@@ -66,8 +66,8 @@ public class SelectManager : MonoBehaviour
         isSelectModeOpen = false;
         //关掉所有模型身上的大小框，
         //关掉所有模型身上的大小框，
-       BattleManager.Instance.charaList.ForEach(chara => chara.largeLock.SetActive(false));
-       BattleManager.Instance.charaList.ForEach(chara => chara.smallLock.SetActive(false));
+        BattleManager.Instance.charaList.ForEach(chara => chara.largeLock.SetActive(false));
+        BattleManager.Instance.charaList.ForEach(chara => chara.smallLock.SetActive(false));
     }
     public static void CharaClick(Character character)
     {

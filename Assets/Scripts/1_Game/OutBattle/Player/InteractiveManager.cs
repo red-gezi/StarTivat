@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.EventSystems;
 
 public class InteractiveManager : MonoBehaviour
 {
@@ -8,7 +7,7 @@ public class InteractiveManager : MonoBehaviour
     public UnityEvent Event;
     public void Interactive()
     {
-        Debug.Log("触发事件!"+gameObject.name);
+        Debug.Log("触发事件!" + gameObject.name);
         Event.Invoke();
     }
     private void OnDestroy()
@@ -17,7 +16,7 @@ public class InteractiveManager : MonoBehaviour
     }
     public void CloseTrigger()
     {
-        CanTrigger=false;
+        CanTrigger = false;
         CheckManager.Instance.RemoveInteractObject(this);
     }
 }

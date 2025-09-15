@@ -1,5 +1,4 @@
 using Sirenix.OdinInspector;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -7,26 +6,28 @@ using UnityEngine;
 public class CheckManager : MonoBehaviour
 {
     [ShowInInspector]
-     List<InteractiveManager> interactives = new List<InteractiveManager>();
+    List<InteractiveManager> interactives = new List<InteractiveManager>();
     public GameObject InteractiveUi;
     public static CheckManager Instance;
     private void Awake()
     {
-        Instance= this;
+        Instance = this;
         //transform.parent=transform.parent.GetChild(0);
     }
     private void Update()
     {
-        
-        if (Input.GetKeyDown(KeyCode.F))
+
+        if (interactives.Any() && Input.GetKeyDown(KeyCode.F))
         {
             interactives.FirstOrDefault()?.Interactive();
+            interactives.Clear();
+            InteractiveUi.SetActive(false);
         }
     }
     private void OnTriggerEnter(Collider other)
     {
         InteractiveManager target = other.GetComponent<InteractiveManager>();
-        if (target != null&&target.CanTrigger)
+        if (target != null && target.CanTrigger)
         {
             interactives.Add(target);
             InteractiveUi.SetActive(true);
@@ -43,7 +44,7 @@ public class CheckManager : MonoBehaviour
             {
                 InteractiveUi.SetActive(false);
             }
-            Debug.Log(other.gameObject.name);
+            //Debug.Log(other.gameObject.name);
         }
     }
     public void RemoveInteractObject(InteractiveManager interactiveManager)

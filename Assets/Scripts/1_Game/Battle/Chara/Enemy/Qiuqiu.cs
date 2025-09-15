@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 class Qiuqiu : Character
@@ -66,7 +65,7 @@ class Qiuqiu : Character
         //设置玩家角色模型朝向
         if (!SelectManager.CurrentSelectTargets.Any())
         {
-            SelectManager.CurrentSelectTargets =BattleManager.Instance.charaList.Where(chara => !chara.IsEnemy).Take(1).ToList();
+            SelectManager.CurrentSelectTargets = BattleManager.Instance.charaList.Where(chara => !chara.IsEnemy).Take(1).ToList();
         }
         var target = SelectManager.CurrentSelectTargets.First();
         PlayAnimation(AnimationType.Walk);

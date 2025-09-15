@@ -1,6 +1,4 @@
-﻿using NUnit.Framework;
-
-public class OutBattleEnemyData
+﻿public class OutBattleEnemyData
 {
     public EnemyType CurrentEnemyName { get; set; }
     public int level;

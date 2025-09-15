@@ -1,382 +1,510 @@
 {
-  "outBattleData": null,
-  "roomDatas": [
+  "CurrentOutBattleData": {
+    "Gold": 0,
+    "Buffs": []
+  },
+  "CurrentRoomDatas": [
     {
-      "Layer": 1,
+      "Layer": 0,
+      "BaseRoomConfigData": {
+        "CurrentRoomType": 0,
+        "SelectableSceneModel": [
+          8
+        ],
+        "SelectableRoomTag": [
+          [
+            0,
+            2,
+            3,
+            7
+          ]
+        ],
+        "DoorCount": [
+          0
+        ],
+        "OccurrenceCount": [],
+        "MonstertCount": [],
+        "MonstertType": [],
+        "ChestCount": [],
+        "SceneObjectCount": [],
+        "NPC": []
+      },
+      "IsFinish": false,
       "CurrentSceneModel": 8,
       "CurrentRoomType": 0,
       "CurrentRoomTag": 0,
-      "OutDoorType": null,
+      "TargetDoorCount": 3,
+      "DoorTypeWeight": {
+        "InitRoom": 0.0,
+        "StartRoom": 0.0,
+        "BossRoom": 0.0,
+        "BattleRoom": 1.0,
+        "EncounterRoom": 1.0,
+        "EliteRoom": 0.2,
+        "EventRoom": 1.0,
+        "RewardRoom": 0.5,
+        "ShopRoom": 0.2,
+        "GameRoom": 0.2,
+        "MiracleRoom": 0.2
+      },
+      "RoomConfigDataFromDoor": [
+        {
+          "CurrentRoomType": 7,
+          "SelectableSceneModel": [
+            8,
+            1
+          ],
+          "SelectableRoomTag": [
+            [
+              0,
+              2
+            ]
+          ],
+          "DoorCount": [
+            1
+          ],
+          "OccurrenceCount": [],
+          "MonstertCount": [],
+          "MonstertType": [],
+          "ChestCount": [],
+          "SceneObjectCount": [],
+          "NPC": []
+        },
+        {
+          "CurrentRoomType": 3,
+          "SelectableSceneModel": [
+            7,
+            0
+          ],
+          "SelectableRoomTag": [
+            [
+              4,
+              3
+            ]
+          ],
+          "DoorCount": [
+            2,
+            3
+          ],
+          "OccurrenceCount": [],
+          "MonstertCount": [],
+          "MonstertType": [],
+          "ChestCount": [],
+          "SceneObjectCount": [],
+          "NPC": []
+        },
+        {
+          "CurrentRoomType": 2,
+          "SelectableSceneModel": [
+            7,
+            0,
+            1
+          ],
+          "SelectableRoomTag": [
+            [
+              4,
+              5,
+              6
+            ]
+          ],
+          "DoorCount": [
+            2,
+            3
+          ],
+          "OccurrenceCount": [],
+          "MonstertCount": [],
+          "MonstertType": [],
+          "ChestCount": [],
+          "SceneObjectCount": [],
+          "NPC": []
+        }
+      ],
+      "Enemies": {},
+      "sceneObjects": {},
       "Sender": null,
       "Receiver": null,
       "TargetBuffs": null,
-      "exceBuff": null,
-      "ListenerBuffs": null,
-      "BelongBuffList": null
-    },
-    {
-      "Layer": 1,
-      "CurrentSceneModel": 8,
-      "CurrentRoomType": 0,
-      "CurrentRoomTag": 0,
-      "OutDoorType": null,
-      "Sender": null,
-      "Receiver": null,
-      "TargetBuffs": null,
-      "exceBuff": null,
-      "ListenerBuffs": null,
-      "BelongBuffList": null
-    },
-    {
-      "Layer": 1,
-      "CurrentSceneModel": 8,
-      "CurrentRoomType": 0,
-      "CurrentRoomTag": 0,
-      "OutDoorType": null,
-      "Sender": null,
-      "Receiver": null,
-      "TargetBuffs": null,
-      "exceBuff": null,
-      "ListenerBuffs": null,
-      "BelongBuffList": null
-    },
-    {
-      "Layer": 1,
-      "CurrentSceneModel": 8,
-      "CurrentRoomType": 0,
-      "CurrentRoomTag": 0,
-      "OutDoorType": null,
-      "Sender": null,
-      "Receiver": null,
-      "TargetBuffs": null,
-      "exceBuff": null,
-      "ListenerBuffs": null,
-      "BelongBuffList": null
-    },
-    {
-      "Layer": 1,
-      "CurrentSceneModel": 8,
-      "CurrentRoomType": 0,
-      "CurrentRoomTag": 0,
-      "OutDoorType": null,
-      "Sender": null,
-      "Receiver": null,
-      "TargetBuffs": null,
-      "exceBuff": null,
-      "ListenerBuffs": null,
-      "BelongBuffList": null
-    },
-    {
-      "Layer": 1,
-      "CurrentSceneModel": 8,
-      "CurrentRoomType": 0,
-      "CurrentRoomTag": 0,
-      "OutDoorType": null,
-      "Sender": null,
-      "Receiver": null,
-      "TargetBuffs": null,
-      "exceBuff": null,
-      "ListenerBuffs": null,
-      "BelongBuffList": null
-    },
-    {
-      "Layer": 1,
-      "CurrentSceneModel": 8,
-      "CurrentRoomType": 0,
-      "CurrentRoomTag": 0,
-      "OutDoorType": null,
-      "Sender": null,
-      "Receiver": null,
-      "TargetBuffs": null,
-      "exceBuff": null,
-      "ListenerBuffs": null,
-      "BelongBuffList": null
-    },
-    {
-      "Layer": 1,
-      "CurrentSceneModel": 8,
-      "CurrentRoomType": 0,
-      "CurrentRoomTag": 0,
-      "OutDoorType": null,
-      "Sender": null,
-      "Receiver": null,
-      "TargetBuffs": null,
-      "exceBuff": null,
-      "ListenerBuffs": null,
-      "BelongBuffList": null
-    },
-    {
-      "Layer": 1,
-      "CurrentSceneModel": 8,
-      "CurrentRoomType": 0,
-      "CurrentRoomTag": 0,
-      "OutDoorType": null,
-      "Sender": null,
-      "Receiver": null,
-      "TargetBuffs": null,
-      "exceBuff": null,
-      "ListenerBuffs": null,
-      "BelongBuffList": null
-    },
-    {
-      "Layer": 1,
-      "CurrentSceneModel": 8,
-      "CurrentRoomType": 0,
-      "CurrentRoomTag": 0,
-      "OutDoorType": null,
-      "Sender": null,
-      "Receiver": null,
-      "TargetBuffs": null,
-      "exceBuff": null,
-      "ListenerBuffs": null,
-      "BelongBuffList": null
-    },
-    {
-      "Layer": 1,
-      "CurrentSceneModel": 8,
-      "CurrentRoomType": 0,
-      "CurrentRoomTag": 0,
-      "OutDoorType": null,
-      "Sender": null,
-      "Receiver": null,
-      "TargetBuffs": null,
-      "exceBuff": null,
-      "ListenerBuffs": null,
-      "BelongBuffList": null
-    },
-    {
-      "Layer": 1,
-      "CurrentSceneModel": 8,
-      "CurrentRoomType": 0,
-      "CurrentRoomTag": 0,
-      "OutDoorType": null,
-      "Sender": null,
-      "Receiver": null,
-      "TargetBuffs": null,
-      "exceBuff": null,
-      "ListenerBuffs": null,
-      "BelongBuffList": null
-    },
-    {
-      "Layer": 1,
-      "CurrentSceneModel": 8,
-      "CurrentRoomType": 0,
-      "CurrentRoomTag": 0,
-      "OutDoorType": null,
-      "Sender": null,
-      "Receiver": null,
-      "TargetBuffs": null,
-      "exceBuff": null,
-      "ListenerBuffs": null,
-      "BelongBuffList": null
-    },
-    {
-      "Layer": 1,
-      "CurrentSceneModel": 8,
-      "CurrentRoomType": 0,
-      "CurrentRoomTag": 0,
-      "OutDoorType": null,
-      "Sender": null,
-      "Receiver": null,
-      "TargetBuffs": null,
-      "exceBuff": null,
-      "ListenerBuffs": null,
-      "BelongBuffList": null
-    },
-    {
-      "Layer": 1,
-      "CurrentSceneModel": 8,
-      "CurrentRoomType": 0,
-      "CurrentRoomTag": 0,
-      "OutDoorType": null,
-      "Sender": null,
-      "Receiver": null,
-      "TargetBuffs": null,
-      "exceBuff": null,
-      "ListenerBuffs": null,
-      "BelongBuffList": null
-    },
-    {
-      "Layer": 1,
-      "CurrentSceneModel": 8,
-      "CurrentRoomType": 0,
-      "CurrentRoomTag": 0,
-      "OutDoorType": null,
-      "Sender": null,
-      "Receiver": null,
-      "TargetBuffs": null,
-      "exceBuff": null,
-      "ListenerBuffs": null,
-      "BelongBuffList": null
-    },
-    {
-      "Layer": 1,
-      "CurrentSceneModel": 8,
-      "CurrentRoomType": 0,
-      "CurrentRoomTag": 0,
-      "OutDoorType": null,
-      "Sender": null,
-      "Receiver": null,
-      "TargetBuffs": null,
-      "exceBuff": null,
-      "ListenerBuffs": null,
-      "BelongBuffList": null
-    },
-    {
-      "Layer": 1,
-      "CurrentSceneModel": 8,
-      "CurrentRoomType": 0,
-      "CurrentRoomTag": 0,
-      "OutDoorType": null,
-      "Sender": null,
-      "Receiver": null,
-      "TargetBuffs": null,
-      "exceBuff": null,
-      "ListenerBuffs": null,
-      "BelongBuffList": null
-    },
-    {
-      "Layer": 1,
-      "CurrentSceneModel": 8,
-      "CurrentRoomType": 0,
-      "CurrentRoomTag": 0,
-      "OutDoorType": null,
-      "Sender": null,
-      "Receiver": null,
-      "TargetBuffs": null,
-      "exceBuff": null,
-      "ListenerBuffs": null,
-      "BelongBuffList": null
-    },
-    {
-      "Layer": 1,
-      "CurrentSceneModel": 8,
-      "CurrentRoomType": 0,
-      "CurrentRoomTag": 0,
-      "OutDoorType": null,
-      "Sender": null,
-      "Receiver": null,
-      "TargetBuffs": null,
-      "exceBuff": null,
-      "ListenerBuffs": null,
-      "BelongBuffList": null
-    },
-    {
-      "Layer": 1,
-      "CurrentSceneModel": 8,
-      "CurrentRoomType": 0,
-      "CurrentRoomTag": 0,
-      "OutDoorType": null,
-      "Sender": null,
-      "Receiver": null,
-      "TargetBuffs": null,
-      "exceBuff": null,
-      "ListenerBuffs": null,
-      "BelongBuffList": null
-    },
-    {
-      "Layer": 1,
-      "CurrentSceneModel": 8,
-      "CurrentRoomType": 0,
-      "CurrentRoomTag": 0,
-      "OutDoorType": null,
-      "Sender": null,
-      "Receiver": null,
-      "TargetBuffs": null,
-      "exceBuff": null,
-      "ListenerBuffs": null,
-      "BelongBuffList": null
-    },
-    {
-      "Layer": 1,
-      "CurrentSceneModel": 8,
-      "CurrentRoomType": 0,
-      "CurrentRoomTag": 0,
-      "OutDoorType": null,
-      "Sender": null,
-      "Receiver": null,
-      "TargetBuffs": null,
-      "exceBuff": null,
-      "ListenerBuffs": null,
-      "BelongBuffList": null
-    },
-    {
-      "Layer": 1,
-      "CurrentSceneModel": 8,
-      "CurrentRoomType": 0,
-      "CurrentRoomTag": 0,
-      "OutDoorType": null,
-      "Sender": null,
-      "Receiver": null,
-      "TargetBuffs": null,
-      "exceBuff": null,
-      "ListenerBuffs": null,
-      "BelongBuffList": null
-    },
-    {
-      "Layer": 1,
-      "CurrentSceneModel": 8,
-      "CurrentRoomType": 0,
-      "CurrentRoomTag": 0,
-      "OutDoorType": null,
-      "Sender": null,
-      "Receiver": null,
-      "TargetBuffs": null,
-      "exceBuff": null,
-      "ListenerBuffs": null,
-      "BelongBuffList": null
-    },
-    {
-      "Layer": 1,
-      "CurrentSceneModel": 8,
-      "CurrentRoomType": 0,
-      "CurrentRoomTag": 0,
-      "OutDoorType": null,
-      "Sender": null,
-      "Receiver": null,
-      "TargetBuffs": null,
-      "exceBuff": null,
-      "ListenerBuffs": null,
-      "BelongBuffList": null
-    },
-    {
-      "Layer": 1,
-      "CurrentSceneModel": 8,
-      "CurrentRoomType": 0,
-      "CurrentRoomTag": 0,
-      "OutDoorType": null,
-      "Sender": null,
-      "Receiver": null,
-      "TargetBuffs": null,
-      "exceBuff": null,
-      "ListenerBuffs": null,
-      "BelongBuffList": null
-    },
-    {
-      "Layer": 1,
-      "CurrentSceneModel": 8,
-      "CurrentRoomType": 0,
-      "CurrentRoomTag": 0,
-      "OutDoorType": null,
-      "Sender": null,
-      "Receiver": null,
-      "TargetBuffs": null,
-      "exceBuff": null,
-      "ListenerBuffs": null,
-      "BelongBuffList": null
-    },
-    {
-      "Layer": 1,
-      "CurrentSceneModel": 8,
-      "CurrentRoomType": 0,
-      "CurrentRoomTag": 0,
-      "OutDoorType": null,
-      "Sender": null,
-      "Receiver": null,
-      "TargetBuffs": null,
-      "exceBuff": null,
-      "ListenerBuffs": null,
-      "BelongBuffList": null
+      "exceBuff": {
+        "id": 0,
+        "timer": 0,
+        "layers": 0,
+        "rank": 0,
+        "element": 0,
+        "curio": 0,
+        "tags": [],
+        "buffName": null,
+        "buffAbility": null,
+        "weight": 0.0
+      },
+      "ListenerBuffs": [],
+      "BelongBuffList": {
+        "Buffs": [
+          {
+            "id": 0,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 1,
+            "timer": 0,
+            "layers": 0,
+            "rank": 1,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 2,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 3,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 4,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 5,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 7,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 6,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 10,
+            "timer": 0,
+            "layers": 0,
+            "rank": 3,
+            "element": 7,
+            "curio": 0,
+            "tags": [],
+            "buffName": "妙论派",
+            "buffAbility": "元素反应加成提高<color=yellow>15%</color>",
+            "weight": 0.0
+          },
+          {
+            "id": 8,
+            "timer": 0,
+            "layers": 0,
+            "rank": 2,
+            "element": 6,
+            "curio": 0,
+            "tags": [],
+            "buffName": "琥珀",
+            "buffAbility": "护盾自然破碎时产生产生共振，对对方全体造成<color=yellow>200%</color>盾量伤害",
+            "weight": 0.0
+          },
+          {
+            "id": 9,
+            "timer": 0,
+            "layers": 0,
+            "rank": 1,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": "苹果酿",
+            "buffAbility": "速度提高<color=yellow>20%</color>",
+            "weight": 0.0
+          },
+          {
+            "id": 11,
+            "timer": 0,
+            "layers": 0,
+            "rank": 2,
+            "element": 0,
+            "curio": 0,
+            "tags": [
+              6
+            ],
+            "buffName": "相遇之缘",
+            "buffAbility": "能带来奇迹的等价交换之物",
+            "weight": 0.0
+          },
+          {
+            "id": 12,
+            "timer": 0,
+            "layers": 0,
+            "rank": 3,
+            "element": 0,
+            "curio": 1,
+            "tags": [
+              7
+            ],
+            "buffName": "纠缠之缘",
+            "buffAbility": "能带来没有任何作用的奇迹的等价交换之物",
+            "weight": 0.0
+          },
+          {
+            "id": 13,
+            "timer": 0,
+            "layers": 0,
+            "rank": 1,
+            "element": 0,
+            "curio": 2,
+            "tags": [
+              4
+            ],
+            "buffName": "原石",
+            "buffAbility": "财富的象征",
+            "weight": 0.0
+          }
+        ]
+      }
     }
-  ]
+  ],
+  "CurrentLayer": 1,
+  "TeamCharaPool": [],
+  "TempTeamAppearanceList": [
+    null,
+    null,
+    null,
+    null
+  ],
+  "TeamAppearanceList": [],
+  "TeamAppearanceIndex": 0,
+  "CurrentGameConfigData": null,
+  "CurrentBuffList": {
+    "Buffs": [
+      {
+        "id": 0,
+        "timer": 0,
+        "layers": 0,
+        "rank": 0,
+        "element": 0,
+        "curio": 0,
+        "tags": [],
+        "buffName": null,
+        "buffAbility": null,
+        "weight": 0.0
+      },
+      {
+        "id": 1,
+        "timer": 0,
+        "layers": 0,
+        "rank": 1,
+        "element": 0,
+        "curio": 0,
+        "tags": [],
+        "buffName": null,
+        "buffAbility": null,
+        "weight": 0.0
+      },
+      {
+        "id": 2,
+        "timer": 0,
+        "layers": 0,
+        "rank": 0,
+        "element": 0,
+        "curio": 0,
+        "tags": [],
+        "buffName": null,
+        "buffAbility": null,
+        "weight": 0.0
+      },
+      {
+        "id": 3,
+        "timer": 0,
+        "layers": 0,
+        "rank": 0,
+        "element": 0,
+        "curio": 0,
+        "tags": [],
+        "buffName": null,
+        "buffAbility": null,
+        "weight": 0.0
+      },
+      {
+        "id": 4,
+        "timer": 0,
+        "layers": 0,
+        "rank": 0,
+        "element": 0,
+        "curio": 0,
+        "tags": [],
+        "buffName": null,
+        "buffAbility": null,
+        "weight": 0.0
+      },
+      {
+        "id": 5,
+        "timer": 0,
+        "layers": 0,
+        "rank": 0,
+        "element": 0,
+        "curio": 0,
+        "tags": [],
+        "buffName": null,
+        "buffAbility": null,
+        "weight": 0.0
+      },
+      {
+        "id": 7,
+        "timer": 0,
+        "layers": 0,
+        "rank": 0,
+        "element": 0,
+        "curio": 0,
+        "tags": [],
+        "buffName": null,
+        "buffAbility": null,
+        "weight": 0.0
+      },
+      {
+        "id": 6,
+        "timer": 0,
+        "layers": 0,
+        "rank": 0,
+        "element": 0,
+        "curio": 0,
+        "tags": [],
+        "buffName": null,
+        "buffAbility": null,
+        "weight": 0.0
+      },
+      {
+        "id": 10,
+        "timer": 0,
+        "layers": 0,
+        "rank": 3,
+        "element": 7,
+        "curio": 0,
+        "tags": [],
+        "buffName": "妙论派",
+        "buffAbility": "元素反应加成提高<color=yellow>15%</color>",
+        "weight": 0.0
+      },
+      {
+        "id": 8,
+        "timer": 0,
+        "layers": 0,
+        "rank": 2,
+        "element": 6,
+        "curio": 0,
+        "tags": [],
+        "buffName": "琥珀",
+        "buffAbility": "护盾自然破碎时产生产生共振，对对方全体造成<color=yellow>200%</color>盾量伤害",
+        "weight": 0.0
+      },
+      {
+        "id": 9,
+        "timer": 0,
+        "layers": 0,
+        "rank": 1,
+        "element": 0,
+        "curio": 0,
+        "tags": [],
+        "buffName": "苹果酿",
+        "buffAbility": "速度提高<color=yellow>20%</color>",
+        "weight": 0.0
+      },
+      {
+        "id": 11,
+        "timer": 0,
+        "layers": 0,
+        "rank": 2,
+        "element": 0,
+        "curio": 0,
+        "tags": [
+          6
+        ],
+        "buffName": "相遇之缘",
+        "buffAbility": "能带来奇迹的等价交换之物",
+        "weight": 0.0
+      },
+      {
+        "id": 12,
+        "timer": 0,
+        "layers": 0,
+        "rank": 3,
+        "element": 0,
+        "curio": 1,
+        "tags": [
+          7
+        ],
+        "buffName": "纠缠之缘",
+        "buffAbility": "能带来没有任何作用的奇迹的等价交换之物",
+        "weight": 0.0
+      },
+      {
+        "id": 13,
+        "timer": 0,
+        "layers": 0,
+        "rank": 1,
+        "element": 0,
+        "curio": 2,
+        "tags": [
+          4
+        ],
+        "buffName": "原石",
+        "buffAbility": "财富的象征",
+        "weight": 0.0
+      }
+    ]
+  },
+  "CurrentOccurrenceList": null
 }
