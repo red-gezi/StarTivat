@@ -24,11 +24,6 @@ namespace MagicaCloth2
         private float main = 0.0f;
         private float turbulence = 0.0f;
 
-        void Start()
-        {
-
-        }
-
         public void OnDirectionY(float value)
         {
             angleY = value;

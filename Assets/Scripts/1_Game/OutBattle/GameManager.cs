@@ -31,7 +31,8 @@ public class GameManager : MonoBehaviour
         //初始化buff数据
         //初始化角色池子与队伍信息
         TeamManager.InitCharaList();
-        OutBattleUIManager.Instance.InitCharaSelectCanves( OutBattleUIManager.CharaSelectCanvasMode.TeamCreat);
+        
+        //OutBattleUIManager.Instance.InitCharaSelectCanves( OutBattleUIManager.CharaSelectCanvasMode.TeamCreat);
         //进入当前房间
         RoomManager.RefreshRoom();
     }
@@ -67,6 +68,8 @@ public class GameManager : MonoBehaviour
         BattleUIManager.ShowUI();
         //关闭局外ui
         OutBattleUIManager.CloeUI();
+        //隐藏局外角色
+        //开启战场角色
         //加载对局信息
         BattleManager.Instance.Init(enemyDatas.enemyDatas);
         //初始化对局

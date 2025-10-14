@@ -20,6 +20,16 @@ namespace MagicaCloth2
         /// </summary>
         internal int maxSimulationCountPerFrame = Define.System.DefaultMaxSimulationCountPerFrame;
 
+        /// <summary>
+        /// マネージャの更新場所
+        /// </summary>
+        public enum UpdateLocation
+        {
+            AfterLateUpdate = 0,
+            BeforeLateUpdate = 1,
+        }
+        internal UpdateLocation updateLocation = UpdateLocation.AfterLateUpdate;
+
         //=========================================================================================
         bool isValid = false;
 
@@ -86,7 +96,7 @@ namespace MagicaCloth2
         //=========================================================================================
         void AfterFixedUpdate()
         {
-            //Debug.Log($"AF. F:{Time.frameCount}");
+            //Debug.Log($"AfterFixedUpdate. F:{Time.frameCount}");
             FixedUpdateCount++;
         }
 
@@ -137,7 +147,7 @@ namespace MagicaCloth2
                 sb.AppendLine($"MaxSimulationCountPerFrame:{maxSimulationCountPerFrame}");
                 sb.AppendLine($"GlobalTimeScale:{GlobalTimeScale}");
                 sb.AppendLine($"SimulationDeltaTime:{SimulationDeltaTime}");
-                sb.AppendLine($"MaxDeltaTime:{MaxDeltaTime}");
+                //sb.AppendLine($"MaxDeltaTime:{MaxDeltaTime}");
                 sb.AppendLine($"SimulationPower:{SimulationPower}");
             }
             sb.AppendLine();

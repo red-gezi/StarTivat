@@ -105,6 +105,8 @@ namespace MagicaCloth2
         //=========================================================================================
         protected override void InitSingleton()
         {
+            SimpleInput.Init();
+
             // スクリーン情報
             CalcScreenDpi();
 
@@ -124,7 +126,7 @@ namespace MagicaCloth2
             mobilePlatform = Application.isMobilePlatform;
         }
 
-        void Update()
+        protected void Update()
         {
             // 入力タイプ別更新処理
             if (mobilePlatform)
@@ -188,7 +190,7 @@ namespace MagicaCloth2
 
         public int GetTouchCount()
         {
-            return Input.touchCount;
+            return SimpleInput.touchCount;
         }
 
         public bool IsUI()
@@ -199,7 +201,7 @@ namespace MagicaCloth2
             if (mobilePlatform)
             {
                 // モバイル用タッチ入力 
-                return EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId);
+                return EventSystem.current.IsPointerOverGameObject(SimpleInput.GetTouch(0).fingerId);
             }
             else
             {
@@ -214,7 +216,7 @@ namespace MagicaCloth2
         /// </summary>
         private void UpdateMobile()
         {
-            int count = Input.touchCount;
+            int count = SimpleInput.touchCount;
 
             if (count == 0)
             {
@@ -223,7 +225,7 @@ namespace MagicaCloth2
                 // バックボタン
                 if (Application.platform == RuntimePlatform.Android)
                 {
-                    if (Input.GetKey(KeyCode.Escape) && lastTime + 0.2f < Time.time)
+                    if (SimpleInput.GetKey(KeyCode.Escape) && lastTime + 0.2f < Time.time)
                     {
                         lastTime = Time.time;
                         if (OnBackButton != null)
@@ -239,7 +241,7 @@ namespace MagicaCloth2
                 // メイン 
                 for (int i = 0; i < count; i++)
                 {
-                    Touch touch = Input.GetTouch(i);
+                    Touch touch = SimpleInput.GetTouch(i);
                     int fid = touch.fingerId;
 
                     // フィンガーIDが０と１以外は無視する 
@@ -289,7 +291,7 @@ namespace MagicaCloth2
                             int setcnt = 0;
                             for (int j = 0; j < count; j++)
                             {
-                                Touch t = Input.GetTouch(j);
+                                Touch t = SimpleInput.GetTouch(j);
                                 if (mainFingerId == t.fingerId)
                                 {
                                     t1pos = t.position;
@@ -497,7 +499,7 @@ namespace MagicaCloth2
         private void UpdateMouse()
         {
             // BackSpace を Android 端末のバックボタンに割り当てる
-            if (Input.GetKeyDown(KeyCode.Backspace))
+            if (SimpleInput.GetKeyDown(KeyCode.Backspace))
             {
                 if (OnBackButton != null)
                     OnBackButton();
@@ -507,7 +509,7 @@ namespace MagicaCloth2
             for (int i = 0; i < 3; i++)
             {
                 // マウスボタンダウン
-                if (Input.GetMouseButtonDown(i))
+                if (SimpleInput.GetMouseButtonDown(i))
                 {
                     if (IsUI())
                         continue;
@@ -519,46 +521,46 @@ namespace MagicaCloth2
                     mouseDown[i] = true;
 
                     // 入力位置を記録
-                    downPos[i] = Input.mousePosition;
-                    mouseOldMovePos[i] = Input.mousePosition;
+                    downPos[i] = SimpleInput.mousePosition;
+                    mouseOldMovePos[i] = SimpleInput.mousePosition;
                     if (i == 0)
-                        flickDownPos[i] = Input.mousePosition;
+                        flickDownPos[i] = SimpleInput.mousePosition;
 
                     // タッチダウンイベント発行
                     if (OnTouchDown != null)
-                        OnTouchDown(i, Input.mousePosition);
+                        OnTouchDown(i, SimpleInput.mousePosition);
                 }
 
                 // マウスボタンアップ
-                if (Input.GetMouseButtonUp(i) && mouseDown[i])
+                if (SimpleInput.GetMouseButtonUp(i) && mouseDown[i])
                 {
                     mouseDown[i] = false;
 
                     // フリック判定
                     if (i == 0)
                     {
-                        CheckFlic(i, mouseOldMovePos[i], Input.mousePosition, flickDownPos[i], flickDownTime[i]);
+                        CheckFlic(i, mouseOldMovePos[i], SimpleInput.mousePosition, flickDownPos[i], flickDownTime[i]);
                     }
 
                     mouseOldMovePos[i] = Vector2.zero;
 
                     // タッチアップイベント
                     if (OnTouchUp != null)
-                        OnTouchUp(i, Input.mousePosition);
+                        OnTouchUp(i, SimpleInput.mousePosition);
 
                     // タップ判定
-                    float distcm = Vector2.Distance(downPos[0], Input.mousePosition) / screenDpc;
+                    float distcm = Vector2.Distance(downPos[0], SimpleInput.mousePosition) / screenDpc;
                     if (distcm <= tapRadiusCm)
                     {
                         if (OnTouchTap != null)
-                            OnTouchTap(i, Input.mousePosition);
+                            OnTouchTap(i, SimpleInput.mousePosition);
                     }
                 }
 
                 // 移動
                 if (mouseDown[i])
                 {
-                    Vector2 spos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+                    Vector2 spos = new Vector2(SimpleInput.mousePosition.x, SimpleInput.mousePosition.y);
                     Vector2 delta = spos - mouseOldMovePos[i];
 
                     if (spos != mouseOldMovePos[i])
@@ -569,10 +571,10 @@ namespace MagicaCloth2
 
                         // 移動通知(現在スクリーン座標、速度(スクリーン比率/s)、速度(cm/s))
                         if (OnTouchMove != null)
-                            OnTouchMove(i, Input.mousePosition, CalcScreenRatioVector(delta) / Time.deltaTime, speedcm);
+                            OnTouchMove(i, SimpleInput.mousePosition, CalcScreenRatioVector(delta) / Time.deltaTime, speedcm);
                     }
 
-                    mouseOldMovePos[i] = Input.mousePosition;
+                    mouseOldMovePos[i] = SimpleInput.mousePosition;
 
                     // フリックダウン位置更新
                     flickDownPos[i] = (flickDownPos[i] + spos) * 0.5f;
@@ -582,7 +584,7 @@ namespace MagicaCloth2
             }
 
             // ピンチイン／アウト 
-            float w = Input.GetAxis("Mouse ScrollWheel");
+            float w = SimpleInput.GetMouseScrollWheel();
             if (Mathf.Abs(w) > 0.01f)
             {
                 // モバイル入力とスケール感を合わせるために係数を掛ける 

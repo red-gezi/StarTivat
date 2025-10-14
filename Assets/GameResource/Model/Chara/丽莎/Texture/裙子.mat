@@ -8,7 +8,8 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: "\u88D9\u5B50"
-  m_Shader: {fileID: 4800000, guid: 41967839717f3204caa5496de418121e, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 6351b27924f660c459165374ce8c0656,
+    type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -16,7 +17,7 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 2000
   stringTagMap: {}
   disabledShaderPasses: []
   m_LockedProperties: 
@@ -83,11 +84,27 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_5223307b818c410080df358c5a55176c_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 259deb20a48ff8c4e8ad1612d01fb57d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_7a2cc2a839bd4b91ab201495f4b86bd0_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: b62cbdd187083a44aa756f4ab0c8713c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_cadce5b7d7fc41798b8769f0bc18bbb4_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 394655ab898dba3449bf9ef73a9e68da, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _ShadowRamp:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ToonTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -124,19 +141,24 @@ Material:
     - _EnvironmentReflections: 1
     - _FaceBlushStrength: 1
     - _FaceShadowOffset: 0
+    - _Float: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.44870877
     - _GlossyReflections: 1
+    - _Ice: 0
     - _IsDay: 1
     - _IsFace: 0
+    - _IsShow: 1
     - _Metallic: 0
     - _MetallicIntensity: 1
     - _Mode: 0
     - _NonmetallicIntensity: 1
     - _OcclusionStrength: 1
+    - _OpenIcePiton: 0
     - _OutlineWidth: 1
     - _Parallax: 0.02
-    - _QueueOffset: 0
+    - _QueueControl: 1
+    - _QueueOffset: 18
     - _ReceiveShadows: 1
     - _RimIntensity: 1
     - _RimOffset: 1

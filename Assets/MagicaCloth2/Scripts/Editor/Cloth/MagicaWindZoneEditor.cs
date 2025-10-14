@@ -8,7 +8,7 @@ namespace MagicaCloth2
 {
     [CustomEditor(typeof(MagicaWindZone))]
     [CanEditMultipleObjects]
-    public class MagicaWindZoneEditor : Editor
+    public class MagicaWindZoneEditor : MagicaEditorBase
     {
         //=========================================================================================
         /// <summary>

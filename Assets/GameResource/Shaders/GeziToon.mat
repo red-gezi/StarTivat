@@ -21,7 +21,8 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: GeziToon
-  m_Shader: {fileID: -6465566751694194690, guid: 8936d53358fba914a8b7d8c330943c98, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 8936d53358fba914a8b7d8c330943c98,
+    type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -36,8 +37,16 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _Ice_a53a0ab7c2c54ff78c05f9a0c2e3ece9_MainTex_3404481131_Texture2D:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 2800000, guid: 2252cfb104da7604dad19b72ed89f96b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_5223307b818c410080df358c5a55176c_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 259deb20a48ff8c4e8ad1612d01fb57d, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SphereCUbe:
@@ -68,5 +77,6 @@ Material:
     - _IsShow: 0
     - _QueueControl: 0
     - _QueueOffset: 4
+    - _width: 0.01
     m_Colors: []
   m_BuildTextureStacks: []

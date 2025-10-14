@@ -3,9 +3,7 @@
 // https://magicasoft.jp
 using System;
 using System.Text;
-using Unity.Burst;
 using Unity.Collections;
-using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -189,187 +187,82 @@ namespace MagicaCloth2
         }
 
         //=========================================================================================
-        NativeArray<float> lengthBuffer;
-        NativeArray<float3> localPosBuffer;
-        NativeArray<quaternion> localRotBuffer;
-        NativeArray<quaternion> rotationBuffer;
-        NativeArray<float3> restorationVectorBuffer;
-
-
-        //=========================================================================================
         public AngleConstraint()
         {
         }
 
         public void Dispose()
         {
-            lengthBuffer.DisposeSafe();
-            localPosBuffer.DisposeSafe();
-            localRotBuffer.DisposeSafe();
-            rotationBuffer.DisposeSafe();
-            restorationVectorBuffer.DisposeSafe();
-        }
-
-        internal void WorkBufferUpdate()
-        {
-            int pcnt = MagicaManager.Simulation.ParticleCount;
-            lengthBuffer.Resize(pcnt, options: NativeArrayOptions.UninitializedMemory);
-            localPosBuffer.Resize(pcnt, options: NativeArrayOptions.UninitializedMemory);
-            localRotBuffer.Resize(pcnt, options: NativeArrayOptions.UninitializedMemory);
-            rotationBuffer.Resize(pcnt, options: NativeArrayOptions.UninitializedMemory);
-            restorationVectorBuffer.Resize(pcnt, options: NativeArrayOptions.UninitializedMemory);
         }
 
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"[AngleConstraint]");
-            sb.AppendLine($"  -lengthBuffer:{(lengthBuffer.IsCreated ? lengthBuffer.Length : 0)}");
-            sb.AppendLine($"  -localPosBuffer:{(localPosBuffer.IsCreated ? localPosBuffer.Length : 0)}");
-            sb.AppendLine($"  -localRotBuffer:{(localRotBuffer.IsCreated ? localRotBuffer.Length : 0)}");
-            sb.AppendLine($"  -rotationBuffer:{(rotationBuffer.IsCreated ? rotationBuffer.Length : 0)}");
-            sb.AppendLine($"  -restorationVectorBuffer:{(restorationVectorBuffer.IsCreated ? restorationVectorBuffer.Length : 0)}");
-
             return sb.ToString();
         }
 
         //=========================================================================================
-        /// <summary>
-        /// 制約の解決
-        /// </summary>
-        /// <param name="clothBase"></param>
-        /// <param name="jobHandle"></param>
-        /// <returns></returns>
-        internal unsafe JobHandle SolverConstraint(JobHandle jobHandle)
-        {
-            var tm = MagicaManager.Team;
-            var sm = MagicaManager.Simulation;
-            var vm = MagicaManager.VMesh;
-
-            // 角度復元と角度制限を１つに統合したもの
-            // 復元/制限ともにほぼMC1の移植。
-            // 他のアルゴリズムを散々テストした結果、MC1の動きが一番映えるという結論に至る。
-            // 微調整および堅牢性を上げるために反復回数を増やしている。
-            var job = new AngleConstraintJob()
-            {
-                simulationPower = MagicaManager.Time.SimulationPower,
-
-                stepBaseLineIndexArray = sm.processingStepBaseLine.Buffer,
-
-                teamDataArray = tm.teamDataArray.GetNativeArray(),
-                parameterArray = tm.parameterArray.GetNativeArray(),
-
-                attributes = vm.attributes.GetNativeArray(),
-                vertexDepths = vm.vertexDepths.GetNativeArray(),
-                vertexParentIndices = vm.vertexParentIndices.GetNativeArray(),
-                baseLineStartDataIndices = vm.baseLineStartDataIndices.GetNativeArray(),
-                baseLineDataCounts = vm.baseLineDataCounts.GetNativeArray(),
-                baseLineData = vm.baseLineData.GetNativeArray(),
-
-                nextPosArray = sm.nextPosArray.GetNativeArray(),
-                velocityPosArray = sm.velocityPosArray.GetNativeArray(),
-                frictionArray = sm.frictionArray.GetNativeArray(),
-
-                stepBasicPositionBuffer = sm.stepBasicPositionBuffer,
-                stepBasicRotationBuffer = sm.stepBasicRotationBuffer,
-
-                lengthBufferArray = lengthBuffer,
-                localPosBufferArray = localPosBuffer,
-                localRotBufferArray = localRotBuffer,
-                rotationBufferArray = rotationBuffer,
-                restorationVectorBufferArray = restorationVectorBuffer,
-            };
-            jobHandle = job.Schedule(sm.processingStepBaseLine.GetJobSchedulePtr(), 2, jobHandle);
-
-            return jobHandle;
-        }
-
-        [BurstCompile]
-        struct AngleConstraintJob : IJobParallelForDefer
-        {
-            public float4 simulationPower;
-
-            [Unity.Collections.ReadOnly]
-            public NativeArray<int> stepBaseLineIndexArray;
-
+        // Solver
+        //=========================================================================================
+        internal static void SolverConstraint(
+            DataChunk chunk,
+            in float4 simulationPower,
             // team
-            [Unity.Collections.ReadOnly]
-            public NativeArray<TeamManager.TeamData> teamDataArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<ClothParameters> parameterArray;
-
+            ref TeamManager.TeamData tdata,
+            ref ClothParameters param,
             // vmesh
-            [Unity.Collections.ReadOnly]
-            public NativeArray<VertexAttribute> attributes;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float> vertexDepths;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<int> vertexParentIndices;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<ushort> baseLineStartDataIndices;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<ushort> baseLineDataCounts;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<ushort> baseLineData;
-
+            ref NativeArray<VertexAttribute> attributes,
+            ref NativeArray<float> vertexDepths,
+            ref NativeArray<int> vertexParentIndices,
+            ref NativeArray<ushort> baseLineStartDataIndices,
+            ref NativeArray<ushort> baseLineDataCounts,
+            ref NativeArray<ushort> baseLineData,
             // particle
-            [NativeDisableParallelForRestriction]
-            public NativeArray<float3> nextPosArray;
-            [NativeDisableParallelForRestriction]
-            public NativeArray<float3> velocityPosArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float> frictionArray;
+            ref NativeArray<float3> nextPosArray,
+            ref NativeArray<float3> velocityPosArray,
+            ref NativeArray<float> frictionArray,
+            // buffer
+            ref NativeArray<float3> stepBasicPositionBuffer,
+            ref NativeArray<quaternion> stepBasicRotationBuffer,
+            // buffer2
+            ref NativeArray<float> lengthBufferArray,
+            ref NativeArray<float3> localPosBufferArray,
+            ref NativeArray<quaternion> localRotBufferArray,
+            ref NativeArray<quaternion> rotationBufferArray,
+            ref NativeArray<float3> restorationVectorBufferArray
+            )
+        {
+            var angleParam = param.angleConstraint;
+            if (angleParam.useAngleLimit == false && angleParam.useAngleRestoration == false)
+                return;
 
-            // temp
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float3> stepBasicPositionBuffer;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<quaternion> stepBasicRotationBuffer;
-            [NativeDisableParallelForRestriction]
-            public NativeArray<float> lengthBufferArray;
-            [NativeDisableParallelForRestriction]
-            public NativeArray<float3> localPosBufferArray;
-            [NativeDisableParallelForRestriction]
-            public NativeArray<quaternion> localRotBufferArray;
-            [NativeDisableParallelForRestriction]
-            public NativeArray<quaternion> rotationBufferArray;
-            [NativeDisableParallelForRestriction]
-            public NativeArray<float3> restorationVectorBufferArray;
+            int d_start = tdata.baseLineDataChunk.startIndex;
+            int p_start = tdata.particleChunk.startIndex;
+            int v_start = tdata.proxyCommonChunk.startIndex;
+
+            bool useAngleLimit = angleParam.useAngleLimit;
+            bool useAngleRestoration = angleParam.useAngleRestoration;
+
+            // 剛性
+            float limitStiffness = angleParam.limitstiffness;
+            float restorationAttn = angleParam.restorationVelocityAttenuation;
+
+            // 復元の重力減衰
+            // !この減衰は重力０でも発生するので注意！
+            float gravityFalloff = math.lerp(1.0f - angleParam.restorationGravityFalloff, 1.0f, tdata.gravityDot);
+            //Debug.Log($"gravityFalloff:{gravityFalloff}");
+            //float gravity = param.gravity;
+            //float3 gravityVector = gravity > Define.System.Epsilon ? param.gravityDirection : 0;
 
             // ベースラインごと
-            public void Execute(int index)
+            //int bindex = tdata.baseLineChunk.startIndex;
+            int bindex = tdata.baseLineChunk.startIndex + chunk.startIndex;
+            //for (int a = 0; a < tdata.baseLineChunk.dataLength; a++, bindex++)
+            for (int a = 0; a < chunk.dataLength; a++, bindex++)
             {
-                uint pack = (uint)stepBaseLineIndexArray[index];
-                int teamId = DataUtility.Unpack32Hi(pack);
-                int bindex = DataUtility.Unpack32Low(pack);
-
-                // チームは有効であることが保証されている
-                var tdata = teamDataArray[teamId];
-                var param = parameterArray[teamId];
-                var angleParam = param.angleConstraint;
-                if (angleParam.useAngleLimit == false && angleParam.useAngleRestoration == false)
-                    return;
-
-                int d_start = tdata.baseLineDataChunk.startIndex;
-                int p_start = tdata.particleChunk.startIndex;
-                int v_start = tdata.proxyCommonChunk.startIndex;
-
                 int start = baseLineStartDataIndices[bindex];
                 int dcnt = baseLineDataCounts[bindex];
-
-                bool useAngleLimit = angleParam.useAngleLimit;
-                bool useAngleRestoration = angleParam.useAngleRestoration;
-
-                // 剛性
-                float limitStiffness = angleParam.limitstiffness;
-                float restorationAttn = angleParam.restorationVelocityAttenuation;
-
-                // 復元の重力減衰
-                // !この減衰は重力０でも発生するので注意！
-                float gravityFalloff = math.lerp(1.0f - angleParam.restorationGravityFalloff, 1.0f, tdata.gravityDot);
-                //Debug.Log($"gravityFalloff:{gravityFalloff}");
-                //float gravity = param.gravity;
-                //float3 gravityVector = gravity > Define.System.Epsilon ? param.gravityDirection : 0;
 
                 // バッファリング
                 int dataIndex = start + d_start;
@@ -402,15 +295,29 @@ namespace MagicaCloth2
 
                             // 親からの基本姿勢
                             var bv = bpos - pbpos;
-                            Develop.Assert(math.length(bv) > 0.0f);
-                            var v = math.normalize(bv);
-                            var ipq = math.inverse(pbrot);
-                            float3 localPos = math.mul(ipq, v);
-                            quaternion localRot = math.mul(ipq, brot);
+                            float bvlen = math.length(bv);
+                            if (vlen < Define.System.Epsilon || bvlen < Define.System.Epsilon)
+                            {
+                                // length=0
+                                //Debug.Log($"NG1");
+                                //エッジ長０対処
+                                lengthBufferArray[pindex] = 0;
+                                localPosBufferArray[pindex] = 0;
+                                localRotBufferArray[pindex] = quaternion.identity;
+                            }
+                            else
+                            {
+                                //Develop.Assert(math.length(bv) > 0.0f);
+                                //var v = math.normalize(bv);
+                                var v = bv / bvlen;
+                                var ipq = math.inverse(pbrot);
+                                float3 localPos = math.mul(ipq, v);
+                                quaternion localRot = math.mul(ipq, brot);
 
-                            lengthBufferArray[pindex] = vlen;
-                            localPosBufferArray[pindex] = localPos;
-                            localRotBufferArray[pindex] = localRot;
+                                lengthBufferArray[pindex] = vlen;
+                                localPosBufferArray[pindex] = localPos;
+                                localRotBufferArray[pindex] = localRot;
+                            }
                         }
 
                         if (useAngleRestoration)
@@ -418,6 +325,7 @@ namespace MagicaCloth2
                             // 復元ベクトル
                             float3 rv = bpos - pbpos;
                             restorationVectorBufferArray[pindex] = rv;
+                            //Debug.Log($"[{pindex}] rv:{rv}");
                         }
                     }
                 }
@@ -478,19 +386,46 @@ namespace MagicaCloth2
 
                             // 現在のベクトル
                             float3 v = cpos - ppos;
+                            float vlen = math.length(v);
+                            if (vlen < Define.System.Epsilon)
+                            {
+                                //エッジ長０対処
+                                //Debug.Log($"NG2");
+                                goto EndAngleLimit;
+                            }
 
                             // 復元すべきベクトル
                             float3 tv = math.mul(prot, localPos);
+                            float tvlen = math.length(tv);
+                            if (tvlen < Define.System.Epsilon)
+                            {
+                                //エッジ長０対処
+                                //Debug.Log($"NG3");
+                                float3 add = ppos - cpos;
+                                nextPosArray[pindex] = ppos;
+                                velocityPosArray[pindex] = velocityPosArray[pindex] + add;
+                                rotationBufferArray[pindex] = math.mul(prot, localRot);
+                                goto EndAngleLimit;
+                            }
+
+                            v /= vlen;
+                            tv /= tvlen;
 
                             // ベクトル長修正
-                            float vlen = math.length(v);
                             float blen = lengthBufferArray[pindex];
                             vlen = math.lerp(vlen, blen, 0.5f); // 計算前の距離に徐々に近づける
-                            Develop.Assert(vlen > 0.0f);
-                            v = math.normalize(v) * vlen;
+                            if (blen < Define.System.Epsilon || vlen < Define.System.Epsilon)
+                            {
+                                //エッジ長０対処
+                                //Debug.Log($"NG4");
+                                goto EndAngleLimit;
+                            }
+                            //Develop.Assert(vlen > 0.0f);
+                            //v = math.normalize(v) * vlen;
+                            v = v * vlen;
 
                             // ベクトル角度クランプ
-                            float maxAngleDeg = angleParam.limitCurveData.EvaluateCurve(cdepth);
+                            float maxAngleDeg = angleParam.limitCurveData.MC2EvaluateCurve(cdepth);
                             float maxAngleRad = math.radians(maxAngleDeg);
                             float angle = MathUtility.Angle(v, tv);
                             float3 rv = v;
@@ -537,11 +472,22 @@ namespace MagicaCloth2
 
                             // 回転補正
                             v = cpos - ppos;
+                            vlen = math.length(v);
+                            if (vlen < Define.System.Epsilon)
+                            {
+                                //エッジ長０対処
+                                //Debug.Log($"NG5");
+                                goto EndAngleLimit;
+                            }
+                            v /= vlen;
                             var nrot = math.mul(prot, localRot);
-                            var q = MathUtility.FromToRotation(tv, v);
+                            //var q = MathUtility.FromToRotation(tv, v);
+                            var q = MathUtility.FromToRotationWithoutNormalize(tv, v);
                             nrot = math.mul(q, nrot);
                             rotationBufferArray[pindex] = nrot;
                         }
+
+                        EndAngleLimit:
 
                         //=====================================================
                         // Angle Restoration
@@ -550,15 +496,31 @@ namespace MagicaCloth2
                         {
                             //Debug.Log($"pindex:{pindex}, p_pindex:{p_pindex}");
 
-                            // 現在のベクトル
-                            float3 v = cpos - ppos;
-
                             // 復元すべきベクトル
                             float3 tv = restorationVectorBufferArray[pindex];
+                            float tvlen = math.length(tv);
+                            if (tvlen < Define.System.Epsilon)
+                            {
+                                //エッジ長０対処
+                                //Debug.Log($"NG6");
+                                float3 add = ppos - cpos;
+                                nextPosArray[pindex] = ppos;
+                                velocityPosArray[pindex] = velocityPosArray[pindex] + add;
+                                continue;
+                            }
+
+                            // 現在のベクトル
+                            float3 v = cpos - ppos;
+                            float vlen = math.length(v);
+                            if (vlen < Define.System.Epsilon)
+                            {
+                                //エッジ長０対処
+                                //Debug.Log($"NG7");
+                                continue;
+                            }
 
                             // 復元力
-                            float restorationStiffness = angleParam.restorationStiffness.EvaluateCurveClamp01(cdepth);
-                            //restorationStiffness = math.saturate(restorationStiffness * math.pow(simulationPower.x, 1.5f));
+                            float restorationStiffness = angleParam.restorationStiffness.MC2EvaluateCurveClamp01(cdepth);
                             restorationStiffness = math.saturate(restorationStiffness * simulationPower.w);
 
                             //int _pindex = indexBuffer[i] + p_start;
@@ -568,7 +530,7 @@ namespace MagicaCloth2
                             restorationStiffness *= gravityFalloff;
 
                             // 球面線形補間
-                            var q = MathUtility.FromToRotation(v, tv, restorationStiffness);
+                            var q = MathUtility.FromToRotationWithoutNormalize(v / vlen, tv / tvlen, restorationStiffness);
                             float3 rv = math.mul(q, v);
 
                             // 回転中心割合
@@ -606,6 +568,25 @@ namespace MagicaCloth2
                             }
                         }
                     }
+                }
+            }
+
+            // バッファクリア
+            bindex = tdata.baseLineChunk.startIndex + chunk.startIndex;
+            for (int a = 0; a < chunk.dataLength; a++, bindex++)
+            {
+                int start = baseLineStartDataIndices[bindex];
+                int dcnt = baseLineDataCounts[bindex];
+
+                int dataIndex = start + d_start;
+                for (int i = 0; i < dcnt; i++, dataIndex++)
+                {
+                    int l_index = baseLineData[dataIndex];
+                    int pindex = p_start + l_index;
+
+                    lengthBufferArray[pindex] = 0;
+                    localPosBufferArray[pindex] = 0;
+                    restorationVectorBufferArray[pindex] = 0;
                 }
             }
         }

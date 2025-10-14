@@ -26,7 +26,8 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
-  m_InvalidKeywords: []
+  m_InvalidKeywords:
+  - _SURFACE_TYPE_TRANSPARENT
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -143,14 +144,18 @@ Material:
     - _ALPower: 0
     - _AddLightToonCen: -0.1
     - _AddLightToonMin: 0.5
+    - _AlphaClip: 0
+    - _AlphaToMask: 0
     - _AmbientToDiffuse: 5
+    - _Blend: 0
     - _BumpScale: 1
+    - _CastShadows: 1
     - _Cull: 0
     - _CustomMaterialType: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DoubleSided: 1
-    - _DstBlend: 0
+    - _DstBlend: 10
     - _EdgeScale: 0
     - _EdgeSize: 0
     - _EmissionIntensity: 1
@@ -164,6 +169,7 @@ Material:
     - _Ice: 1
     - _IsDay: 1
     - _IsFace: 0
+    - _IsShow: 1
     - _Metallic: 0
     - _MetallicIntensity: 1
     - _Mode: 0
@@ -187,7 +193,8 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SpecularSmoothness: 1
-    - _SrcBlend: 1
+    - _SrcBlend: 5
+    - _Surface: 1
     - _TessEdgeLength: 5
     - _TessExtrusionAmount: 0
     - _TessPhongStrength: 0.5
@@ -197,7 +204,9 @@ Material:
     - _UseNormalMap: 0
     - _UseRim: 1
     - _UseSpecular: 0
+    - _ZTest: 4
     - _ZWrite: 1
+    - _ZWriteControl: 1
     m_Colors:
     - _Ambient: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}

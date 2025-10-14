@@ -1,5 +1,5 @@
 ﻿// Magica Cloth 2.
-// Copyright (c) 2023 MagicaSoft.
+// Copyright (c) 2025 MagicaSoft.
 // https://magicasoft.jp
 using System;
 using System.Runtime.CompilerServices;
@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace MagicaCloth2
 {
-    public class SelfCollisionConstraint : IDisposable
+    public partial class SelfCollisionConstraint : IDisposable
     {
         public enum SelfCollisionMode
         {
@@ -106,16 +106,20 @@ namespace MagicaCloth2
             public SelfCollisionMode syncMode;
             public float clothMass;
 
-            public void Convert(SerializeData sdata)
+            public void Convert(SerializeData sdata, ClothProcess.ClothType clothType)
             {
-                selfMode = sdata.selfMode;
+                selfMode = clothType == ClothProcess.ClothType.BoneSpring ? SelfCollisionMode.None : sdata.selfMode;
                 surfaceThicknessCurveData = sdata.surfaceThickness.ConvertFloatArray();
-                syncMode = sdata.syncMode;
+                syncMode = clothType == ClothProcess.ClothType.BoneSpring ? SelfCollisionMode.None : sdata.syncMode;
                 clothMass = sdata.clothMass;
             }
         }
 
         //=========================================================================================
+        /// <summary>
+        /// プリミティブ
+        /// Point/Edge/Triangleの管理
+        /// </summary>
         public const uint KindPoint = 0;
         public const uint KindEdge = 1;
         public const uint KindTriangle = 2;
@@ -127,30 +131,40 @@ namespace MagicaCloth2
         public const uint Flag_AllFix = 0x20000000;
         public const uint Flag_Ignore = 0x40000000; // 無効もしくは無視頂点が含まれる
         public const uint Flag_Enable = 0x80000000; // 接触判定有効
+        public const uint Flag_Intersect0 = 0x00000001;
+        public const uint Flag_Intersect1 = 0x00000002;
+        public const uint Flag_Intersect2 = 0x00000004;
 
-        struct Primitive
+        public const uint Flag_FixIntersect0 = (Flag_Fix0 | Flag_Intersect0);
+        public const uint Flag_FixIntersect1 = (Flag_Fix1 | Flag_Intersect1);
+        public const uint Flag_FixIntersect2 = (Flag_Fix2 | Flag_Intersect2);
+
+        unsafe internal struct Primitive : IComparable<Primitive>
         {
             /// <summary>
-            /// フラグとチームID
-            /// 上位8bit = フラグ
-            /// 下位24bit = チームID
+            /// フラグ
             /// </summary>
-            public uint flagAndTeamId;
+            public uint flag;
 
             /// <summary>
-            /// ソートリストへのインデックス（グローバル）
-            /// </summary>
-            public int sortIndex;
-
-            /// <summary>
-            /// プリミティグを構成するパーティクルインデックス
+            /// プリミティブを構成するパーティクルインデックス
+            /// 不要な軸は(-1)が設定されている
             /// </summary>
             public int3 particleIndices;
 
-            public float3x3 nextPos;
-            public float3x3 oldPos;
-            //public float3x3 basePos;
             public float3 invMass;
+
+            /// <summary>
+            /// プリミティブAABB
+            /// </summary>
+            public AABB aabb;
+
+            /// <summary>
+            /// UniformGird座標
+            /// </summary>
+            public int3 grid;
+
+            public float depth;
 
             /// <summary>
             /// 厚み
@@ -160,36 +174,13 @@ namespace MagicaCloth2
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool IsIgnore()
             {
-                return (flagAndTeamId & Flag_Ignore) != 0;
+                return (flag & Flag_Ignore) != 0;
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public bool HasParticle(int p)
+            public bool IsAllFix()
             {
-                return p >= 0 && math.all(particleIndices - p) == false;
-            }
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public uint GetKind()
-            {
-                return (flagAndTeamId & Flag_KindMask) >> 24;
-            }
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public int GetTeamId()
-            {
-                return (int)(flagAndTeamId & 0xffffff);
-            }
-
-            /// <summary>
-            /// 解決時のthicknessを計算する
-            /// </summary>
-            /// <param name="pri"></param>
-            /// <returns></returns>
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public float GetSolveThickness(in Primitive pri)
-            {
-                return thickness + pri.thickness;
+                return (flag & Flag_AllFix) != 0;
             }
 
             /// <summary>
@@ -198,53 +189,104 @@ namespace MagicaCloth2
             /// <param name="pri"></param>
             /// <returns></returns>
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public bool AnyParticle(in Primitive pri)
+            public bool AnyParticle(ref Primitive pri)
             {
-                for (int i = 0; i < 3; i++)
+                uint kind = ((flag & Flag_KindMask) >> 24) + 1;
+
+                for (int i = 0; i < kind; i++)
                 {
                     int p = particleIndices[i];
-                    if (p >= 0)
-                    {
-                        if (math.all(pri.particleIndices - p) == false)
-                            return true;
-                    }
+
+                    // 入力すべてが非０ならtrue
+                    if (math.all(pri.particleIndices - p) == false)
+                        return true;
                 }
+
                 return false;
             }
-        }
-        ExNativeArray<Primitive> primitiveArray;
-
-        struct SortData : IComparable<SortData>
-        {
-            /// <summary>
-            /// フラグとチームID
-            /// 上位8bit = フラグ
-            /// 下位24bit = チームID
-            /// </summary>
-            public uint flagAndTeamId;
 
             /// <summary>
-            /// プリミティブインデックス（グローバル）
+            /// ソート用
+            /// グリッドX->Y->Zの順でソート
             /// </summary>
-            public int primitiveIndex;
-
-            public float2 firstMinMax;
-            public float2 secondMinMax;
-            public float2 thirdMinMax;
-
-            public int CompareTo(SortData other)
+            /// <param name="other"></param>
+            /// <returns></returns>
+            public int CompareTo(Primitive other)
             {
-                return (int)math.sign(firstMinMax.x - other.firstMinMax.x);
+                if (grid.x != other.grid.x)
+                    return grid.x - other.grid.x;
+                if (grid.y != other.grid.y)
+                    return grid.y - other.grid.y;
+                return grid.z - other.grid.z;
             }
+        }
+        internal ExNativeArray<Primitive> primitiveArrayB;
+
+        /// <summary>
+        /// グリッド
+        /// プリミティブ検出用のグリッド情報
+        /// </summary>
+        internal struct GridInfo : IComparable<GridInfo>
+        {
+            // このグリッドのハッシュ値
+            public int hash;
+
+            // このグリッドの開始プリミティブインデックス
+            public int start;
+
+            // このグリッドに格納されているプリミティブ数
+            public int count;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public uint GetKind()
+            public int CompareTo(GridInfo other)
             {
-                return (flagAndTeamId & Flag_KindMask) >> 24;
+                if (hash < other.hash)
+                    return -1;
+                else if (hash > other.hash)
+                    return 1;
+                else
+                    return 0;
             }
         }
-        ExNativeArray<SortData> sortAndSweepArray;
+        internal ExNativeArray<GridInfo> uniformGridStartCountBuffer;
 
+        /// <summary>
+        /// コンタクト
+        /// 衝突プリミティブペアの管理
+        /// </summary>
+        internal const byte ContactType_EdgeEdge = 0;
+        internal const byte ContactType_PointTriangle = 1;
+        internal const byte ContactType_TrianglePoint = 2;
+
+        internal struct ContactInfo
+        {
+            public int primitiveIndex0;
+            public int primitiveIndex1;
+            public byte contactType;
+            public byte enable;
+            public half thickness;
+            public half s;
+            public half t;
+            public half3 n;
+        }
+
+        internal NativeQueue<ContactInfo> contactQueue;
+        internal NativeList<ContactInfo> contactList;
+
+        /// <summary>
+        /// インターセクト
+        /// 絡まり防止のEdgeTriangleペアの管理
+        /// </summary>
+        internal struct IntersectInfo
+        {
+            public int2 edgeParticeIndices;
+            public int3 triangleParticleIndices;
+        }
+
+        internal NativeQueue<IntersectInfo> intersectQueue;
+        internal NativeList<IntersectInfo> intersectList;
+
+        //=========================================================================================
         /// <summary>
         /// ポイントプリミティブ総数
         /// </summary>
@@ -261,87 +303,49 @@ namespace MagicaCloth2
         public int TrianglePrimitiveCount { get; private set; } = 0;
 
         //=========================================================================================
-        internal struct EdgeEdgeContact
-        {
-            public uint flagAndTeamId0;
-            public uint flagAndTeamId1;
-            public half thickness;
-            public half s;
-            public half t;
-            public half3 n;
-            public half2 edgeInvMass0;
-            public half2 edgeInvMass1;
-            public int2 edgeParticleIndex0;
-            public int2 edgeParticleIndex1;
-
-            public override string ToString()
-            {
-                return $"EdgeEdge f0:{flagAndTeamId0:X}, f1:{flagAndTeamId1:X}, p0:{edgeParticleIndex0}, p1:{edgeParticleIndex1}, inv0:{edgeInvMass0}, inv1:{edgeInvMass1}";
-            }
-        }
-        NativeQueue<EdgeEdgeContact> edgeEdgeContactQueue;
-        NativeList<EdgeEdgeContact> edgeEdgeContactList;
-
-        internal struct PointTriangleContact
-        {
-            public uint flagAndTeamId0; // point
-            public uint flagAndTeamId1; // triangle
-            public half thickness;
-            public half sign; // 押出方向(-1/+1)
-            public int pointParticleIndex;
-            public int3 triangleParticleIndex;
-            public half pointInvMass;
-            public half3 triangleInvMass;
-
-            public override string ToString()
-            {
-                return $"PointTriangle f0:{flagAndTeamId0:X}, f1:{flagAndTeamId1:X}, pp:{pointParticleIndex}, pt:{triangleParticleIndex}, pinv:{pointInvMass}, tinv:{triangleInvMass}";
-            }
-        }
-        NativeQueue<PointTriangleContact> pointTriangleContactQueue;
-        NativeList<PointTriangleContact> pointTriangleContactList;
-
         /// <summary>
         /// 交差解決フラグ(パーティクルと連動)
         /// </summary>
-        NativeArray<byte> intersectFlagArray;
+        internal NativeArray<byte> intersectFlagArray;
 
-        public int IntersectCount { get; private set; } = 0;
+        internal int IntersectCount { get; private set; } = 0;
 
         //=========================================================================================
         public SelfCollisionConstraint()
         {
-            primitiveArray = new ExNativeArray<Primitive>(0, true);
-            sortAndSweepArray = new ExNativeArray<SortData>(0, true);
-
-            edgeEdgeContactQueue = new NativeQueue<EdgeEdgeContact>(Allocator.Persistent);
-            pointTriangleContactQueue = new NativeQueue<PointTriangleContact>(Allocator.Persistent);
-            edgeEdgeContactList = new NativeList<EdgeEdgeContact>(Allocator.Persistent);
-            pointTriangleContactList = new NativeList<PointTriangleContact>(Allocator.Persistent);
-
             intersectFlagArray = new NativeArray<byte>(0, Allocator.Persistent);
+
+            primitiveArrayB = new ExNativeArray<Primitive>(0, true);
+            uniformGridStartCountBuffer = new ExNativeArray<GridInfo>(0, true);
+            contactQueue = new NativeQueue<ContactInfo>(Allocator.Persistent);
+            contactList = new NativeList<ContactInfo>(Allocator.Persistent);
+            intersectQueue = new NativeQueue<IntersectInfo>(Allocator.Persistent);
+            intersectList = new NativeList<IntersectInfo>(Allocator.Persistent);
 
             //Develop.DebugLog($"UseQueueCount:{UseQueueCount}");
         }
 
         public void Dispose()
         {
-            primitiveArray?.Dispose();
-            primitiveArray = null;
-
-            sortAndSweepArray?.Dispose();
-            sortAndSweepArray = null;
-
             PointPrimitiveCount = 0;
             EdgePrimitiveCount = 0;
             TrianglePrimitiveCount = 0;
 
-            edgeEdgeContactQueue.Dispose();
-            pointTriangleContactQueue.Dispose();
-            edgeEdgeContactList.Dispose();
-            pointTriangleContactList.Dispose();
+            intersectFlagArray.MC2DisposeSafe();
 
-            intersectFlagArray.DisposeSafe();
+            primitiveArrayB?.Dispose();
+            primitiveArrayB = null;
+            uniformGridStartCountBuffer?.Dispose();
+            uniformGridStartCountBuffer = null;
+
+            if (contactQueue.IsCreated)
+                contactQueue.Dispose();
+            if (contactList.IsCreated)
+                contactList.Dispose();
+            if (intersectQueue.IsCreated)
+                intersectQueue.Dispose();
+            if (intersectList.IsCreated)
+                intersectList.Dispose();
 
             IntersectCount = 0;
         }
@@ -359,69 +363,10 @@ namespace MagicaCloth2
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"[SelfCollisionConstraint]");
-            sb.AppendLine($"  -primitiveArray:{primitiveArray.ToSummary()}");
-            sb.AppendLine($"  -sortAndSweepArray:{sortAndSweepArray.ToSummary()}");
-
-            sb.AppendLine($"  -edgeEdgeContactQueue:{(edgeEdgeContactQueue.IsCreated ? edgeEdgeContactQueue.Count : 0)}");
-            sb.AppendLine($"  -edgeEdgeContactList:{(edgeEdgeContactList.IsCreated ? edgeEdgeContactList.Length : 0)}");
-            sb.AppendLine($"  -pointTriangleContactQueue:{(pointTriangleContactQueue.IsCreated ? pointTriangleContactQueue.Count : 0)}");
-            sb.AppendLine($"  -pointTriangleContactList:{(pointTriangleContactList.IsCreated ? pointTriangleContactList.Length : 0)}");
             sb.AppendLine($"  -intersectFlagArray:{(intersectFlagArray.IsCreated ? intersectFlagArray.Length : 0)}");
 
             return sb.ToString();
         }
-
-        //=========================================================================================
-#if false
-        internal class ConstraintData : IValid
-        {
-            public ResultCode result;
-
-            /// <summary>
-            /// 同期先proxyMeshのlocalPosを自proxyMesh空間に変換するマトリックス
-            /// </summary>
-            public float4x4 syncToSelfMatrix;
-
-            public bool IsValid()
-            {
-                return math.any(syncToSelfMatrix.c0);
-            }
-        }
-
-        internal static ConstraintData CreateData(
-            int teamId, TeamManager.TeamData teamData, VirtualMesh proxyMesh, in ClothParameters parameters,
-            int syncTeamId, TeamManager.TeamData syncTeamData, VirtualMesh syncProxyMesh)
-        {
-            var constraintData = new ConstraintData();
-
-            try
-            {
-                if (proxyMesh.VertexCount == 0)
-                    return null;
-
-                var self2Params = parameters.selfCollisionConstraint2;
-
-                // 同期チームとのFullMesh判定が必要な場合は、同期ProxyMeshのローカル頂点を時チームの座標空間に変換しておく
-                //var syncMode = parameters.selfCollisionConstraint.syncMode;
-                //if (syncTeamId > 0 && syncProxyMesh != null)
-                //{
-                //    // 同期proxyMeshを自proxyMesh空間に変換するマトリックス
-                //    var toM = syncProxyMesh.CenterTransformTo(proxyMesh);
-                //    constraintData.syncToSelfMatrix = toM;
-                //}
-            }
-            catch (Exception exception)
-            {
-                Debug.LogException(exception);
-                constraintData.result.SetError(Define.Result.Constraint_CreateSelfCollisionException);
-            }
-            finally
-            {
-            }
-
-            return constraintData;
-        }
-#endif
 
         //=========================================================================================
         /// <summary>
@@ -464,6 +409,13 @@ namespace MagicaCloth2
             // チームが消滅中かどうか
             bool exit = tdata.flag.IsSet(TeamManager.Flag_Exit);
 
+            // sync解除
+            if (exit && tdata.syncTeamId != 0 && tm.ContainsTeamData(tdata.syncTeamId))
+            {
+                ref var stdata = ref tm.GetTeamDataRef(tdata.syncTeamId);
+                tm.RemoveSyncParent(ref stdata, teamId);
+            }
+
             // 自身の状況を判定する
             ref var parameter = ref tm.GetParametersRef(teamId);
             var selfMode = exit ? SelfCollisionMode.None : parameter.selfCollisionConstraint.selfMode;
@@ -495,15 +447,15 @@ namespace MagicaCloth2
             {
                 if (tdata.EdgeCount > 0)
                 {
-                    selfEdgeEdge = true;
                     useEdgePrimitive = true;
+                    selfEdgeEdge = true;
                 }
                 if (tdata.TriangleCount > 0)
                 {
-                    selfPointTriangle = true;
-                    selfTrianglePoint = true;
                     usePointPrimitive = true;
                     useTrianglePrimitive = true;
+                    selfPointTriangle = true;
+                    selfTrianglePoint = true;
                 }
                 if (tdata.EdgeCount > 0 && tdata.TriangleCount > 0)
                 {
@@ -520,18 +472,18 @@ namespace MagicaCloth2
                 {
                     if (tdata.EdgeCount > 0 && stdata.EdgeCount > 0)
                     {
-                        syncEdgeEdge = true;
                         useEdgePrimitive = true;
+                        syncEdgeEdge = true;
                     }
                     if (tdata.TriangleCount > 0)
                     {
-                        syncTrianglePoint = true;
                         useTrianglePrimitive = true;
+                        syncTrianglePoint = true;
                     }
                     if (stdata.TriangleCount > 0)
                     {
-                        syncPointTriangle = true;
                         usePointPrimitive = true;
+                        syncPointTriangle = true;
                     }
                     if (tdata.EdgeCount > 0 && stdata.TriangleCount > 0)
                     {
@@ -559,18 +511,18 @@ namespace MagicaCloth2
                         {
                             if (ptdata.EdgeCount > 0 && tdata.EdgeCount > 0)
                             {
-                                PsyncEdgeEdge = true;
                                 useEdgePrimitive = true;
+                                PsyncEdgeEdge = true;
                             }
                             if (ptdata.TriangleCount > 0)
                             {
-                                PsyncPointTriangle = true;
                                 usePointPrimitive = true;
+                                PsyncPointTriangle = true;
                             }
                             if (tdata.TriangleCount > 0)
                             {
-                                PsyncTrianglePoint = true;
                                 useTrianglePrimitive = true;
+                                PsyncTrianglePoint = true;
                             }
                             if (tdata.EdgeCount > 0 && ptdata.TriangleCount > 0)
                             {
@@ -613,17 +565,17 @@ namespace MagicaCloth2
             {
                 // init
                 int pointCount = tdata.ParticleCount;
-                tdata.selfPointChunk = primitiveArray.AddRange(pointCount);
-                sortAndSweepArray.AddRange(pointCount);
+                tdata.selfPointChunk = primitiveArrayB.AddRange(pointCount);
+                uniformGridStartCountBuffer.AddRange(pointCount);
                 int start = tdata.selfPointChunk.startIndex;
-                InitPrimitive(teamId, tdata, KindPoint, start, start, pointCount);
+                InitPrimitive(teamId, tdata, KindPoint, start, pointCount);
                 PointPrimitiveCount += pointCount;
             }
             else if (usePointPrimitive == false && tdata.selfPointChunk.IsValid)
             {
                 // remove
-                primitiveArray.Remove(tdata.selfPointChunk);
-                sortAndSweepArray.Remove(tdata.selfPointChunk);
+                primitiveArrayB.Remove(tdata.selfPointChunk);
+                uniformGridStartCountBuffer.Remove(tdata.selfPointChunk);
                 PointPrimitiveCount -= tdata.selfPointChunk.dataLength;
                 tdata.selfPointChunk.Clear();
             }
@@ -633,17 +585,17 @@ namespace MagicaCloth2
             {
                 // init
                 int edgeCount = tdata.EdgeCount;
-                tdata.selfEdgeChunk = primitiveArray.AddRange(edgeCount);
-                sortAndSweepArray.AddRange(edgeCount);
+                tdata.selfEdgeChunk = primitiveArrayB.AddRange(edgeCount);
+                uniformGridStartCountBuffer.AddRange(edgeCount);
                 int start = tdata.selfEdgeChunk.startIndex;
-                InitPrimitive(teamId, tdata, KindEdge, start, start, edgeCount);
+                InitPrimitive(teamId, tdata, KindEdge, start, edgeCount);
                 EdgePrimitiveCount += edgeCount;
             }
             else if (useEdgePrimitive == false && tdata.selfEdgeChunk.IsValid)
             {
                 // remove
-                primitiveArray.Remove(tdata.selfEdgeChunk);
-                sortAndSweepArray.Remove(tdata.selfEdgeChunk);
+                primitiveArrayB.Remove(tdata.selfEdgeChunk);
+                uniformGridStartCountBuffer.Remove(tdata.selfEdgeChunk);
                 EdgePrimitiveCount -= tdata.selfEdgeChunk.dataLength;
                 tdata.selfEdgeChunk.Clear();
             }
@@ -653,17 +605,17 @@ namespace MagicaCloth2
             {
                 // init
                 int triangleCount = tdata.TriangleCount;
-                tdata.selfTriangleChunk = primitiveArray.AddRange(triangleCount);
-                sortAndSweepArray.AddRange(triangleCount);
+                tdata.selfTriangleChunk = primitiveArrayB.AddRange(triangleCount);
+                uniformGridStartCountBuffer.AddRange(triangleCount);
                 int start = tdata.selfTriangleChunk.startIndex;
-                InitPrimitive(teamId, tdata, KindTriangle, start, start, triangleCount);
+                InitPrimitive(teamId, tdata, KindTriangle, start, triangleCount);
                 TrianglePrimitiveCount += triangleCount;
             }
             else if (useTrianglePrimitive == false && tdata.selfTriangleChunk.IsValid)
             {
                 // remove
-                primitiveArray.Remove(tdata.selfTriangleChunk);
-                sortAndSweepArray.Remove(tdata.selfTriangleChunk);
+                primitiveArrayB.Remove(tdata.selfTriangleChunk);
+                uniformGridStartCountBuffer.Remove(tdata.selfTriangleChunk);
                 TrianglePrimitiveCount -= tdata.selfTriangleChunk.dataLength;
                 tdata.selfTriangleChunk.Clear();
             }
@@ -683,27 +635,38 @@ namespace MagicaCloth2
             }
 
             // 同期対象に対して再帰する
-            if (syncMode != SelfCollisionMode.None && tm.ContainsTeamData(tdata.syncTeamId))
+            if (tdata.syncTeamId != 0 && tm.ContainsTeamData(tdata.syncTeamId))
             {
                 UpdateTeam(tdata.syncTeamId);
             }
         }
 
-        void InitPrimitive(int teamId, TeamManager.TeamData tdata, uint kind, int startPrimitive, int startSort, int length)
+        /// <summary>
+        /// プリミティブ初期化
+        /// </summary>
+        /// <param name="teamId"></param>
+        /// <param name="tdata"></param>
+        /// <param name="kind"></param>
+        /// <param name="startPrimitive"></param>
+        /// <param name="length"></param>
+        void InitPrimitive(int teamId, TeamManager.TeamData tdata, uint kind, int startPrimitive, int length)
         {
+            var vm = MagicaManager.VMesh;
+
             var job = new InitPrimitiveJob()
             {
                 teamId = teamId,
                 tdata = tdata,
+
                 kind = kind,
                 startPrimitive = startPrimitive,
-                startSort = startSort,
 
-                edges = MagicaManager.VMesh.edges.GetNativeArray(),
-                triangles = MagicaManager.VMesh.triangles.GetNativeArray(),
+                edges = vm.edges.GetNativeArray(),
+                triangles = vm.triangles.GetNativeArray(),
+                attributes = vm.attributes.GetNativeArray(),
+                vertexDepths = vm.vertexDepths.GetNativeArray(),
 
-                primitiveArray = primitiveArray.GetNativeArray(),
-                sortArray = sortAndSweepArray.GetNativeArray(),
+                primitiveArrayB = primitiveArrayB.GetNativeArray(),
             };
             job.Run(length); // ここではRun()で実行する
         }
@@ -716,30 +679,29 @@ namespace MagicaCloth2
 
             public uint kind;
             public int startPrimitive;
-            public int startSort;
 
             // vmesh
             [Unity.Collections.ReadOnly]
             public NativeArray<int2> edges;
             [Unity.Collections.ReadOnly]
             public NativeArray<int3> triangles;
+            [Unity.Collections.ReadOnly]
+            public NativeArray<VertexAttribute> attributes;
+            [Unity.Collections.ReadOnly]
+            public NativeArray<float> vertexDepths;
 
             [NativeDisableParallelForRestriction]
-            public NativeArray<Primitive> primitiveArray;
-            [NativeDisableParallelForRestriction]
-            public NativeArray<SortData> sortArray;
+            public NativeArray<Primitive> primitiveArrayB;
 
             public void Execute(int index)
             {
                 int pri_index = startPrimitive + index;
-                int sort_index = startSort + index;
 
-                var p = primitiveArray[pri_index];
-                var s = sortArray[sort_index];
+                var p = primitiveArrayB[pri_index];
+                int pstart = tdata.particleChunk.startIndex;
 
                 // プリミティブを構成するパーティクルインデックス
                 int3 particleIndices = -1;
-                int pstart = tdata.particleChunk.startIndex;
                 if (kind == KindPoint)
                 {
                     particleIndices[0] = pstart + index;
@@ -755,494 +717,16 @@ namespace MagicaCloth2
                     particleIndices.xyz = triangles[tstart + index] + pstart;
                 }
 
-                p.flagAndTeamId = (uint)teamId | (kind << 24);
-                p.sortIndex = sort_index;
-                p.particleIndices = particleIndices;
-
-                s.primitiveIndex = pri_index;
-                s.flagAndTeamId = (uint)teamId;
-
-                primitiveArray[pri_index] = p;
-                sortArray[sort_index] = s;
-            }
-        }
-
-        /// <summary>
-        /// 作業バッファ更新
-        /// </summary>
-        internal void WorkBufferUpdate()
-        {
-            // 交差フラグバッファ
-            if (IntersectCount > 0)
-            {
-                int pcnt = MagicaManager.Simulation.ParticleCount;
-                intersectFlagArray.Resize(pcnt, options: NativeArrayOptions.ClearMemory);
-            }
-
-#if MC2_DEBUG && false
-            // debug
-            Develop.DebugLog($"PointPrimitive:{PointPrimitiveCount}, EdgePrimitive:{EdgePrimitiveCount}, TrianglePrimitive:{TrianglePrimitiveCount}, Intersect:{IntersectCount}");
-            if (edgeEdgeContactQueue.Count > 0 || pointTriangleContactQueue.Count > 0)
-                Develop.DebugLog($"EdgeEdge Contact:{edgeEdgeContactQueue.Count}, PointTriangle Contact:{pointTriangleContactQueue.Count}");
-            edgeEdgeContactQueue.Clear();
-            pointTriangleContactQueue.Clear();
-#endif
-
-        }
-
-        /// <summary>
-        /// ソート＆スイープ配列をデータsdで二分探索しその開始インデックスを返す
-        /// </summary>
-        /// <param name="sortAndSweepArray"></param>
-        /// <param name="sd"></param>
-        /// <param name="chunk"></param>
-        /// <returns></returns>
-        static unsafe int BinarySearchSortAndlSweep(ref NativeArray<SortData> sortAndSweepArray, in SortData sd, in DataChunk chunk)
-        {
-            SortData* pt = (SortData*)sortAndSweepArray.GetUnsafeReadOnlyPtr();
-            pt += chunk.startIndex;
-            int sortIndex = NativeSortExtension.BinarySearch(pt, chunk.dataLength, sd);
-            if (sortIndex < 0)
-            {
-                // インデックスが正の場合は値が正確に発見されたのでそのインデックスが返る
-                // インデックスが負の場合は値が見つからずに最終的な探索インデックスが返る
-                // この場合はそのインデックスを正に戻しそこから－１した場所が値の次のインデックスとなっている
-                // 例:(-7) = 検索値はインデックス５と６の間
-                sortIndex = math.max(-sortIndex - 1, 0);
-            }
-            sortIndex += chunk.startIndex;
-
-            return sortIndex;
-        }
-
-        //=========================================================================================
-        /// <summary>
-        /// 制約の解決
-        /// </summary>
-        /// <param name="jobHandle"></param>
-        /// <returns></returns>
-        internal JobHandle SolverConstraint(int updateIndex, JobHandle jobHandle)
-        {
-            // 実行時セルフコリジョンの解決
-            jobHandle = SolverRuntimeSelfCollision(updateIndex, jobHandle);
-
-            // 絡まり解決
-            jobHandle = SolveIntersect(jobHandle);
-
-            return jobHandle;
-        }
-
-        /// <summary>
-        /// 実行時セルフコリジョンの解決
-        /// </summary>
-        /// <param name="jobHandle"></param>
-        /// <returns></returns>
-        unsafe JobHandle SolverRuntimeSelfCollision(int updateIndex, JobHandle jobHandle)
-        {
-            if (HasPrimitive() == false)
-                return jobHandle;
-
-            // Broad phase ====================================================
-            // コンタクトバッファ生成
-            // !コンタクトバッファ生成は１フレームに１回しか実行しない
-            // !ステップ２回目以降は各パーティクルが線形に移動するだけでコンタクト生成結果にあまり変化が無いためスキップさせる
-            // !これは本来ならNGだがクオリティよりパフォーマンスを優先した実装となる
-            // !そもそも毎ステップ生成したとしてもMagicaClothは反復が少ないので絡まるときは絡まる。
-            // !MagicaClothではその絡まりを最後のSolveIntersect()で解くことに重点を置く
-            if (updateIndex == 0)
-            {
-                // この生成が大変重い！
-                jobHandle = SolverBroadPhase(jobHandle);
-            }
-            else
-            {
-                // !ステップ２回目以降はコンタクトバッファの内容に対して再度ブロードフェーズのみを実行する
-                jobHandle = UpdateBroadPhase(jobHandle);
-            }
-
-            // Solver phase ====================================================
-            // 接触の解決
-            // !直列１回と同程度の堅牢さは並列では反復3~4回ほど必要
-            var sm = MagicaManager.Simulation;
-            for (int i = 0; i < Define.System.SelfCollisionSolverIteration; i++)
-            {
-                var solverEdgeEdgeJob = new SolverEdgeEdgeJob()
-                {
-                    nextPosArray = sm.nextPosArray.GetNativeArray(),
-                    edgeEdgeContactArray = edgeEdgeContactList.AsDeferredJobArray(),
-                    countArray = sm.countArray,
-                    sumArray = sm.sumArray,
-                };
-                jobHandle = solverEdgeEdgeJob.Schedule(edgeEdgeContactList, 16, jobHandle);
-
-                var solverPointTriangleJob = new SolverPointTriangleJob()
-                {
-                    nextPosArray = sm.nextPosArray.GetNativeArray(),
-                    pointTriangleContactArray = pointTriangleContactList.AsDeferredJobArray(),
-                    countArray = sm.countArray,
-                    sumArray = sm.sumArray,
-                };
-                jobHandle = solverPointTriangleJob.Schedule(pointTriangleContactList, 16, jobHandle);
-
-                // 集計
-                const float attn = 0.0f; // 0.0f
-                jobHandle = InterlockUtility.SolveAggregateBufferAndClear(sm.processingSelfParticle, attn, jobHandle);
-            }
-
-            return jobHandle;
-        }
-
-        /// <summary>
-        /// コンタクトバッファ生成
-        /// </summary>
-        /// <param name="jobHandle"></param>
-        /// <returns></returns>
-        unsafe JobHandle SolverBroadPhase(JobHandle jobHandle)
-        {
-            var tm = MagicaManager.Team;
-            var sm = MagicaManager.Simulation;
-            var vm = MagicaManager.VMesh;
-
-            // バッファクリア
-            jobHandle = new ClearBufferJob()
-            {
-                edgeEdgeContactQueue = edgeEdgeContactQueue,
-                pointTriangleContactQueue = pointTriangleContactQueue,
-            }.Schedule(jobHandle);
-
-            // プリミティブ更新 =======================================================
-            if (PointPrimitiveCount > 0)
-            {
-                // PointTriangle
-                var job2 = new UpdatePrimitiveJob()
-                {
-                    kind = KindPoint,
-                    teamDataArray = tm.teamDataArray.GetNativeArray(),
-                    parameterArray = tm.parameterArray.GetNativeArray(),
-
-                    attributes = vm.attributes.GetNativeArray(),
-                    depthArray = vm.vertexDepths.GetNativeArray(),
-
-                    nextPosArray = sm.nextPosArray.GetNativeArray(),
-                    oldPosArray = sm.oldPosArray.GetNativeArray(),
-                    frictionArray = sm.frictionArray.GetNativeArray(),
-                    //stepBasicPositionBuffer = sm.stepBasicPositionBuffer,
-
-                    primitiveArray = primitiveArray.GetNativeArray(),
-                    sortAndSweepArray = sortAndSweepArray.GetNativeArray(),
-
-                    processingArray = sm.processingSelfPointTriangle.Buffer,
-                };
-                jobHandle = job2.Schedule(sm.processingSelfPointTriangle.GetJobSchedulePtr(), 16, jobHandle);
-            }
-            if (EdgePrimitiveCount > 0)
-            {
-                // EdgeEdge
-                var job = new UpdatePrimitiveJob()
-                {
-                    kind = KindEdge,
-                    teamDataArray = tm.teamDataArray.GetNativeArray(),
-                    parameterArray = tm.parameterArray.GetNativeArray(),
-
-                    attributes = vm.attributes.GetNativeArray(),
-                    depthArray = vm.vertexDepths.GetNativeArray(),
-
-                    nextPosArray = sm.nextPosArray.GetNativeArray(),
-                    oldPosArray = sm.oldPosArray.GetNativeArray(),
-                    frictionArray = sm.frictionArray.GetNativeArray(),
-                    //stepBasicPositionBuffer = sm.stepBasicPositionBuffer,
-
-                    primitiveArray = primitiveArray.GetNativeArray(),
-                    sortAndSweepArray = sortAndSweepArray.GetNativeArray(),
-
-                    processingArray = sm.processingSelfEdgeEdge.Buffer,
-                };
-                jobHandle = job.Schedule(sm.processingSelfEdgeEdge.GetJobSchedulePtr(), 16, jobHandle);
-            }
-            if (TrianglePrimitiveCount > 0)
-            {
-                // TrianglePoint
-                var job = new UpdatePrimitiveJob()
-                {
-                    kind = KindTriangle,
-                    teamDataArray = tm.teamDataArray.GetNativeArray(),
-                    parameterArray = tm.parameterArray.GetNativeArray(),
-
-                    attributes = vm.attributes.GetNativeArray(),
-                    depthArray = vm.vertexDepths.GetNativeArray(),
-
-                    nextPosArray = sm.nextPosArray.GetNativeArray(),
-                    oldPosArray = sm.oldPosArray.GetNativeArray(),
-                    frictionArray = sm.frictionArray.GetNativeArray(),
-                    //stepBasicPositionBuffer = sm.stepBasicPositionBuffer,
-
-                    primitiveArray = primitiveArray.GetNativeArray(),
-                    sortAndSweepArray = sortAndSweepArray.GetNativeArray(),
-
-                    processingArray = sm.processingSelfTrianglePoint.Buffer,
-                };
-                jobHandle = job.Schedule(sm.processingSelfTrianglePoint.GetJobSchedulePtr(), 16, jobHandle);
-            }
-
-            // sort ===========================================================
-            // チームごと、およびpoint/edge/triangle別
-            var sortJob = new SortJob()
-            {
-                teamDataArray = tm.teamDataArray.GetNativeArray(),
-                primitiveArray = primitiveArray.GetNativeArray(),
-                sortAndSweepArray = sortAndSweepArray.GetNativeArray(),
-            };
-            jobHandle = sortJob.Schedule(tm.TeamCount * 3, 1, jobHandle); // 3 = (Point/Edge/Triangle)
-
-            // Broad phase ====================================================
-            // EdgeEdge
-            if (EdgePrimitiveCount > 0)
-            {
-                // Edge -> Edge
-                var broadEdgeEdgeJob = new EdgeEdgeBroadPhaseJob()
-                {
-                    teamDataArray = tm.teamDataArray.GetNativeArray(),
-
-                    primitiveArray = primitiveArray.GetNativeArray(),
-                    sortAndSweepArray = sortAndSweepArray.GetNativeArray(),
-
-                    processingEdgeEdgeArray = sm.processingSelfEdgeEdge.Buffer,
-
-                    edgeEdgeContactQueue = edgeEdgeContactQueue.AsParallelWriter(),
-
-                    intersectFlagArray = intersectFlagArray,
-                };
-                jobHandle = broadEdgeEdgeJob.Schedule(sm.processingSelfEdgeEdge.GetJobSchedulePtr(), 16, jobHandle);
-            }
-
-            // PointTriangle
-            if (PointPrimitiveCount > 0)
-            {
-                // Point -> Triangle
-                var broadPointTriangleJob = new PointTriangleBroadPhaseJob()
-                {
-                    mainKind = KindPoint,
-
-                    teamDataArray = tm.teamDataArray.GetNativeArray(),
-
-                    triangles = vm.triangles.GetNativeArray(),
-                    attributes = vm.attributes.GetNativeArray(),
-
-                    nextPosArray = sm.nextPosArray.GetNativeArray(),
-                    oldPosArray = sm.oldPosArray.GetNativeArray(),
-                    frictionArray = sm.frictionArray.GetNativeArray(),
-
-                    primitiveArray = primitiveArray.GetNativeArray(),
-                    sortAndSweepArray = sortAndSweepArray.GetNativeArray(),
-
-                    processingPointTriangleArray = sm.processingSelfPointTriangle.Buffer,
-
-                    pointTriangleContactQueue = pointTriangleContactQueue.AsParallelWriter(),
-
-                    intersectFlagArray = intersectFlagArray,
-                };
-                jobHandle = broadPointTriangleJob.Schedule(sm.processingSelfPointTriangle.GetJobSchedulePtr(), 16, jobHandle);
-            }
-            if (TrianglePrimitiveCount > 0)
-            {
-                // Triangle -> Point
-                var broadTrianglePointJob = new PointTriangleBroadPhaseJob()
-                {
-                    mainKind = KindTriangle,
-
-                    teamDataArray = tm.teamDataArray.GetNativeArray(),
-
-                    triangles = vm.triangles.GetNativeArray(),
-                    attributes = vm.attributes.GetNativeArray(),
-
-                    nextPosArray = sm.nextPosArray.GetNativeArray(),
-                    oldPosArray = sm.oldPosArray.GetNativeArray(),
-                    frictionArray = sm.frictionArray.GetNativeArray(),
-
-                    primitiveArray = primitiveArray.GetNativeArray(),
-                    sortAndSweepArray = sortAndSweepArray.GetNativeArray(),
-
-                    processingPointTriangleArray = sm.processingSelfTrianglePoint.Buffer,
-
-                    pointTriangleContactQueue = pointTriangleContactQueue.AsParallelWriter(),
-
-                    intersectFlagArray = intersectFlagArray,
-                };
-                jobHandle = broadTrianglePointJob.Schedule(sm.processingSelfTrianglePoint.GetJobSchedulePtr(), 16, jobHandle);
-            }
-
-            // ToList
-            var toListJob1 = new EdgeEdgeToListJob()
-            {
-                edgeEdgeContactQueue = edgeEdgeContactQueue,
-                edgeEdgeContactList = edgeEdgeContactList,
-            }.Schedule(jobHandle);
-            var toListJob2 = new PointTriangleToListJob()
-            {
-                pointTriangleContactQueue = pointTriangleContactQueue,
-                pointTriangleContactList = pointTriangleContactList,
-            }.Schedule(jobHandle);
-            jobHandle = JobHandle.CombineDependencies(toListJob1, toListJob2);
-
-            return jobHandle;
-        }
-
-        [BurstCompile]
-        struct ClearBufferJob : IJob
-        {
-            [Unity.Collections.WriteOnly]
-            public NativeQueue<EdgeEdgeContact> edgeEdgeContactQueue;
-
-            [Unity.Collections.WriteOnly]
-            public NativeQueue<PointTriangleContact> pointTriangleContactQueue;
-
-            public void Execute()
-            {
-                edgeEdgeContactQueue.Clear();
-                pointTriangleContactQueue.Clear();
-            }
-        }
-
-#if false
-        [BurstCompile]
-        struct SetupContactGroupJob : IJob
-        {
-            public int teamCount;
-            public int useQueueCount;
-
-            // team
-            public NativeArray<TeamManager.TeamData> teamDataArray;
-
-            public void Execute()
-            {
-                // まずセルフコリジョンが有効で同期していないチームのグループインデックスを決定する
-                int groupIndex = 0;
-                var restTeam = new NativeList<int>(teamCount, Allocator.Temp);
-                for (int i = 1; i < teamCount; i++)
-                {
-                    var tdata = teamDataArray[i];
-                    if (tdata.IsValid == false || tdata.IsEnable == false || tdata.IsStepRunning == false)
-                        continue;
-                    if (tdata.flag.TestAny(TeamManager.Flag_Self_PointPrimitive, 3) == false)
-                        continue;
-
-                    // このチームはセルフコリジョンを実行する
-                    if (tdata.flag.IsSet(TeamManager.Flag_Synchronization))
-                    {
-                        // 同期
-                        // 後で解決する
-                        restTeam.Add(i);
-                    }
-                    else
-                    {
-                        // コンタクトグループを割り振る
-                        tdata.selfQueueIndex = groupIndex % useQueueCount;
-                        //Debug.Log($"tid:{i} Main selfQueueIndex:{tdata.selfQueueIndex}");
-                        teamDataArray[i] = tdata;
-                        groupIndex++;
-                    }
-                }
-
-                // 同期チームは同期先のグループIDを指す
-                if (restTeam.Length > 0)
-                {
-                    foreach (var teamId in restTeam)
-                    {
-                        var tdata = teamDataArray[teamId];
-                        var stdata = teamDataArray[tdata.syncTeamId];
-                        while (stdata.syncTeamId != 0)
-                        {
-                            stdata = teamDataArray[stdata.syncTeamId];
-                        }
-                        tdata.selfQueueIndex = stdata.selfQueueIndex;
-                        teamDataArray[teamId] = tdata;
-                        //Debug.Log($"tid:{teamId} Sync selfQueueIndex:{tdata.selfQueueIndex}");
-                    }
-                }
-            }
-        }
-#endif
-
-        [BurstCompile]
-        struct UpdatePrimitiveJob : IJobParallelForDefer
-        {
-            // プリミティブ種類
-            public uint kind;
-
-            // team
-            [Unity.Collections.ReadOnly]
-            public NativeArray<TeamManager.TeamData> teamDataArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<ClothParameters> parameterArray;
-
-            // vmesh
-            [Unity.Collections.ReadOnly]
-            public NativeArray<VertexAttribute> attributes;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float> depthArray;
-
-            // particle
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float3> nextPosArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float3> oldPosArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float> frictionArray;
-            //[Unity.Collections.ReadOnly]
-            //public NativeArray<float3> stepBasicPositionBuffer;
-
-            // constraint
-            [NativeDisableParallelForRestriction]
-            public NativeArray<Primitive> primitiveArray;
-            [NativeDisableParallelForRestriction]
-            public NativeArray<SortData> sortAndSweepArray;
-
-            // processing
-            [Unity.Collections.ReadOnly]
-            public NativeArray<uint> processingArray;
-
-            // プリミティブごと
-            public void Execute(int index)
-            {
-                uint pack = processingArray[index];
-                int teamId = DataUtility.Unpack32Hi(pack);
-                int l_index = DataUtility.Unpack32Low(pack);
-
-                // チームはこのステップで有効であることが保証されている
-                var tdata = teamDataArray[teamId];
-                int pstart = tdata.particleChunk.startIndex;
-
-                var param = parameterArray[teamId].selfCollisionConstraint;
-
-                // primitive
-                int pri_index = 0;
-                switch (kind)
-                {
-                    case KindPoint:
-                        pri_index = tdata.selfPointChunk.startIndex + l_index;
-                        break;
-                    case KindEdge:
-                        pri_index = tdata.selfEdgeChunk.startIndex + l_index;
-                        break;
-                    case KindTriangle:
-                        pri_index = tdata.selfTriangleChunk.startIndex + l_index;
-                        break;
-                }
-                var primitive = primitiveArray[pri_index];
-                uint flag = primitive.flagAndTeamId;
-
-                // プリミティブ更新
-                int ac = (int)kind + 1; // 軸の数
+                // フラグなど
+                uint flag = 0;
                 uint fix_flag = Flag_Fix0;
                 bool ignore = false;
                 int fixcnt = 0;
                 float depth = 0;
+                int ac = (int)kind + 1; // 軸の数
                 for (int i = 0; i < ac; i++)
                 {
-                    int pindex = primitive.particleIndices[i];
-                    primitive.nextPos[i] = nextPosArray[pindex];
-                    primitive.oldPos[i] = oldPosArray[pindex];
-                    //primitive.basePos[i] = stepBasicPositionBuffer[pindex];
+                    int pindex = particleIndices[i];
                     int vindex = tdata.proxyCommonChunk.startIndex + pindex - pstart;
                     var attr = attributes[vindex];
                     if (attr.IsMove())
@@ -1255,8 +739,7 @@ namespace MagicaCloth2
                     fix_flag <<= 1;
                     if (attr.IsInvalid())
                         ignore = true;
-                    primitive.invMass[i] = MathUtility.CalcSelfCollisionInverseMass(frictionArray[pindex], attr.IsDontMove(), param.clothMass);
-                    depth += depthArray[vindex];
+                    depth += vertexDepths[vindex];
                 }
                 if (fixcnt == ac)
                     flag |= Flag_AllFix;
@@ -1264,110 +747,49 @@ namespace MagicaCloth2
                     flag &= ~Flag_AllFix;
                 if (ignore)
                     flag |= Flag_Ignore;
-                primitive.flagAndTeamId = flag;
                 depth /= ac;
-                //float thickness = parameterArray[teamId].selfCollisionConstraint.surfaceThicknessCurveData.EvaluateCurve(depth);
-                float thickness = param.surfaceThicknessCurveData.EvaluateCurve(depth);
-                thickness *= tdata.scaleRatio; // team scale
-                primitive.thickness = thickness;
-                primitiveArray[pri_index] = primitive;
 
-                // AABB
-                var aabb = new AABB(math.min(primitive.nextPos[0], primitive.oldPos[0]), math.max(primitive.nextPos[0], primitive.oldPos[0]));
-                for (int i = 1; i < ac; i++)
-                {
-                    aabb.Encapsulate(primitive.nextPos[i]);
-                    aabb.Encapsulate(primitive.oldPos[i]);
-                }
-                aabb.Expand(thickness); // 厚み
-                //aabb.Expand(0.03f); // 厚み
+                p.flag = (kind << 24) | flag;
+                p.particleIndices = particleIndices;
+                p.depth = depth;
+                p.grid = Define.System.SelfCollisionIgnoreGrid; // 無効グリッド
 
-                // update sort
-                int sortIndex = primitive.sortIndex;
-                var sd = sortAndSweepArray[sortIndex];
-                sd.flagAndTeamId = primitive.flagAndTeamId;
-                sd.firstMinMax = new float2(aabb.Min.y, aabb.Max.y);
-                sd.secondMinMax = new float2(aabb.Min.x, aabb.Max.x);
-                sd.thirdMinMax = new float2(aabb.Min.z, aabb.Max.z);
-                sortAndSweepArray[sortIndex] = sd;
-                //Debug.Log($"Update Primitive[{pri_index}] pindices:{primitive.particleIndices}, flag:0x{primitive.flagAndTeamId >> 24:X}");
+                primitiveArrayB[pri_index] = p;
+
+                //Debug.Log($"pri[{pri_index}] p:{p.particleIndices}, {p.GetKind()}");
             }
         }
 
-        [BurstCompile]
-        unsafe struct SortJob : IJobParallelFor
+        /// <summary>
+        /// 作業バッファ更新
+        /// </summary>
+        internal void WorkBufferUpdate()
         {
-            // team
-            [Unity.Collections.ReadOnly]
-            public NativeArray<TeamManager.TeamData> teamDataArray;
-
-            // constraint
-            [NativeDisableParallelForRestriction]
-            public NativeArray<Primitive> primitiveArray;
-            [NativeDisableParallelForRestriction]
-            public NativeArray<SortData> sortAndSweepArray;
-
-            // チームごと(Point/Edge/Triangle)
-            public void Execute(int index)
+            // 交差フラグバッファ
+            if (IntersectCount > 0)
             {
-                int teamId = index / 3;
-                int type = index % 3; // 0=Point, 1=Edge, 2=Triangle
-
-                if (teamId == 0)
-                    return;
-
-                var tdata = teamDataArray[teamId];
-                if (tdata.IsProcess == false)
-                    return;
-
-                DataChunk sortChunk = default(DataChunk);
-                switch (type)
-                {
-                    case 0:
-                        sortChunk = tdata.selfPointChunk;
-                        break;
-                    case 1:
-                        sortChunk = tdata.selfEdgeChunk;
-                        break;
-                    case 2:
-                        sortChunk = tdata.selfTriangleChunk;
-                        break;
-                }
-                if (sortChunk.IsValid == false)
-                    return;
-
-                // 書き込みポインタ
-                SortData* pt = (SortData*)sortAndSweepArray.GetUnsafePtr();
-                pt += sortChunk.startIndex;
-                NativeSortExtension.Sort(pt, sortChunk.dataLength);
-
-                // ソート後のインデックスをプリミティブに書き戻す
-                for (int i = 0; i < sortChunk.dataLength; i++)
-                {
-                    int sortIndex = sortChunk.startIndex + i;
-                    var sd = sortAndSweepArray[sortIndex];
-                    var primitive = primitiveArray[sd.primitiveIndex];
-                    primitive.sortIndex = sortIndex;
-                    primitiveArray[sd.primitiveIndex] = primitive;
-                    //Debug.Log($"sort[{i}] primitive:{sd.primitiveIndex}, prisortidx:{primitive.sortIndex}, first:{sd.firstMinMax}, second:{sd.secondMinMax}, third:{sd.thirdMinMax}");
-                }
+                int pcnt = MagicaManager.Simulation.ParticleCount;
+                intersectFlagArray.MC2Resize(pcnt, options: NativeArrayOptions.ClearMemory);
             }
         }
 
+        //=========================================================================================
+        // Primitive
+        //=========================================================================================
         [BurstCompile]
-        struct PointTriangleBroadPhaseJob : IJobParallelForDefer
+        unsafe internal struct SelfStep_UpdatePrimitiveJob : IJobParallelFor
         {
-            public uint mainKind;
+            public int workerCount;
+            public int updateIndex;
+            public float4 simulationPower;
 
             // team
             [Unity.Collections.ReadOnly]
+            public NativeList<int> batchSelfTeamList;
+            [Unity.Collections.ReadOnly]
             public NativeArray<TeamManager.TeamData> teamDataArray;
-
-            // vmesh
             [Unity.Collections.ReadOnly]
-            public NativeArray<int3> triangles;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<VertexAttribute> attributes;
+            public NativeArray<ClothParameters> parameterArray;
 
             // particle
             [Unity.Collections.ReadOnly]
@@ -1377,536 +799,755 @@ namespace MagicaCloth2
             [Unity.Collections.ReadOnly]
             public NativeArray<float> frictionArray;
 
-            // constraint
-            [Unity.Collections.ReadOnly]
-            public NativeArray<Primitive> primitiveArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<SortData> sortAndSweepArray;
-
-            // processing
-            [Unity.Collections.ReadOnly]
-            public NativeArray<uint> processingPointTriangleArray;
-
-            // contact buffer
-            [Unity.Collections.WriteOnly]
-            public NativeQueue<PointTriangleContact>.ParallelWriter pointTriangleContactQueue;
-
+            // self collision
+            public bool useIntersect;
+            [NativeDisableParallelForRestriction]
+            public NativeArray<Primitive> primitiveArrayB;
             [Unity.Collections.ReadOnly]
             public NativeArray<byte> intersectFlagArray;
 
-            // 解決PointTriangleごと
+            // バッチ内のローカルチームインデックスごと
+            // ワーカー分割（３固定）
             public void Execute(int index)
             {
-                uint pack = processingPointTriangleArray[index];
-                int teamId = DataUtility.Unpack32Hi(pack);
-                int l_index = DataUtility.Unpack32Low(pack);
+                // チームIDとワーカーID
+                int localIndex = index / workerCount;
+                int workerIndex = index % workerCount;
 
-                // チームはこのステップで有効であることが保証されている
-                var tdata = teamDataArray[teamId];
+                // 各ベースポインタ
+                TeamManager.TeamData* teamPt = (TeamManager.TeamData*)teamDataArray.GetUnsafeReadOnlyPtr();
+                ClothParameters* paramPt = (ClothParameters*)parameterArray.GetUnsafeReadOnlyPtr();
 
-                // メインとサブのチャンク
-                bool isPoint = mainKind == KindPoint;
-                var mainChunk = isPoint ? tdata.selfPointChunk : tdata.selfTriangleChunk;
-                var subChunk = isPoint ? tdata.selfTriangleChunk : tdata.selfPointChunk;
+                int teamId = batchSelfTeamList[localIndex];
+                ref var tdata = ref *(teamPt + teamId);
+                ref var param = ref *(paramPt + teamId);
 
-                // Main Primitive
-                int pri_index = mainChunk.startIndex + l_index;
-                var primitive0 = primitiveArray[pri_index];
-                var sd0 = sortAndSweepArray[primitive0.sortIndex];
-
-                // 無効判定
-                if (primitive0.IsIgnore())
+                if (updateIndex >= tdata.updateCount)
+                    return;
+                if (tdata.IsProcess == false)
+                    return;
+                if (tdata.ParticleCount == 0)
                     return;
 
-                // 交差中ならば無効
-                if (tdata.flag.TestAny(TeamManager.Flag_Self_EdgeTriangleIntersect, 6))
+                // セルフコリジョン
+                // ■プリミティブとグリッドの更新
+                // 範囲
+                //var chunk = MathUtility.GetWorkerChunk(tdata.particleChunk.dataLength, workerCount, workerIndex);
+                //if (chunk.IsValid)
                 {
-                    int ac = isPoint ? 1 : 3;
-                    for (int i = 0; i < ac; i++)
-                    {
-                        if (intersectFlagArray[primitive0.particleIndices[i]] > 0)
-                            return;
-                    }
-                }
-
-                //=============================================================
-                // Self
-                //=============================================================
-                if (tdata.flag.IsSet(isPoint ? TeamManager.Flag_Self_PointTriangle : TeamManager.Flag_Self_TrianglePoint))
-                {
-                    SweepTest(-1, ref primitive0, sd0, subChunk, true);
-                }
-
-                //=============================================================
-                // Sync
-                //=============================================================
-                if (tdata.flag.IsSet(isPoint ? TeamManager.Flag_Sync_PointTriangle : TeamManager.Flag_Sync_TrianglePoint) && tdata.syncTeamId > 0)
-                {
-                    var stdata = teamDataArray[tdata.syncTeamId];
-                    SweepTest(-1, ref primitive0, sd0, isPoint ? stdata.selfTriangleChunk : stdata.selfPointChunk, false);
-                }
-
-                //=============================================================
-                // Parent Sync
-                //=============================================================
-                if (tdata.flag.IsSet(isPoint ? TeamManager.Flag_PSync_PointTriangle : TeamManager.Flag_PSync_TrianglePoint))
-                {
-                    int cnt = tdata.syncParentTeamId.Length;
-                    for (int j = 0; j < cnt; j++)
-                    {
-                        int parentTeamId = tdata.syncParentTeamId[j];
-                        var stdata = teamDataArray[parentTeamId];
-                        if (stdata.flag.IsSet(isPoint ? TeamManager.Flag_Sync_TrianglePoint : TeamManager.Flag_Sync_PointTriangle))
-                        {
-                            SweepTest(-1, ref primitive0, sd0, isPoint ? stdata.selfTriangleChunk : stdata.selfPointChunk, false);
-                        }
-                    }
-                }
-            }
-
-            void SweepTest(int sortIndex, ref Primitive primitive0, in SortData sd0, in DataChunk subChunk, bool connectionCheck)
-            {
-                Debug.Assert(subChunk.IsValid);
-
-                // スイープ
-                if (sortIndex < 0)
-                    sortIndex = BinarySearchSortAndlSweep(ref sortAndSweepArray, sd0, subChunk);
-
-                float end = sd0.firstMinMax.y;
-                int endIndex = subChunk.startIndex + subChunk.dataLength;
-                while (sortIndex < endIndex)
-                {
-                    var sd1 = sortAndSweepArray[sortIndex];
-                    sortIndex++;
-
-                    // first
-                    if (sd1.firstMinMax.x <= end)
-                    {
-                        // second
-                        if (sd1.secondMinMax.y < sd0.secondMinMax.x || sd1.secondMinMax.x > sd0.secondMinMax.y)
-                            continue;
-
-                        // third
-                        if (sd1.thirdMinMax.y < sd0.thirdMinMax.x || sd1.thirdMinMax.x > sd0.thirdMinMax.y)
-                            continue;
-
-                        // この時点で両方のAABBは衝突している
-                        var primitive1 = primitiveArray[sd1.primitiveIndex];
-
-                        // 無効判定
-                        if (primitive1.IsIgnore())
-                            continue;
-
-                        // プリミティブ同士が接続している場合は無効
-                        if (connectionCheck && primitive0.AnyParticle(primitive1))
-                            continue;
-
-                        // 両方のプリミティブが完全固定ならば無効
-                        if ((primitive0.flagAndTeamId & Flag_AllFix) != 0 && (primitive1.flagAndTeamId & Flag_AllFix) != 0)
-                            continue;
-
-                        // 交差判定
-                        // 厚みとSCR
-                        float solveThickness = primitive0.GetSolveThickness(primitive1);
-                        float scr = solveThickness * Define.System.SelfCollisionSCR;
-                        if (solveThickness < 0.0001f)
-                            continue;
-
-                        // 接触予測判定
-                        if (mainKind == KindPoint)
-                            BroadPointTriangle(ref primitive0, ref primitive1, solveThickness, scr, Define.System.SelfCollisionPointTriangleAngleCos);
-                        else
-                            BroadPointTriangle(ref primitive1, ref primitive0, solveThickness, scr, Define.System.SelfCollisionPointTriangleAngleCos);
-                    }
-                    else
-                        break;
-                }
-            }
-
-            void BroadPointTriangle(ref Primitive p_pri, ref Primitive t_pri, float thickness, float scr, float ang)
-            {
-                // 変位
-                var dA = p_pri.nextPos.c0 - p_pri.oldPos.c0;
-                var dB0 = t_pri.nextPos.c0 - t_pri.oldPos.c0;
-                var dB1 = t_pri.nextPos.c1 - t_pri.oldPos.c1;
-                var dB2 = t_pri.nextPos.c2 - t_pri.oldPos.c2;
-
-                //=========================================================
-                // 衝突予測と格納
-                //=========================================================
-                float3 uvw, cp;
-                // 移動前ポイントと移動前トライアングルへの最近接点
-                cp = MathUtility.ClosestPtPointTriangle(p_pri.oldPos.c0, t_pri.oldPos.c0, t_pri.oldPos.c1, t_pri.oldPos.c2, out uvw);
-
-                // 最近接点座標の変位を求める
-                float3 dt = dB0 * uvw.x + dB1 * uvw.y + dB2 * uvw.z;
-
-                // 最近接点ベクトル
-                float3 cv = cp - p_pri.oldPos.c0;
-                float cvlen = math.length(cv);
-                if (cvlen > Define.System.Epsilon)
-                {
-                    var n = cv / cvlen;
-
-                    // 変位dp,dtをnに投影して距離チェック
-                    float l0 = math.dot(n, dA);
-                    float l1 = math.dot(n, dt);
-                    float l = cvlen - l0 + l1;
-
-                    // ダイナミックThicknessテスト
-#if false
-                    if (p_pri.GetTeamId() == t_pri.GetTeamId())
-                    {
-                        var bcp = MathUtility.ClosestPtPointTriangle(p_pri.basePos.c0, t_pri.basePos.c0, t_pri.basePos.c1, t_pri.basePos.c2, out _);
-                        float blen = math.distance(p_pri.basePos.c0, bcp);
-                        //blen *= 0.7f;
-                        if (blen < 0.005f)
-                            return;
-                        //if (thickness > blen)
-                        //    Debug.Log($"PT thickness:{thickness}, blen:{blen}");
-                        thickness = math.min(thickness, blen);
-                        scr = thickness * Define.System.SelfCollisionSCR;
-                    }
-#endif
-
-                    // 接続判定
-                    if (l < (thickness + scr))
-                    {
-                        //=========================================================
-                        // 方向性判定
-                        //=========================================================
-                        float sign = 0;
-                        // 移動前トライアングル法線
-                        float3 otn = MathUtility.TriangleNormal(t_pri.oldPos.c0, t_pri.oldPos.c1, t_pri.oldPos.c2);
-
-                        // 移動前のパーティクル方向性
-                        n = math.normalize(p_pri.oldPos.c0 - cp);
-                        float dot = math.dot(otn, n);
-
-                        // 移動前にトライアングル面に対してほぼ水平ならば無視する
-                        if (math.abs(dot) >= ang)
-                            sign = math.sign(dot);
-                        else
-                            return;
-
-                        //=========================================================
-                        // 接触情報作成
-                        //=========================================================
-                        var contact = new PointTriangleContact();
-                        contact.flagAndTeamId0 = p_pri.flagAndTeamId | Flag_Enable;
-                        contact.flagAndTeamId1 = t_pri.flagAndTeamId;
-                        contact.thickness = (half)thickness;
-                        contact.sign = (half)sign;
-                        contact.pointParticleIndex = p_pri.particleIndices.x;
-                        contact.triangleParticleIndex = t_pri.particleIndices;
-                        contact.pointInvMass = (half)p_pri.invMass.x;
-                        contact.triangleInvMass = (half3)t_pri.invMass;
-                        //Debug.Log(contact.ToString());
-
-                        pointTriangleContactQueue.Enqueue(contact);
-                    }
+                    UpdatePrimitive(
+                        workerIndex,
+                        // team
+                        teamId,
+                        ref tdata,
+                        ref param,
+                        // particle
+                        ref nextPosArray,
+                        ref oldPosArray,
+                        ref frictionArray,
+                        // self collisiotn
+                        useIntersect,
+                        ref primitiveArrayB,
+                        ref intersectFlagArray
+                        );
                 }
             }
         }
 
-        [BurstCompile]
-        struct EdgeEdgeBroadPhaseJob : IJobParallelForDefer
-        {
+        /// <summary>
+        /// ブロードフェーズ
+        /// プリミティブ更新
+        /// </summary>
+        unsafe static void UpdatePrimitive(
+            int k,
             // team
+            int teamId,
+            ref TeamManager.TeamData tdata,
+            ref ClothParameters param,
+            // particle
+            ref NativeArray<float3> nextPosArray,
+            ref NativeArray<float3> oldPosArray,
+            ref NativeArray<float> frictionArray,
+            // self collision
+            bool useIntersect,
+            ref NativeArray<Primitive> primitiveArrayB,
+            ref NativeArray<byte> intersectFlagArray
+            )
+        {
+            // チームの種類ごと(0:Point,1:Edge,2:Triangle)
+
+            // ■プリミティブ更新 ===================================================================
+            Primitive* pt = (Primitive*)primitiveArrayB.GetUnsafePtr();
+
+            int pstart = tdata.particleChunk.startIndex;
+
+            // (0)Point/(1)Edge/(2)Triangle
+            float maxPrimitiveSize = 0;
+            //for (int k = 0; k < 3; k++)
+            {
+                DataChunk pc = k == KindPoint ? tdata.selfPointChunk : (k == KindEdge ? tdata.selfEdgeChunk : tdata.selfTriangleChunk);
+                //Debug.Log($"[{teamId}] kind:{k} pc:{pc.ToString()}");
+
+                if (pc.IsValid)
+                {
+                    uint kind = (uint)k;
+
+                    float3x3 nextPos = 0;
+                    float3x3 oldPos = 0;
+
+                    int priIndex = pc.startIndex;
+                    for (int j = 0; j < pc.dataLength; j++, priIndex++)
+                    {
+                        ref var p = ref *(pt + priIndex);
+
+                        if (p.IsIgnore())
+                            continue;
+
+                        // プリミティブ更新
+                        int ac = k + 1; // 軸の数
+                        uint fix_flag = Flag_Fix0;
+                        uint intersect_flag = 0;
+                        for (int i = 0; i < ac; i++)
+                        {
+                            int pindex = p.particleIndices[i];
+                            nextPos[i] = nextPosArray[pindex];
+                            oldPos[i] = oldPosArray[pindex];
+                            bool fix = (p.flag & fix_flag) != 0;
+                            p.invMass[i] = MathUtility.CalcSelfCollisionInverseMass(frictionArray[pindex], fix, param.selfCollisionConstraint.clothMass);
+                            fix_flag <<= 1;
+
+                            if (useIntersect && intersectFlagArray[pindex] != 0)
+                                intersect_flag |= (Flag_Intersect0 << i);
+                        }
+                        float thickness = param.selfCollisionConstraint.surfaceThicknessCurveData.MC2EvaluateCurve(p.depth);
+                        thickness *= tdata.scaleRatio; // team scale
+                        p.thickness = thickness;
+
+                        // プリミティブAABB
+                        var aabb = new AABB(math.min(nextPos[0], oldPos[0]), math.max(nextPos[0], oldPos[0]));
+                        for (int i = 1; i < ac; i++)
+                        {
+                            aabb.Encapsulate(nextPos[i]);
+                            aabb.Encapsulate(oldPos[i]);
+                        }
+                        float aabbSize = aabb.MaxSideLength;
+                        maxPrimitiveSize = math.max(maxPrimitiveSize, aabbSize);
+                        aabb.Expand(thickness); // 厚み
+                        p.aabb = aabb;
+
+                        // インターセクトフラグ更新
+                        p.flag = (p.flag & 0xfffffff8) | intersect_flag;
+                    }
+                }
+            }
+
+            // ■UniformGridサイズ決定 ==============================================================
+            // 種類がEdgeの場合のみ設定
+            if (k == KindEdge)
+            {
+                const float uniformGridScale = 3.0f; // 一旦これで 3.0?
+                float gridSize = maxPrimitiveSize * uniformGridScale;
+                tdata.selfGridSize = gridSize;
+                tdata.selfMaxPrimitiveSize = maxPrimitiveSize; // 最大プリミティブサイズ
+                //Debug.Log($"[{teamId}] maxPrimitiveSize:{maxPrimitiveSize} gridSize:{gridSize}");
+            }
+            //Debug.Log($"[{teamId}] kind:{k}, maxPrimitiveSize:{maxPrimitiveSize}");
+        }
+
+        [BurstCompile]
+        unsafe internal struct SelfStep_UpdateGridJob : IJobParallelFor
+        {
+            public int kindCount;
+            public int updateIndex;
+            public float4 simulationPower;
+
+            // team
+            [Unity.Collections.ReadOnly]
+            public NativeList<int> batchSelfTeamList;
             [Unity.Collections.ReadOnly]
             public NativeArray<TeamManager.TeamData> teamDataArray;
 
-            // constraint
+            // self collision
             [Unity.Collections.ReadOnly]
-            public NativeArray<Primitive> primitiveArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<SortData> sortAndSweepArray;
+            public NativeArray<Primitive> primitiveArrayB;
+            [NativeDisableParallelForRestriction]
+            [NativeDisableContainerSafetyRestriction]
+            public NativeArray<GridInfo> uniformGridStartCountBuffer;
 
-            // processing
-            [Unity.Collections.ReadOnly]
-            public NativeArray<uint> processingEdgeEdgeArray;
-
-            // contact buffer
-            [Unity.Collections.WriteOnly]
-            public NativeQueue<EdgeEdgeContact>.ParallelWriter edgeEdgeContactQueue;
-
-            [Unity.Collections.ReadOnly]
-            public NativeArray<byte> intersectFlagArray;
-
-            // 解決エッジごと
+            // バッチ内のローカルチームインデックスごと
+            // ワーカー分割（３固定）
             public void Execute(int index)
             {
-                uint pack = processingEdgeEdgeArray[index];
-                int teamId = DataUtility.Unpack32Hi(pack);
-                int l_index = DataUtility.Unpack32Low(pack);
+                // チームIDとワーカーID
+                int localIndex = index / kindCount;
+                int kindIndex = index % kindCount;
 
-                // チームはこのステップで有効であることが保証されている
-                var tdata = teamDataArray[teamId];
+                // 各ベースポインタ
+                TeamManager.TeamData* teamPt = (TeamManager.TeamData*)teamDataArray.GetUnsafeReadOnlyPtr();
 
-                int pri_index = tdata.selfEdgeChunk.startIndex + l_index;
-                var primitive0 = primitiveArray[pri_index];
+                int teamId = batchSelfTeamList[localIndex];
+                ref var tdata = ref *(teamPt + teamId);
 
-                // 無効
-                if (primitive0.IsIgnore())
+                if (updateIndex >= tdata.updateCount)
+                    return;
+                if (tdata.IsProcess == false)
+                    return;
+                if (tdata.ParticleCount == 0)
                     return;
 
-                // 交差中ならば無効
-                if (tdata.flag.TestAny(TeamManager.Flag_Self_EdgeTriangleIntersect, 6))
+                // セルフコリジョン
+                // ■プリミティブとグリッドの更新（初回ステップのみ）
+                if (updateIndex == 0)
                 {
-                    if (intersectFlagArray[primitive0.particleIndices.x] > 0)
-                        return;
-                    if (intersectFlagArray[primitive0.particleIndices.y] > 0)
-                        return;
+                    UpdateGrid(
+                        kindIndex,
+                        // team
+                        teamId,
+                        ref tdata,
+                        // self collisiotn
+                        ref primitiveArrayB,
+                        ref uniformGridStartCountBuffer
+                        );
                 }
+            }
+        }
 
-                // sort
-                var sd0 = sortAndSweepArray[primitive0.sortIndex];
+        unsafe static void UpdateGrid(
+            int k,
+            // team
+            int teamId,
+            ref TeamManager.TeamData tdata,
+            // self collision
+            ref NativeArray<Primitive> primitiveArrayB,
+            ref NativeArray<GridInfo> uniformGridStartCountBuffer
+            )
+        {
+            // チームの種類ごと(0:Point,1:Edge,2:Triangle)
 
-                //=============================================================
-                // Self
-                //=============================================================
-                if (tdata.flag.IsSet(TeamManager.Flag_Self_EdgeEdge))
+            // ■プリミティブ更新 ===================================================================
+            Primitive* pt = (Primitive*)primitiveArrayB.GetUnsafeReadOnlyPtr();
+            GridInfo* gt = (GridInfo*)uniformGridStartCountBuffer.GetUnsafePtr();
+
+            //int pstart = tdata.particleChunk.startIndex;
+
+            // ■ここからは自身のグリッドが参照される場合のみで良い
+            // つまり自身のセルフコリジョンか親からの相互コリジョン
+            if (tdata.flag.IsSet(TeamManager.Flag_Self_EdgeEdge)
+                || tdata.flag.IsSet(TeamManager.Flag_Self_PointTriangle)
+                || tdata.flag.IsSet(TeamManager.Flag_Self_TrianglePoint)
+                || tdata.flag.IsSet(TeamManager.Flag_PSync_EdgeEdge)
+                || tdata.flag.IsSet(TeamManager.Flag_PSync_PointTriangle)
+                || tdata.flag.IsSet(TeamManager.Flag_PSync_TrianglePoint)
+                )
+            {
                 {
-                    SweepTest(primitive0.sortIndex + 1, ref primitive0, sd0, tdata.selfEdgeChunk, true);
-                }
-
-                //=============================================================
-                // Sync
-                //=============================================================
-                if (tdata.flag.IsSet(TeamManager.Flag_Sync_EdgeEdge) && tdata.syncTeamId > 0)
-                {
-                    var stdata = teamDataArray[tdata.syncTeamId];
-                    SweepTest(-1, ref primitive0, sd0, stdata.selfEdgeChunk, false);
-                }
-
-                //=============================================================
-                // Parent Sync
-                //=============================================================
-                if (tdata.flag.IsSet(TeamManager.Flag_PSync_EdgeEdge))
-                {
-                    int cnt = tdata.syncParentTeamId.Length;
-                    for (int j = 0; j < cnt; j++)
+                    DataChunk pc = k == KindPoint ? tdata.selfPointChunk : (k == KindEdge ? tdata.selfEdgeChunk : tdata.selfTriangleChunk);
+                    //Debug.Log($"[{teamId}] calc grid. kind:{k} pstart:{pc.startIndex}, pcount:{pc.dataLength}");
+                    if (pc.IsValid)
                     {
-                        int parentTeamId = tdata.syncParentTeamId[j];
-                        var stdata = teamDataArray[parentTeamId];
-                        if (stdata.flag.IsSet(TeamManager.Flag_Sync_EdgeEdge))
+                        // ■プリミティブのグリッド座標算出 =======================================================
+                        int priIndex = pc.startIndex;
+                        for (int j = 0; j < pc.dataLength; j++, priIndex++)
                         {
-                            SweepTest(-1, ref primitive0, sd0, stdata.selfEdgeChunk, false);
+                            ref var p = ref *(pt + priIndex);
+                            if (p.IsIgnore())
+                                p.grid = Define.System.SelfCollisionIgnoreGrid; // 無効グリッド
+                            else
+                                p.grid = GetGrid(p.aabb.Center, tdata.selfGridSize);
                         }
+
+                        // ■プリミティブをグリッド順にソートする =================================================
+                        NativeSortExtension.Sort(pt + pc.startIndex, pc.dataLength);
+
+                        // ■グリッドの開始位置と数を摘出する =====================================================
+                        int3 nowGrid = 0;
+                        int nowGridStart = 0;
+                        int nowGridCount = 0;
+                        int gridBufferStart = pc.startIndex;
+                        int gridBufferIndex = gridBufferStart;
+                        int gridBufferCount = 0;
+                        priIndex = pc.startIndex;
+                        for (int i = 0; i < pc.dataLength; i++, priIndex++)
+                        {
+                            ref var p = ref *(pt + priIndex);
+
+                            if (i == 0)
+                            {
+                                // 初回グリッド
+                                nowGrid = p.grid;
+                                nowGridStart = priIndex;
+                                nowGridCount = 0;
+                            }
+                            else if (p.grid.Equals(nowGrid.xyz) == false)
+                            {
+                                // 現在のグリッドを保存
+                                uniformGridStartCountBuffer[gridBufferIndex] = new GridInfo() { hash = nowGrid.GetHashCode(), start = nowGridStart, count = nowGridCount };
+                                gridBufferIndex++;
+                                gridBufferCount++;
+                                //Debug.Log(nowGrid.GetHashCode());
+
+                                // 次のグリッドの開始
+                                nowGrid = p.grid;
+                                nowGridStart = priIndex;
+                                nowGridCount = 0;
+                            }
+                            nowGridCount++;
+                        }
+                        // 最後のグリッドを記録
+                        if (nowGridCount > 0)
+                        {
+                            uniformGridStartCountBuffer[gridBufferIndex] = new GridInfo() { hash = nowGrid.GetHashCode(), start = nowGridStart, count = nowGridCount };
+                            gridBufferIndex++;
+                            gridBufferCount++;
+                            //Debug.Log(nowGrid.GetHashCode());
+                        }
+
+                        // グリッド数を記録
+                        switch (k)
+                        {
+                            case 0:
+                                tdata.selfPointGridCount = gridBufferCount;
+                                break;
+                            case 1:
+                                tdata.selfEdgeGridCount = gridBufferCount;
+                                break;
+                            case 2:
+                                tdata.selfTriangleGridCount = gridBufferCount;
+                                break;
+                        }
+
+                        // グリッド情報をハッシュでソート
+                        // ２分探索のため
+                        NativeSortExtension.Sort(gt + gridBufferStart, gridBufferCount);
+
+                        //Debug.Log($"[{teamId}] calc grid. kind:{k} pstart:{pc.startIndex}, pcount:{pc.dataLength}, grid count:{gridBufferCount}");
                     }
                 }
             }
-
-            void SweepTest(int sortIndex, ref Primitive primitive0, in SortData sd0, in DataChunk subChunk, bool connectionCheck)
-            {
-                // スイープ
-                if (sortIndex < 0)
-                    sortIndex = BinarySearchSortAndlSweep(ref sortAndSweepArray, sd0, subChunk);
-                float end = sd0.firstMinMax.y;
-                int endIndex = subChunk.startIndex + subChunk.dataLength;
-                while (sortIndex < endIndex)
-                {
-                    var sd1 = sortAndSweepArray[sortIndex];
-                    sortIndex++;
-
-                    // first
-                    if (sd1.firstMinMax.x <= end)
-                    {
-                        // second
-                        if (sd1.secondMinMax.y < sd0.secondMinMax.x || sd1.secondMinMax.x > sd0.secondMinMax.y)
-                            continue;
-
-                        // third
-                        if (sd1.thirdMinMax.y < sd0.thirdMinMax.x || sd1.thirdMinMax.x > sd0.thirdMinMax.y)
-                            continue;
-
-                        // この時点で両方のAABBは衝突している
-                        var primitive1 = primitiveArray[sd1.primitiveIndex];
-
-                        // 無効判定
-                        if (primitive1.IsIgnore())
-                            continue;
-
-                        // プリミティブ同士が接続している場合は無効
-                        if (connectionCheck && primitive0.AnyParticle(primitive1))
-                            continue;
-
-                        // 両方のプリミティブが完全固定ならば無効
-                        if ((primitive0.flagAndTeamId & Flag_AllFix) != 0 && (primitive1.flagAndTeamId & Flag_AllFix) != 0)
-                            continue;
-
-                        // 交差判定
-                        // 厚みとSCR
-                        float solveThickness = primitive0.GetSolveThickness(primitive1);
-                        float scr = solveThickness * Define.System.SelfCollisionSCR;
-                        if (solveThickness < 0.0001f)
-                            continue;
-
-                        // 接触予測判定
-                        BroadEdgeEdge(ref primitive0, ref primitive1, solveThickness, scr);
-                    }
-                    else
-                        break;
-                }
-            }
-
-            void BroadEdgeEdge(ref Primitive pri0, ref Primitive pri1, float thickness, float scr)
-            {
-                // 移動前の２つの線分の最近接点
-                float s, t;
-                float3 cA, cB;
-                float csqlen = MathUtility.ClosestPtSegmentSegment(pri0.oldPos[0], pri0.oldPos[1], pri1.oldPos[0], pri1.oldPos[1], out s, out t, out cA, out cB);
-                float clen = math.sqrt(csqlen); // 最近接点の距離
-                if (clen < 1e-09f)
-                    return;
-
-                // 押出法線
-                float3 n = (cA - cB) / clen;
-
-                // 最近接点での変位
-                var dA0 = pri0.nextPos[0] - pri0.oldPos[0];
-                var dA1 = pri0.nextPos[1] - pri0.oldPos[1];
-                var dB0 = pri1.nextPos[0] - pri1.oldPos[0];
-                var dB1 = pri1.nextPos[1] - pri1.oldPos[1];
-                float3 da = math.lerp(dA0, dA1, s);
-                float3 db = math.lerp(dB0, dB1, t);
-
-                // 変位da,dbをnに投影して距離チェック
-                float l0 = math.dot(n, da);
-                float l1 = math.dot(n, db);
-                float l = clen + l0 - l1;
-
-                // ダイナミックThicknessテスト
-#if false
-                if (pri0.GetTeamId() == pri1.GetTeamId())
-                {
-                    float bsqlen = MathUtility.ClosestPtSegmentSegment(pri0.basePos[0], pri0.basePos[1], pri1.basePos[0], pri1.basePos[1], out _, out _, out _, out _);
-                    float blen = math.sqrt(bsqlen);
-                    //blen *= 0.7f;
-                    if (blen < 0.005f)
-                        return;
-                    //if (thickness > blen)
-                    //    Debug.Log($"EE thickness:{thickness}, blen:{blen}");
-                    thickness = math.min(thickness, blen);
-                    scr = thickness * Define.System.SelfCollisionSCR;
-                }
-#endif
-
-                // 接触判定
-                if (l > (thickness + scr))
-                    return;
-
-                //=========================================================
-                // 接触情報作成
-                //=========================================================
-                var contact = new EdgeEdgeContact();
-                contact.flagAndTeamId0 = pri0.flagAndTeamId | Flag_Enable;
-                contact.flagAndTeamId1 = pri1.flagAndTeamId;
-                contact.thickness = (half)thickness;
-                contact.s = (half)s;
-                contact.t = (half)t;
-                contact.n = (half3)n;
-                contact.edgeInvMass0 = (half2)pri0.invMass.xy;
-                contact.edgeInvMass1 = (half2)pri1.invMass.xy;
-                contact.edgeParticleIndex0 = pri0.particleIndices.xy;
-                contact.edgeParticleIndex1 = pri1.particleIndices.xy;
-                //Debug.Log(contact.ToString());
-
-                // キューへの振り分け
-                edgeEdgeContactQueue.Enqueue(contact);
-            }
         }
 
-        [BurstCompile]
-        struct EdgeEdgeToListJob : IJob
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static int3 GetGrid(float3 pos, float gridSize)
         {
+            //Debug.Assert(gridSize > 0.0f);
+            return new int3(math.floor(pos / gridSize));
+        }
+
+        //=========================================================================================
+        // Contact
+        //=========================================================================================
+        [BurstCompile]
+        unsafe internal struct SelfStep_DetectionContactJob : IJobParallelFor
+        {
+            public int updateIndex;
+            public int workerCount;
+            public int teamCount;
+
+            // team
             [Unity.Collections.ReadOnly]
-            public NativeQueue<EdgeEdgeContact> edgeEdgeContactQueue;
-
-            [NativeDisableParallelForRestriction]
-            public NativeList<EdgeEdgeContact> edgeEdgeContactList;
-
-            public void Execute()
-            {
-                edgeEdgeContactList.Clear();
-                if (edgeEdgeContactQueue.Count > 0)
-                    edgeEdgeContactList.AddRange(edgeEdgeContactQueue.ToArray(Allocator.Temp));
-            }
-        }
-
-        [BurstCompile]
-        struct PointTriangleToListJob : IJob
-        {
+            public NativeList<int> batchSelfTeamList;
             [Unity.Collections.ReadOnly]
-            public NativeQueue<PointTriangleContact> pointTriangleContactQueue;
+            public NativeArray<TeamManager.TeamData> teamDataArray;
 
-            [NativeDisableParallelForRestriction]
-            public NativeList<PointTriangleContact> pointTriangleContactList;
-
-            public void Execute()
-            {
-                pointTriangleContactList.Clear();
-                if (pointTriangleContactQueue.Count > 0)
-                    pointTriangleContactList.AddRange(pointTriangleContactQueue.ToArray(Allocator.Temp));
-            }
-        }
-
-        JobHandle UpdateBroadPhase(JobHandle jobHandle)
-        {
-            var sm = MagicaManager.Simulation;
-
-            // EdgeEdge
-            var updateJob1 = new UpdateEdgeEdgeBroadPhaseJob()
-            {
-                nextPosArray = sm.nextPosArray.GetNativeArray(),
-                oldPosArray = sm.oldPosArray.GetNativeArray(),
-                edgeEdgeContactList = edgeEdgeContactList,
-            };
-            jobHandle = updateJob1.Schedule(edgeEdgeContactList, 16, jobHandle);
-
-            // PointTriangle
-            var updateJob2 = new UpdatePointTriangleBroadPhaseJob()
-            {
-                nextPosArray = sm.nextPosArray.GetNativeArray(),
-                oldPosArray = sm.oldPosArray.GetNativeArray(),
-                pointTriangleContactList = pointTriangleContactList,
-            };
-            jobHandle = updateJob2.Schedule(pointTriangleContactList, 16, jobHandle);
-
-            return jobHandle;
-        }
-
-        [BurstCompile]
-        struct UpdateEdgeEdgeBroadPhaseJob : IJobParallelForDefer
-        {
             // particle
             [Unity.Collections.ReadOnly]
             public NativeArray<float3> nextPosArray;
             [Unity.Collections.ReadOnly]
             public NativeArray<float3> oldPosArray;
 
+            // self collision
+            [Unity.Collections.ReadOnly]
+            public NativeArray<Primitive> primitiveArrayB;
+            [Unity.Collections.ReadOnly]
+            public NativeArray<GridInfo> uniformGridStartCountBuffer;
+
+            // buffer
             [NativeDisableParallelForRestriction]
-            public NativeList<EdgeEdgeContact> edgeEdgeContactList;
+            public NativeQueue<ContactInfo>.ParallelWriter contactQueue;
+
+            // １チーム６インデックス分割 x ワーカー数
+            public void Execute(int index)
+            {
+                // 各ベースポインタ
+                TeamManager.TeamData* teamPt = (TeamManager.TeamData*)teamDataArray.GetUnsafeReadOnlyPtr();
+
+                // チームインデックス
+                int teamIndex = index / (6 * workerCount);
+                index = index % (6 * workerCount);
+                int teamId = batchSelfTeamList[teamIndex];
+                ref var tdata = ref *(teamPt + teamId);
+                if (updateIndex >= tdata.updateCount)
+                    return;
+                if (tdata.IsProcess == false)
+                    return;
+                if (tdata.ParticleCount == 0)
+                    return;
+
+                // ワーカー番号
+                int workerIndex = index / 6;
+                index = index % 6;
+
+                // セルフコリジョン or 相互コリジョン
+                int collisionMode = index / 3;
+                index = index % 3;
+
+                // コリジョン種類
+                int contactKind = index;
+
+                uint myKind = 0, tarKind = 0;
+                switch (contactKind)
+                {
+                    case ContactType_EdgeEdge:
+                        myKind = KindEdge;
+                        tarKind = KindEdge;
+                        break;
+                    case ContactType_PointTriangle:
+                        myKind = KindPoint;
+                        tarKind = KindTriangle;
+                        break;
+                    case ContactType_TrianglePoint:
+                        myKind = KindTriangle;
+                        tarKind = KindPoint;
+                        break;
+                }
+
+                // ■コンタクトバッファ作成（ステップ初回のみ）
+
+                if (collisionMode == 0)
+                {
+                    // セルフコリジョン
+                    // セルフコリジョンではTrianglePointは不要
+                    if (contactKind == ContactType_TrianglePoint)
+                        return;
+
+                    int selfFlag = TeamManager.Flag_Self_EdgeEdge + (contactKind * 3);
+                    if (tdata.flag.IsSet(selfFlag))
+                    {
+                        //Debug.Log($"Self detection contact. myTeam:{teamId}, myKind:{myKind}, tarTeam:{teamId}, tarKind:{tarKind}");
+
+                        DetectionContacts(
+                            workerCount,
+                            workerIndex,
+                            teamId,
+                            ref tdata,
+                            myKind,
+                            teamId,
+                            ref tdata,
+                            tarKind,
+                            ref nextPosArray,
+                            ref oldPosArray,
+                            ref primitiveArrayB,
+                            ref uniformGridStartCountBuffer,
+                            ref contactQueue
+                            );
+                    }
+                }
+                else if (collisionMode == 1 && tdata.syncTeamId > 0)
+                {
+                    // 相互コリジョン
+                    ref var stdata = ref *(teamPt + tdata.syncTeamId);
+                    int syncFlag = TeamManager.Flag_Sync_EdgeEdge + (contactKind * 3);
+                    if (tdata.flag.IsSet(syncFlag))
+                    {
+                        //Debug.Log($"Sync detection contact. myTeam:{teamId}, myKind:{myKind}, tarTeam:{teamId}, tarKind:{tarKind}");
+
+                        DetectionContacts(
+                            workerCount,
+                            workerIndex,
+                            teamId,
+                            ref tdata,
+                            myKind,
+                            tdata.syncTeamId,
+                            ref stdata,
+                            tarKind,
+                            ref nextPosArray,
+                            ref oldPosArray,
+                            ref primitiveArrayB,
+                            ref uniformGridStartCountBuffer,
+                            ref contactQueue
+                            );
+                    }
+                }
+
+                //Debug.Log($"Detection contact. team:{teamId}, collisionMode:{collisionMode}, contactKind:{contactKind}, writeCount:{writeCount}");
+            }
+        }
+
+        unsafe static void DetectionContacts(
+            int workerCount,
+            int workerIndex,
+            // my
+            int myTeamId,
+            ref TeamManager.TeamData myTeam,
+            uint myKind,
+            // target
+            int targetTeamId,
+            ref TeamManager.TeamData targetTeam,
+            uint targetKind,
+            // particle
+            ref NativeArray<float3> nextPosArray,
+            ref NativeArray<float3> oldPosArray,
+            // self collision
+            ref NativeArray<Primitive> primitiveArrayB,
+            ref NativeArray<GridInfo> uniformGridStartCountBuffer,
+            // contact buffer
+            ref NativeQueue<ContactInfo>.ParallelWriter contactQueue
+            )
+        {
+            Primitive* pt = (Primitive*)primitiveArrayB.GetUnsafeReadOnlyPtr();
+            GridInfo* gt = (GridInfo*)uniformGridStartCountBuffer.GetUnsafeReadOnlyPtr();
+
+            // 参照元
+            DataChunk myPriChunk = myKind == KindPoint ? myTeam.selfPointChunk : (myKind == KindEdge ? myTeam.selfEdgeChunk : myTeam.selfTriangleChunk);
+            if (myPriChunk.IsValid == false)
+                return;
+
+            // ワーカー分散による範囲
+            int2 range = MathUtility.CalcSplitRange(myPriChunk.dataLength, workerCount, workerIndex);
+            myPriChunk.startIndex += range.x;
+            myPriChunk.dataLength = range.y - range.x;
+
+            // 対象
+            DataChunk tarPriChunk = targetKind == KindPoint ? targetTeam.selfPointChunk : (targetKind == KindEdge ? targetTeam.selfEdgeChunk : targetTeam.selfTriangleChunk);
+            if (tarPriChunk.IsValid == false)
+                return;
+            int gridBufferStart = tarPriChunk.startIndex;
+            int gridBufferIndex = gridBufferStart;
+            int gridBufferCount = 0;
+            switch (targetKind)
+            {
+                case KindPoint:
+                    gridBufferCount = targetTeam.selfPointGridCount;
+                    break;
+                case KindEdge:
+                    gridBufferCount = targetTeam.selfEdgeGridCount;
+                    break;
+                case KindTriangle:
+                    gridBufferCount = targetTeam.selfTriangleGridCount;
+                    break;
+            }
+            float maxPrimitiveSize = targetTeam.selfMaxPrimitiveSize;
+            float gridSize = targetTeam.selfGridSize;
+
+            // 重複判定の有無
+            bool duplicateDetection = (myTeamId == targetTeamId && myKind == targetKind);
+
+            // プリミティブの接続判定
+            bool connectionCheck = myTeamId == targetTeamId;
+
+            // 接触タイプ
+            bool primitiveFlip = false;
+            byte contactType = ContactType_EdgeEdge;
+            if (myKind == KindPoint && targetKind == KindTriangle)
+                contactType = ContactType_PointTriangle;
+            else if (myKind == KindTriangle && targetKind == KindPoint)
+            {
+                contactType = ContactType_PointTriangle;
+                primitiveFlip = true;
+            }
+
+            // プリミティブごと
+            GridInfo searchGridInfo = new GridInfo();
+            int priIndex = myPriChunk.startIndex;
+            for (int i = 0; i < myPriChunk.dataLength; i++, priIndex++)
+            {
+                ref var p = ref *(pt + priIndex);
+
+                // 無効判定
+                if (p.IsIgnore())
+                    continue;
+
+                bool pFix = (p.flag & Flag_AllFix) != 0;
+
+                // このプリミティブの検索範囲
+                float3 areaMin = p.aabb.Min - maxPrimitiveSize * 0.5f;
+                float3 areaMax = p.aabb.Max + maxPrimitiveSize * 0.5f;
+
+                // グリッド範囲に変換する
+                int3 startGrid = GetGrid(areaMin, gridSize);
+                int3 endGrid = GetGrid(areaMax, gridSize);
+
+                // グリッド範囲を調べる
+                int3 currentGrid = startGrid;
+                bool finish = false;
+                while (finish == false)
+                {
+                    // グリッド情報検索（ハッシュ値による２分探索）
+                    int currentHash = currentGrid.GetHashCode();
+                    searchGridInfo.hash = currentHash;
+                    int infoIndex = NativeSortExtension.BinarySearch(gt + gridBufferStart, gridBufferCount, searchGridInfo);
+                    if (infoIndex >= 0)
+                    {
+                        // このグリッドにはプリミティブが存在する
+                        ref var gridInfo = ref *(gt + gridBufferStart + infoIndex);
+                        int startPriIndex2 = gridInfo.start;
+                        int endPriIndex2 = startPriIndex2 + gridInfo.count;
+
+                        // 重複判定：グリッド全体が現在のpriIndexより下ならば検索不要
+                        if (duplicateDetection == false || endPriIndex2 >= priIndex)
+                        {
+                            // 重複判定：現在のpindexより上のものだけを調べる
+                            int priIndex2 = duplicateDetection ? math.max(startPriIndex2, priIndex) : startPriIndex2;
+                            for (; priIndex2 < endPriIndex2; priIndex2++)
+                            {
+                                if (duplicateDetection && priIndex == priIndex2)
+                                    continue;
+
+                                ref var p2 = ref *(pt + priIndex2);
+
+                                // AABB判定
+                                if (p.aabb.Overlaps(p2.aabb) == false)
+                                    continue;
+
+                                // 無効判定
+                                if (p2.IsIgnore())
+                                    continue;
+
+                                // 両方のプリミティブが完全固定ならば無効
+                                if (pFix && ((p2.flag & Flag_AllFix) != 0))
+                                    continue;
+
+                                // プリミティブ同士が接続している場合は無効
+                                if (connectionCheck && p.AnyParticle(ref p2))
+                                    continue;
+
+                                // !衝突検出！
+                                // コンタクトバッファ生成
+                                var contact = new ContactInfo()
+                                {
+                                    primitiveIndex0 = primitiveFlip == false ? priIndex : priIndex2,
+                                    primitiveIndex1 = primitiveFlip == false ? priIndex2 : priIndex,
+                                    contactType = contactType,
+                                    thickness = (half)(p.thickness + p2.thickness),
+                                };
+
+                                // コンタクト変位判定
+                                UpdateContactInfo(
+                                    ref contact,
+                                    pt,
+                                    ref nextPosArray,
+                                    ref oldPosArray,
+                                    Define.System.SelfCollisionSCR,
+                                    true
+                                    );
+                                if (contact.enable == 0)
+                                    continue;
+
+                                contactQueue.Enqueue(contact);
+                                //Debug.Log($"Contact! myTeamId:{myTeamId}, myKind:{myKind}, targetTeamId:{targetTeamId}, targetKind:{targetKind}, ({priIndex}->{priIndex2})");
+                            }
+                        }
+                    }
+
+                    // next
+                    currentGrid.x++;
+                    if (currentGrid.x > endGrid.x)
+                    {
+                        currentGrid.x = startGrid.x;
+                        currentGrid.y++;
+                        if (currentGrid.y > endGrid.y)
+                        {
+                            currentGrid.y = startGrid.y;
+                            currentGrid.z++;
+                            if (currentGrid.z > endGrid.z)
+                            {
+                                finish = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        [BurstCompile]
+        unsafe internal struct SelfStep_ConvertContactListJob : IJob
+        {
+            [Unity.Collections.ReadOnly]
+            public NativeQueue<ContactInfo> contactQueue;
+
+            [NativeDisableParallelForRestriction]
+            public NativeList<ContactInfo> contactList;
+
+            public void Execute()
+            {
+                contactList.Clear();
+                if (contactQueue.Count > 0)
+                    contactList.AddRange(contactQueue.ToArray(Allocator.Temp));
+
+                //Debug.Log($"contact count:{contactList.Length}");
+            }
+        }
+
+        [BurstCompile]
+        unsafe internal struct SelfStep_UpdateContactJob : IJobParallelForDefer
+        {
+            public bool first;
+            [NativeDisableParallelForRestriction]
+            public NativeList<ContactInfo> contactList;
+
+            // particle
+            [Unity.Collections.ReadOnly]
+            public NativeArray<float3> nextPosArray;
+            [Unity.Collections.ReadOnly]
+            public NativeArray<float3> oldPosArray;
+            // self collision
+            [Unity.Collections.ReadOnly]
+            public NativeArray<Primitive> primitiveArrayB;
 
             // コンタクトごと
             public void Execute(int index)
             {
-                var contact = edgeEdgeContactList[index];
+                Primitive* pt = (Primitive*)primitiveArrayB.GetUnsafeReadOnlyPtr();
+                ContactInfo* ct = (ContactInfo*)contactList.GetUnsafePtr();
 
-                var oldPosA0 = oldPosArray[contact.edgeParticleIndex0.x];
-                var oldPosA1 = oldPosArray[contact.edgeParticleIndex0.y];
-                var oldPosB0 = oldPosArray[contact.edgeParticleIndex1.x];
-                var oldPosB1 = oldPosArray[contact.edgeParticleIndex1.y];
+                ref ContactInfo contact = ref *(ct + index);
 
-                var nextPosA0 = nextPosArray[contact.edgeParticleIndex0.x];
-                var nextPosA1 = nextPosArray[contact.edgeParticleIndex0.y];
-                var nextPosB0 = nextPosArray[contact.edgeParticleIndex1.x];
-                var nextPosB1 = nextPosArray[contact.edgeParticleIndex1.y];
+                // 反復計算用にコンタクト情報を更新する
+                UpdateContactInfo(
+                    ref contact,
+                    pt,
+                    ref nextPosArray,
+                    ref oldPosArray,
+                    Define.System.SelfCollisionSCR,
+                    first
+                    );
+            }
+        }
+
+        unsafe static void UpdateContactInfo(
+            ref ContactInfo contact,
+            Primitive* pt,
+            ref NativeArray<float3> nextPosArray,
+            ref NativeArray<float3> oldPosArray,
+            float scrScale,
+            bool first
+            )
+        {
+            ref var p0 = ref *(pt + contact.primitiveIndex0);
+            ref var p1 = ref *(pt + contact.primitiveIndex1);
+
+            float thickness = contact.thickness;
+            float scr = thickness * scrScale;
+
+            contact.enable = 0;
+
+            // AABB
+
+
+            // コンタクト解決
+            if (contact.contactType == ContactType_EdgeEdge)
+            {
+                var nextPosA0 = nextPosArray[p0.particleIndices.x];
+                var nextPosA1 = nextPosArray[p0.particleIndices.y];
+                var nextPosB0 = nextPosArray[p1.particleIndices.x];
+                var nextPosB1 = nextPosArray[p1.particleIndices.y];
+                var oldPosA0 = oldPosArray[p0.particleIndices.x];
+                var oldPosA1 = oldPosArray[p0.particleIndices.y];
+                var oldPosB0 = oldPosArray[p1.particleIndices.x];
+                var oldPosB1 = oldPosArray[p1.particleIndices.y];
 
                 // 移動前の２つの線分の最近接点
-                float s, t;
-                float3 cA, cB;
-                float csqlen = MathUtility.ClosestPtSegmentSegment(oldPosA0, oldPosA1, oldPosB0, oldPosB1, out s, out t, out cA, out cB);
+                float csqlen = MathUtility.ClosestPtSegmentSegment(oldPosA0, oldPosA1, oldPosB0, oldPosB1, out var s, out var t, out var cA, out var cB);
                 float clen = math.sqrt(csqlen); // 最近接点の距離
                 if (clen < 1e-09f)
                     return;
@@ -1926,596 +1567,708 @@ namespace MagicaCloth2
                 float l0 = math.dot(n, da);
                 float l1 = math.dot(n, db);
                 float l = clen + l0 - l1;
+                if (l > (thickness + scr))
+                    return;
 
-                // 接触判定
-                float scr = contact.thickness;
-                if (l > (contact.thickness + scr))
-                {
-                    contact.flagAndTeamId0 &= ~Flag_Enable;
-                }
-                else
-                {
-                    contact.flagAndTeamId0 |= Flag_Enable;
-                    contact.s = (half)s;
-                    contact.t = (half)t;
-                    contact.n = (half3)n;
-                }
-
-                edgeEdgeContactList[index] = contact;
+                // 有効
+                contact.enable = 1;
+                contact.s = (half)s;
+                contact.t = (half)t;
+                contact.n = (half3)n;
             }
-        }
-
-        [BurstCompile]
-        struct UpdatePointTriangleBroadPhaseJob : IJobParallelForDefer
-        {
-            // particle
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float3> nextPosArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float3> oldPosArray;
-
-            [NativeDisableParallelForRestriction]
-            public NativeList<PointTriangleContact> pointTriangleContactList;
-
-            // コンタクトごと
-            public void Execute(int index)
+            else if (contact.contactType == ContactType_PointTriangle)
             {
-                var contact = pointTriangleContactList[index];
+                var nextPosA0 = nextPosArray[p0.particleIndices.x];
+                var oldPosA0 = oldPosArray[p0.particleIndices.x];
 
-                bool enable = false;
-
-                var oldPosA = oldPosArray[contact.pointParticleIndex];
-                var oldPosB0 = oldPosArray[contact.triangleParticleIndex.x];
-                var oldPosB1 = oldPosArray[contact.triangleParticleIndex.y];
-                var oldPosB2 = oldPosArray[contact.triangleParticleIndex.z];
-
-                var nextPosA = nextPosArray[contact.pointParticleIndex];
-                var nextPosB0 = nextPosArray[contact.triangleParticleIndex.x];
-                var nextPosB1 = nextPosArray[contact.triangleParticleIndex.y];
-                var nextPosB2 = nextPosArray[contact.triangleParticleIndex.z];
+                var nextPosB0 = nextPosArray[p1.particleIndices.x];
+                var nextPosB1 = nextPosArray[p1.particleIndices.y];
+                var nextPosB2 = nextPosArray[p1.particleIndices.z];
+                var oldPosB0 = oldPosArray[p1.particleIndices.x];
+                var oldPosB1 = oldPosArray[p1.particleIndices.y];
+                var oldPosB2 = oldPosArray[p1.particleIndices.z];
 
                 // 変位
-                var dA = nextPosA - oldPosA;
+                var dA = nextPosA0 - oldPosA0;
                 var dB0 = nextPosB0 - oldPosB0;
                 var dB1 = nextPosB1 - oldPosB1;
                 var dB2 = nextPosB2 - oldPosB2;
 
-                //=========================================================
                 // 衝突予測と格納
-                //=========================================================
-                float3 uvw, cp;
+                float3 cp;
                 // 移動前ポイントと移動前トライアングルへの最近接点
-                cp = MathUtility.ClosestPtPointTriangle(oldPosA, oldPosB0, oldPosB1, oldPosB2, out uvw);
+                cp = MathUtility.ClosestPtPointTriangle(oldPosA0, oldPosB0, oldPosB1, oldPosB2, out var uvw);
 
                 // 最近接点座標の変位を求める
                 float3 dt = dB0 * uvw.x + dB1 * uvw.y + dB2 * uvw.z;
 
                 // 最近接点ベクトル
-                float3 cv = cp - oldPosA;
+                float3 cv = cp - oldPosA0;
                 float cvlen = math.length(cv);
-                if (cvlen > Define.System.Epsilon)
+                if (cvlen <= Define.System.Epsilon)
+                    return;
+
+                var n = cv / cvlen;
+
+                // 変位dp,dtをnに投影して距離チェック
+                float l0 = math.dot(n, dA);
+                float l1 = math.dot(n, dt);
+                float l = cvlen - l0 + l1;
+
+                // 接続判定
+                if (l >= (thickness + scr))
+                    return;
+
+                // 方向性判定
+                // !signの算出はオリジナルでは登録時に１回しか行っていない。
+                float sign = contact.s;
+                if (first)
                 {
-                    var n = cv / cvlen;
+                    // 移動前トライアングル法線
+                    float3 otn = MathUtility.TriangleNormal(oldPosB0, oldPosB1, oldPosB2);
 
-                    // 変位dp,dtをnに投影して距離チェック
-                    float l0 = math.dot(n, dA);
-                    float l1 = math.dot(n, dt);
-                    float l = cvlen - l0 + l1;
+                    // 移動前のパーティクル方向性
+                    n = math.normalize(oldPosA0 - cp);
+                    float dot = math.dot(otn, n);
+                    // 移動前にトライアングル面に対してほぼ水平ならば無視する
+                    if (math.abs(dot) >= Define.System.SelfCollisionPointTriangleAngleCos)
+                        sign = math.sign(dot);
+                    else
+                        return;
+                }
+                contact.s = (half)sign;
 
-                    // 接続判定
-                    float scr = contact.thickness;
-                    if (l < (contact.thickness + scr))
+                // 有効
+                contact.enable = 1;
+            }
+        }
+
+        [BurstCompile]
+        unsafe internal struct SelfStep_SolverContactJob : IJobParallelForDefer
+        {
+            // particle
+            [Unity.Collections.ReadOnly]
+            public NativeArray<float3> nextPosArray;
+
+            // self collision
+            [Unity.Collections.ReadOnly]
+            public NativeArray<Primitive> primitiveArrayB;
+            [Unity.Collections.ReadOnly]
+            public NativeList<ContactInfo> contactList;
+
+            // buffer2
+            [NativeDisableParallelForRestriction]
+            public NativeArray<float3> tempVectorBufferA;
+            [NativeDisableParallelForRestriction]
+            public NativeArray<int> tempCountBuffer;
+
+            // コンタクトごと
+            public void Execute(int index)
+            {
+                ContactInfo* ct = (ContactInfo*)contactList.GetUnsafeReadOnlyPtr();
+                Primitive* pt = (Primitive*)primitiveArrayB.GetUnsafeReadOnlyPtr();
+                int* cntPt = (int*)tempCountBuffer.GetUnsafePtr();
+                int* sumPt = (int*)tempVectorBufferA.GetUnsafePtr();
+
+                ref var contact = ref *(ct + index);
+
+                // 解決
+                if (contact.enable == 0)
+                    return;
+
+                ref var p0 = ref *(pt + contact.primitiveIndex0);
+                ref var p1 = ref *(pt + contact.primitiveIndex1);
+
+                float thickness = contact.thickness;
+                float scr = thickness * Define.System.SelfCollisionSCR;
+
+                // コンタクト解決
+                if (contact.contactType == ContactType_EdgeEdge)
+                {
+                    var nextPosA0 = nextPosArray[p0.particleIndices.x];
+                    var nextPosA1 = nextPosArray[p0.particleIndices.y];
+                    var nextPosB0 = nextPosArray[p1.particleIndices.x];
+                    var nextPosB1 = nextPosArray[p1.particleIndices.y];
+
+                    float s = contact.s;
+                    float t = contact.t;
+                    float3 n = contact.n;
+
+                    // 移動前に接触判定を行った位置の移動後の位置a/bと方向ベクトル
+                    float3 a = math.lerp(nextPosA0, nextPosA1, s);
+                    float3 b = math.lerp(nextPosB0, nextPosB1, t);
+                    float3 v = a - b;
+
+                    // 接触法線に現在の距離を投影させる
+                    float l = math.dot(n, v);
+                    //Debug.Log($"A({pA0}-{pA1}), B({pB0}-{pB1}) s:{s}, t:{t} l:{l}");
+                    if (l > thickness)
+                        return;
+
+                    float invMassA0 = p0.invMass.x;
+                    float invMassA1 = p0.invMass.y;
+                    float invMassB0 = p1.invMass.x;
+                    float invMassB1 = p1.invMass.y;
+
+                    // 離す距離
+                    float C = thickness - l;
+
+                    // お互いを離す
+                    float b0 = 1.0f - s;
+                    float b1 = s;
+                    float b2 = 1.0f - t;
+                    float b3 = t;
+                    float3 grad0 = n * b0;
+                    float3 grad1 = n * b1;
+                    float3 grad2 = -n * b2;
+                    float3 grad3 = -n * b3;
+
+                    float S = invMassA0 * b0 * b0 + invMassA1 * b1 * b1 + invMassB0 * b2 * b2 + invMassB1 * b3 * b3;
+                    if (S == 0.0f)
+                        return;
+
+                    S = C / S;
+
+                    float3 _A0 = S * invMassA0 * grad0;
+                    float3 _A1 = S * invMassA1 * grad1;
+                    float3 _B0 = S * invMassB0 * grad2;
+                    float3 _B1 = S * invMassB1 * grad3;
+
+#if true
+                    // 書き込み
+                    if ((p0.flag & Flag_FixIntersect0) == 0)
                     {
-                        enable = true;
+                        InterlockUtility.AddFloat3(p0.particleIndices.x, _A0, cntPt, sumPt);
+                    }
+                    if ((p0.flag & Flag_FixIntersect1) == 0)
+                    {
+                        InterlockUtility.AddFloat3(p0.particleIndices.y, _A1, cntPt, sumPt);
+                    }
+                    if ((p1.flag & Flag_FixIntersect0) == 0)
+                    {
+                        InterlockUtility.AddFloat3(p1.particleIndices.x, _B0, cntPt, sumPt);
+                    }
+                    if ((p1.flag & Flag_FixIntersect1) == 0)
+                    {
+                        InterlockUtility.AddFloat3(p1.particleIndices.y, _B1, cntPt, sumPt);
+                    }
+#endif
+                }
+                else if (contact.contactType == ContactType_PointTriangle)
+                {
+                    // トライアングル情報
+                    float3 nextPos0 = nextPosArray[p1.particleIndices.x];
+                    float3 nextPos1 = nextPosArray[p1.particleIndices.y];
+                    float3 nextPos2 = nextPosArray[p1.particleIndices.z];
+                    float invMass0 = p1.invMass.x;
+                    float invMass1 = p1.invMass.y;
+                    float invMass2 = p1.invMass.z;
+
+                    // 移動後トライアングル法線
+                    float3 tn = MathUtility.TriangleNormal(nextPos0, nextPos1, nextPos2);
+
+                    // 対象パーティクル情報
+                    float3 nextPos = nextPosArray[p0.particleIndices.x];
+                    float invMass = p0.invMass.x;
+
+                    // 衝突の解決
+                    // 移動後ポイントと移動後トライアングルへの最近接点
+                    float3 uvw;
+                    MathUtility.ClosestPtPointTriangle(nextPos, nextPos0, nextPos1, nextPos2, out uvw);
+
+                    // 押し出し方向（移動後のトライアングル法線）
+                    // 移動前に裏側ならば反転させる
+                    float sign = contact.s;
+                    float3 n = tn * sign;
+
+                    // 押し出し法線方向に投影した距離
+                    float dist = math.dot(n, nextPos - nextPos0);
+                    //Debug.Log($"dist:{dist}");
+                    if (dist >= thickness)
+                        return;
+
+                    // 引き離す距離
+                    float restDist = thickness;
+
+                    // 押し出し
+                    float C = dist - restDist;
+
+                    float3 grad = n;
+                    float3 grad0 = -n * uvw[0];
+                    float3 grad1 = -n * uvw[1];
+                    float3 grad2 = -n * uvw[2];
+
+                    float s = invMass + invMass0 * uvw.x * uvw.x + invMass1 * uvw.y * uvw.y + invMass2 * uvw.z * uvw.z;
+                    if (s == 0.0f)
+                        return;
+                    s = C / s;
+
+                    float3 corr = -s * invMass * grad;
+                    float3 corr0 = -s * invMass0 * grad0;
+                    float3 corr1 = -s * invMass1 * grad1;
+                    float3 corr2 = -s * invMass2 * grad2;
+
+#if true
+                    // 書き込み
+                    if ((p0.flag & Flag_FixIntersect0) == 0)
+                    {
+                        InterlockUtility.AddFloat3(p0.particleIndices.x, corr, cntPt, sumPt);
+                    }
+                    if ((p1.flag & Flag_FixIntersect0) == 0)
+                    {
+                        InterlockUtility.AddFloat3(p1.particleIndices.x, corr0, cntPt, sumPt);
+                    }
+                    if ((p1.flag & Flag_FixIntersect1) == 0)
+                    {
+                        InterlockUtility.AddFloat3(p1.particleIndices.y, corr1, cntPt, sumPt);
+                    }
+                    if ((p1.flag & Flag_FixIntersect2) == 0)
+                    {
+                        InterlockUtility.AddFloat3(p1.particleIndices.z, corr2, cntPt, sumPt);
+                    }
+#endif
+                }
+            }
+        }
+
+        [BurstCompile]
+        unsafe internal struct SelfStep_SumContactJob : IJobParallelFor
+        {
+            public int updateIndex;
+
+            // team
+            [Unity.Collections.ReadOnly]
+            public NativeList<int> batchSelfTeamList;
+            [Unity.Collections.ReadOnly]
+            public NativeArray<TeamManager.TeamData> teamDataArray;
+
+            // particle
+            [NativeDisableParallelForRestriction]
+            public NativeArray<float3> nextPosArray;
+
+            // buffer2
+            [NativeDisableParallelForRestriction]
+            public NativeArray<float3> tempVectorBufferA;
+            [NativeDisableParallelForRestriction]
+            public NativeArray<int> tempCountBuffer;
+
+            // ローカルチームインデックスごと
+            public void Execute(int localIndex)
+            {
+                TeamManager.TeamData* teamPt = (TeamManager.TeamData*)teamDataArray.GetUnsafeReadOnlyPtr();
+                int* cntPt = (int*)tempCountBuffer.GetUnsafePtr();
+                int* sumPt = (int*)tempVectorBufferA.GetUnsafePtr();
+                float3* nextPosT = (float3*)nextPosArray.GetUnsafePtr();
+
+                int teamId = batchSelfTeamList[localIndex];
+                ref var tdata = ref *(teamPt + teamId);
+                if (tdata.IsProcess == false)
+                    return;
+                if (tdata.ParticleCount == 0)
+                    return;
+
+                if (updateIndex < tdata.updateCount)
+                {
+                    int pindex = tdata.particleChunk.startIndex;
+                    int pindex2 = pindex * 3;
+                    for (int i = 0; i < tdata.particleChunk.dataLength; i++, pindex++, pindex2 += 3)
+                    {
+                        int cnt = cntPt[pindex];
+                        if (cnt > 0)
+                        {
+                            float3 add = new float3(sumPt[pindex2], sumPt[pindex2 + 1], sumPt[pindex2 + 2]);
+                            add /= cnt;
+                            // データは固定小数点なので戻す
+                            add *= InterlockUtility.ToFloat;
+
+                            // 反映
+                            *(nextPosT + pindex) += add;
+                        }
                     }
                 }
 
-                if (enable)
-                    contact.flagAndTeamId0 |= Flag_Enable;
-                else
-                    contact.flagAndTeamId0 &= ~Flag_Enable;
-
-                pointTriangleContactList[index] = contact;
-            }
-        }
-
-        [BurstCompile]
-        unsafe struct SolverEdgeEdgeJob : IJobParallelForDefer
-        {
-            // particle
-            [NativeDisableParallelForRestriction]
-            public NativeArray<float3> nextPosArray;
-
-            // contact
-            [Unity.Collections.ReadOnly]
-            public NativeArray<EdgeEdgeContact> edgeEdgeContactArray;
-
-            // output
-            [NativeDisableParallelForRestriction]
-            public NativeArray<int> countArray;
-            [NativeDisableParallelForRestriction]
-            public NativeArray<int> sumArray;
-
-            // コンタクトごと
-            public void Execute(int index)
-            {
-                //Debug.Log($"EdgeEdgeContactCount:{edgeEdgeContactQueue.Count}");
-
-                var contact = edgeEdgeContactArray[index];
-                if ((contact.flagAndTeamId0 & Flag_Enable) == 0)
-                    return;
-
-                var nextPosA0 = nextPosArray[contact.edgeParticleIndex0.x];
-                var nextPosA1 = nextPosArray[contact.edgeParticleIndex0.y];
-                var nextPosB0 = nextPosArray[contact.edgeParticleIndex1.x];
-                var nextPosB1 = nextPosArray[contact.edgeParticleIndex1.y];
-
-                float s = contact.s;
-                float t = contact.t;
-                float3 n = contact.n;
-                float thickness = contact.thickness;
-
-                // 移動前に接触判定を行った位置の移動後の位置a/bと方向ベクトル
-                float3 a = math.lerp(nextPosA0, nextPosA1, s);
-                float3 b = math.lerp(nextPosB0, nextPosB1, t);
-                float3 v = a - b;
-
-                // 接触法線に現在の距離を投影させる
-                float l = math.dot(n, v);
-                //Debug.Log($"A({pA0}-{pA1}), B({pB0}-{pB1}) s:{s}, t:{t} l:{l}");
-                if (l > thickness)
-                    return;
-
-                float invMassA0 = contact.edgeInvMass0.x;
-                float invMassA1 = contact.edgeInvMass0.y;
-                float invMassB0 = contact.edgeInvMass1.x;
-                float invMassB1 = contact.edgeInvMass1.y;
-
-                // 離す距離
-                float C = thickness - l;
-
-                // お互いを離す
-                float b0 = 1.0f - s;
-                float b1 = s;
-                float b2 = 1.0f - t;
-                float b3 = t;
-                float3 grad0 = n * b0;
-                float3 grad1 = n * b1;
-                float3 grad2 = -n * b2;
-                float3 grad3 = -n * b3;
-
-                float S = invMassA0 * b0 * b0 + invMassA1 * b1 * b1 + invMassB0 * b2 * b2 + invMassB1 * b3 * b3;
-                if (S == 0.0f)
-                    return;
-
-                S = C / S;
-
-                float3 _A0 = S * invMassA0 * grad0;
-                float3 _A1 = S * invMassA1 * grad1;
-                float3 _B0 = S * invMassB0 * grad2;
-                float3 _B1 = S * invMassB1 * grad3;
-
-                //=====================================================
-                // 書き込み
-                //=====================================================
-                int* cntPt = (int*)countArray.GetUnsafePtr();
-                int* sumPt = (int*)sumArray.GetUnsafePtr();
-                if ((contact.flagAndTeamId0 & Flag_Fix0) == 0)
-                    InterlockUtility.AddFloat3(contact.edgeParticleIndex0.x, _A0, cntPt, sumPt);
-                //nextPosArray[contact.edgeParticleIndex0.x] = nextPosA0 + _A0;
-                if ((contact.flagAndTeamId0 & Flag_Fix1) == 0)
-                    InterlockUtility.AddFloat3(contact.edgeParticleIndex0.y, _A1, cntPt, sumPt);
-                //nextPosArray[contact.edgeParticleIndex0.y] = nextPosA1 + _A1;
-                if ((contact.flagAndTeamId1 & Flag_Fix0) == 0)
-                    InterlockUtility.AddFloat3(contact.edgeParticleIndex1.x, _B0, cntPt, sumPt);
-                //nextPosArray[contact.edgeParticleIndex1.x] = nextPosB0 + _B0;
-                if ((contact.flagAndTeamId1 & Flag_Fix1) == 0)
-                    InterlockUtility.AddFloat3(contact.edgeParticleIndex1.y, _B1, cntPt, sumPt);
-                //nextPosArray[contact.edgeParticleIndex1.y] = nextPosB1 + _B1;
-            }
-        }
-
-        [BurstCompile]
-        unsafe struct SolverPointTriangleJob : IJobParallelForDefer
-        {
-            // particle
-            [NativeDisableParallelForRestriction]
-            public NativeArray<float3> nextPosArray;
-
-            // contact
-            [Unity.Collections.ReadOnly]
-            public NativeArray<PointTriangleContact> pointTriangleContactArray;
-
-            // output
-            [NativeDisableParallelForRestriction]
-            public NativeArray<int> countArray;
-            [NativeDisableParallelForRestriction]
-            public NativeArray<int> sumArray;
-
-            // コンタクトごと
-            public void Execute(int index)
-            {
-                //Debug.Log($"PointTriangleContactCount:{pointTriangleContactQueue.Count}");
-
-                var contact = pointTriangleContactArray[index];
-                if ((contact.flagAndTeamId0 & Flag_Enable) == 0)
-                    return;
-
-                // 接触距離
-                float thickness = contact.thickness;
-
-                // トライアングル情報
-                int3 tp = contact.triangleParticleIndex;
-                float3 nextPos0 = nextPosArray[tp.x];
-                float3 nextPos1 = nextPosArray[tp.y];
-                float3 nextPos2 = nextPosArray[tp.z];
-                float invMass0 = contact.triangleInvMass.x;
-                float invMass1 = contact.triangleInvMass.y;
-                float invMass2 = contact.triangleInvMass.z;
-
-                // 移動後トライアングル法線
-                float3 tn = MathUtility.TriangleNormal(nextPos0, nextPos1, nextPos2);
-
-                // 対象パーティクル情報
-                int t_pindex = contact.pointParticleIndex;
-                float3 nextPos = nextPosArray[t_pindex];
-                float invMass = contact.pointInvMass;
-
-                //=====================================================
-                // 衝突の解決
-                //=====================================================
-                // 移動後ポイントと移動後トライアングルへの最近接点
-                float3 uvw;
-                MathUtility.ClosestPtPointTriangle(nextPos, nextPos0, nextPos1, nextPos2, out uvw);
-
-                // 押し出し方向（移動後のトライアングル法線）
-                // 移動前に裏側ならば反転させる
-                float sign = contact.sign;
-                float3 n = tn * sign;
-
-                // 押し出し法線方向に投影した距離
-                float dist = math.dot(n, nextPos - nextPos0);
-                //Debug.Log($"dist:{dist}");
-                if (dist >= thickness)
-                    return;
-
-                // 引き離す距離
-                float restDist = thickness;
-
-                // 押し出し
-                float C = dist - restDist;
-
-                float3 grad = n;
-                float3 grad0 = -n * uvw[0];
-                float3 grad1 = -n * uvw[1];
-                float3 grad2 = -n * uvw[2];
-
-                float s = invMass + invMass0 * uvw.x * uvw.x + invMass1 * uvw.y * uvw.y + invMass2 * uvw.z * uvw.z;
-                if (s == 0.0f)
-                    return;
-                s = C / s;
-
-                float3 corr = -s * invMass * grad;
-                float3 corr0 = -s * invMass0 * grad0;
-                float3 corr1 = -s * invMass1 * grad1;
-                float3 corr2 = -s * invMass2 * grad2;
-
-                //=====================================================
-                // 書き込み
-                //=====================================================
-                int* cntPt = (int*)countArray.GetUnsafePtr();
-                int* sumPt = (int*)sumArray.GetUnsafePtr();
-                if ((contact.flagAndTeamId0 & Flag_Fix0) == 0)
-                    InterlockUtility.AddFloat3(t_pindex, corr, cntPt, sumPt);
-                //nextPosArray[t_pindex] = nextPos + corr;
-                if ((contact.flagAndTeamId1 & Flag_Fix0) == 0)
-                    InterlockUtility.AddFloat3(tp.x, corr0, cntPt, sumPt);
-                //nextPosArray[tp.x] = nextPos0 + corr0;
-                if ((contact.flagAndTeamId1 & Flag_Fix1) == 0)
-                    InterlockUtility.AddFloat3(tp.y, corr1, cntPt, sumPt);
-                //nextPosArray[tp.y] = nextPos1 + corr1;
-                if ((contact.flagAndTeamId1 & Flag_Fix2) == 0)
-                    InterlockUtility.AddFloat3(tp.z, corr2, cntPt, sumPt);
-                //nextPosArray[tp.z] = nextPos2 + corr2;
-
-                //Debug.Log($"Solve:{contact.ToString()}");
+                // バッファクリア
+                int pindexB = tdata.particleChunk.startIndex;
+                for (int i = 0; i < tdata.particleChunk.dataLength; i++, pindexB++)
+                {
+                    tempCountBuffer[pindexB] = 0;
+                    tempVectorBufferA[pindexB] = 0;
+                }
             }
         }
 
         //=========================================================================================
-        /// <summary>
-        /// 交差（絡まり）の解決
-        /// </summary>
-        /// <param name="jobHandle"></param>
-        /// <returns></returns>
-        unsafe JobHandle SolveIntersect(JobHandle jobHandle)
-        {
-            if (IntersectCount == 0)
-                return jobHandle;
-
-            var tm = MagicaManager.Team;
-            var sm = MagicaManager.Simulation;
-
-            // 交差フラグクリア
-            jobHandle = JobUtility.Fill(intersectFlagArray, intersectFlagArray.Length, 0, jobHandle);
-
-            // EdgePrimitiveのnextPos更新
-            var updateJob1 = new IntersectUpdatePrimitiveJob()
-            {
-                kind = KindEdge,
-                teamDataArray = tm.teamDataArray.GetNativeArray(),
-                nextPosArray = sm.nextPosArray.GetNativeArray(),
-                primitiveArray = primitiveArray.GetNativeArray(),
-                processingArray = sm.processingSelfEdgeEdge.Buffer,
-            };
-            jobHandle = updateJob1.Schedule(sm.processingSelfEdgeEdge.GetJobSchedulePtr(), 16, jobHandle);
-
-            // TrianglePrimitiveのnextPos更新
-            var updateJob2 = new IntersectUpdatePrimitiveJob()
-            {
-                kind = KindTriangle,
-                teamDataArray = tm.teamDataArray.GetNativeArray(),
-                nextPosArray = sm.nextPosArray.GetNativeArray(),
-                primitiveArray = primitiveArray.GetNativeArray(),
-                processingArray = sm.processingSelfTrianglePoint.Buffer,
-            };
-            jobHandle = updateJob2.Schedule(sm.processingSelfTrianglePoint.GetJobSchedulePtr(), 16, jobHandle);
-
-            // EdgeTriangle交差判定
-            // !重い処理なのでステップごとに分割して少しずつ実行する
-            int stepCount = sm.SimulationStepCount;
-            int execNumber = stepCount % Define.System.SelfCollisionIntersectDiv;
-
-            // !正確にはここでは交差を実際には解決しない
-            // !交差しているEdgeTriangleのパーティクルにフラグを付け、次のステップのセルフ衝突判定から除外することで絡まりを解く
-            // !衝突判定を行わないことでパーティクルは自由になり復元制約の効果で元の姿勢に戻ろうとする（この時からまりが解ける）
-            // !この方法は論文にない独自のもので精度も高くないが安価なコストで交差をある程度解消することでできる（ランタイム向き）
-
-            // Edgeベース
-            var intersectJob1 = new IntersectEdgeTriangleJob()
-            {
-                mainKind = KindEdge,
-                execNumber = execNumber,
-                div = Define.System.SelfCollisionIntersectDiv,
-
-                teamDataArray = tm.teamDataArray.GetNativeArray(),
-                primitiveArray = primitiveArray.GetNativeArray(),
-                sortAndSweepArray = sortAndSweepArray.GetNativeArray(),
-                processingEdgeEdgeArray = sm.processingSelfEdgeEdge.Buffer,
-                intersectFlagArray = intersectFlagArray,
-            };
-            jobHandle = intersectJob1.Schedule(sm.processingSelfEdgeEdge.GetJobSchedulePtr(), 16, jobHandle);
-
-            // Triangleベース
-            var intersectJob2 = new IntersectEdgeTriangleJob()
-            {
-                mainKind = KindTriangle,
-                execNumber = execNumber,
-                div = Define.System.SelfCollisionIntersectDiv,
-
-                teamDataArray = tm.teamDataArray.GetNativeArray(),
-                primitiveArray = primitiveArray.GetNativeArray(),
-                sortAndSweepArray = sortAndSweepArray.GetNativeArray(),
-                processingEdgeEdgeArray = sm.processingSelfTrianglePoint.Buffer,
-                intersectFlagArray = intersectFlagArray,
-            };
-            jobHandle = intersectJob2.Schedule(sm.processingSelfTrianglePoint.GetJobSchedulePtr(), 16, jobHandle);
-
-            return jobHandle;
-        }
-
+        // Intersect
+        //=========================================================================================
         [BurstCompile]
-        struct IntersectUpdatePrimitiveJob : IJobParallelForDefer
+        unsafe internal struct SelfDetectionIntersectJob : IJobParallelFor
         {
-            // プリミティブ種類
-            public uint kind;
+            public int updateIndex;
+            public int workerCount;
+            public int frameIndex; // 0 ~ (Define.System.SelfCollisionIntersectDiv-1)
 
             // team
             [Unity.Collections.ReadOnly]
+            public NativeList<int> batchSelfTeamList;
+            [Unity.Collections.ReadOnly]
             public NativeArray<TeamManager.TeamData> teamDataArray;
 
+            // self collision
+            [Unity.Collections.ReadOnly]
+            public NativeArray<Primitive> primitiveArrayB;
+            [Unity.Collections.ReadOnly]
+            public NativeArray<GridInfo> uniformGridStartCountBuffer;
+
+            // buffer
+            [NativeDisableParallelForRestriction]
+            public NativeQueue<IntersectInfo>.ParallelWriter intersectQueue;
+
+            // １チーム
+            public void Execute(int index)
+            {
+                // 各ベースポインタ
+                TeamManager.TeamData* teamPt = (TeamManager.TeamData*)teamDataArray.GetUnsafeReadOnlyPtr();
+
+                // チームインデックス
+                int localIndex = index / workerCount;
+                int teamId = batchSelfTeamList[localIndex];
+                ref var tdata = ref *(teamPt + teamId);
+                if (updateIndex >= tdata.updateCount)
+                    return;
+                if (tdata.updateCount == 0)
+                    return;
+                if (tdata.IsProcess == false)
+                    return;
+                if (tdata.ParticleCount == 0)
+                    return;
+
+                int workerIndex = index % workerCount;
+
+                // ■Edge-Triangle接触バッファ作成
+                // セルフコリジョン
+                if (tdata.flag.IsSet(TeamManager.Flag_Self_EdgeTriangleIntersect))
+                {
+                    DetectionIntersect(
+                        workerCount,
+                        workerIndex,
+                        frameIndex,
+                        // edge
+                        teamId,
+                        ref tdata,
+                        KindEdge,
+                        // triangle
+                        teamId,
+                        ref tdata,
+                        KindTriangle,
+                        // self collision
+                        ref primitiveArrayB,
+                        ref uniformGridStartCountBuffer,
+                        // intersect
+                        ref intersectQueue
+                        );
+                }
+
+                // 相互コリジョン
+                if (tdata.syncTeamId > 0)
+                {
+                    ref var stdata = ref *(teamPt + tdata.syncTeamId);
+                    if (tdata.flag.IsSet(TeamManager.Flag_Sync_EdgeTriangleIntersect))
+                    {
+                        DetectionIntersect(
+                            workerCount,
+                            workerIndex,
+                            frameIndex,
+                            // edge
+                            teamId,
+                            ref tdata,
+                            KindEdge,
+                            // triangle
+                            tdata.syncTeamId,
+                            ref stdata,
+                            KindTriangle,
+                            // self collision
+                            ref primitiveArrayB,
+                            ref uniformGridStartCountBuffer,
+                            // intersect
+                            ref intersectQueue
+                            );
+                    }
+                    if (tdata.flag.IsSet(TeamManager.Flag_Sync_TriangleEdgeIntersect))
+                    {
+                        DetectionIntersect(
+                            workerCount,
+                            workerIndex,
+                            frameIndex,
+                            // triangle
+                            teamId,
+                            ref tdata,
+                            KindTriangle,
+                            // edge
+                            tdata.syncTeamId,
+                            ref stdata,
+                            KindEdge,
+                            // self collision
+                            ref primitiveArrayB,
+                            ref uniformGridStartCountBuffer,
+                            // intersect
+                            ref intersectQueue
+                            );
+                    }
+                }
+                //Debug.Log($"Detection intersect. team:{teamId}, Count:{writeCount}");
+            }
+        }
+
+        unsafe static void DetectionIntersect(
+            int workerCount,
+            int workerIndex,
+            // 0 ~ (Define.System.SelfCollisionIntersectDiv-1)
+            int frameIndex,
+            // my
+            int myTeamId,
+            ref TeamManager.TeamData myTeam,
+            uint myKind,
+            // target
+            int targetTeamId,
+            ref TeamManager.TeamData targetTeam,
+            uint targetKind,
+            // self collision
+            ref NativeArray<Primitive> primitiveArrayB,
+            ref NativeArray<GridInfo> uniformGridStartCountBuffer,
+            // intersect buffer
+            ref NativeQueue<IntersectInfo>.ParallelWriter intersectQueue
+            )
+        {
+            Primitive* pt = (Primitive*)primitiveArrayB.GetUnsafeReadOnlyPtr();
+            GridInfo* gt = (GridInfo*)uniformGridStartCountBuffer.GetUnsafeReadOnlyPtr();
+
+            // 参照元
+            DataChunk myPriChunk = myKind == KindPoint ? myTeam.selfPointChunk : (myKind == KindEdge ? myTeam.selfEdgeChunk : myTeam.selfTriangleChunk);
+            if (myPriChunk.IsValid == false)
+                return;
+
+            // 対象
+            DataChunk tarPriChunk = targetKind == KindPoint ? targetTeam.selfPointChunk : (targetKind == KindEdge ? targetTeam.selfEdgeChunk : targetTeam.selfTriangleChunk);
+            if (tarPriChunk.IsValid == false)
+                return;
+            int gridBufferStart = tarPriChunk.startIndex;
+            int gridBufferIndex = gridBufferStart;
+            int gridBufferCount = 0;
+            switch (targetKind)
+            {
+                case KindPoint:
+                    gridBufferCount = targetTeam.selfPointGridCount;
+                    break;
+                case KindEdge:
+                    gridBufferCount = targetTeam.selfEdgeGridCount;
+                    break;
+                case KindTriangle:
+                    gridBufferCount = targetTeam.selfTriangleGridCount;
+                    break;
+            }
+            float maxPrimitiveSize = targetTeam.selfMaxPrimitiveSize;
+            float gridSize = targetTeam.selfGridSize;
+
+            // 初回の交差判定はグリッドサイズ更新前に到達するので除外する
+            if (maxPrimitiveSize <= Define.System.Epsilon || gridSize <= Define.System.Epsilon)
+                return;
+
+            //Debug.Log($"edgeTeamId:{edgeTeamId}, triangleTeamId:{triangleTeamId}, gridBufferStart:{gridBufferStart}, gridBufferIndex:{gridBufferIndex}, gridBufferCount:{gridBufferCount}");
+            //Debug.Log($"edgeTeamId:{edgeTeamId}, maxPrimitiveSize:{maxPrimitiveSize}, gridSize:{gridSize}");
+
+            // プリミティブの接続判定
+            bool connectionCheck = myTeamId == targetTeamId;
+
+            // 格納自の入れ替え
+            bool primitiveFlip = myKind != KindEdge;
+
+            // 検索範囲
+            var chunk = MathUtility.GetWorkerChunk(myPriChunk.dataLength, workerCount, workerIndex);
+            if (chunk.IsValid == false)
+                return;
+
+            // プリミティブごと
+            GridInfo searchGridInfo = new GridInfo();
+            int priIndex = myPriChunk.startIndex + chunk.startIndex;
+            for (int i = 0; i < chunk.dataLength; i++, priIndex++)
+            {
+                if ((priIndex % Define.System.SelfCollisionIntersectDiv) != frameIndex)
+                    continue;
+
+                ref var p = ref *(pt + priIndex);
+
+                // 無効判定
+                if (p.IsIgnore())
+                    continue;
+
+                bool pFix = (p.flag & Flag_AllFix) != 0;
+
+                // このプリミティブの検索範囲
+                float3 areaMin = p.aabb.Min - maxPrimitiveSize * 0.5f;
+                float3 areaMax = p.aabb.Max + maxPrimitiveSize * 0.5f;
+
+                // グリッド範囲に変換する
+                int3 startGrid = GetGrid(areaMin, gridSize);
+                int3 endGrid = GetGrid(areaMax, gridSize);
+
+                // グリッド範囲を調べる
+                int3 currentGrid = startGrid;
+                bool finish = false;
+                while (finish == false)
+                {
+                    // グリッド情報検索（ハッシュ値による２分探索）
+                    int currentHash = currentGrid.GetHashCode();
+                    searchGridInfo.hash = currentHash;
+                    int infoIndex = NativeSortExtension.BinarySearch(gt + gridBufferStart, gridBufferCount, searchGridInfo);
+                    if (infoIndex >= 0)
+                    {
+                        // このグリッドにはプリミティブが存在する
+                        ref var gridInfo = ref *(gt + gridBufferStart + infoIndex);
+                        int startPriIndex2 = gridInfo.start;
+                        int endPriIndex2 = startPriIndex2 + gridInfo.count;
+
+                        for (int priIndex2 = startPriIndex2; priIndex2 < endPriIndex2; priIndex2++)
+                        {
+                            ref var p2 = ref *(pt + priIndex2);
+
+                            // AABB判定
+                            if (p.aabb.Overlaps(p2.aabb) == false)
+                                continue;
+
+                            // 無効判定
+                            if (p2.IsIgnore())
+                                continue;
+
+                            // 両方のプリミティブが完全固定ならば無効
+                            if (pFix && ((p2.flag & Flag_AllFix) != 0))
+                                continue;
+
+                            // プリミティブ同士が接続している場合は無効
+                            if (connectionCheck && p.AnyParticle(ref p2))
+                                continue;
+
+                            // !衝突検出！
+                            // インターセクトバッファ生成
+                            var intersect = new IntersectInfo()
+                            {
+                                edgeParticeIndices = primitiveFlip == false ? p.particleIndices.xy : p2.particleIndices.xy,
+                                triangleParticleIndices = primitiveFlip == false ? p2.particleIndices : p.particleIndices,
+                            };
+                            intersectQueue.Enqueue(intersect);
+
+                            //Debug.Log($"Intersect0! edge:{p.particleIndices.xyz}, tri:{p2.particleIndices.xyz}");
+                        }
+                    }
+
+                    // next
+                    currentGrid.x++;
+                    if (currentGrid.x > endGrid.x)
+                    {
+                        currentGrid.x = startGrid.x;
+                        currentGrid.y++;
+                        if (currentGrid.y > endGrid.y)
+                        {
+                            currentGrid.y = startGrid.y;
+                            currentGrid.z++;
+                            if (currentGrid.z > endGrid.z)
+                            {
+                                finish = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        [BurstCompile]
+        unsafe internal struct SelfConvertIntersectListJob : IJob
+        {
+            [Unity.Collections.ReadOnly]
+            public NativeQueue<IntersectInfo> intersectQueue;
+
+            [NativeDisableParallelForRestriction]
+            public NativeList<IntersectInfo> intersectList;
+
+            public void Execute()
+            {
+                intersectList.Clear();
+                if (intersectQueue.Count > 0)
+                    intersectList.AddRange(intersectQueue.ToArray(Allocator.Temp));
+
+                //Debug.Log($"intersect count:{intersectList.Length}");
+            }
+        }
+
+        [BurstCompile]
+        unsafe internal struct SelfClearIntersectJob : IJobParallelFor
+        {
+            // team
+            [Unity.Collections.ReadOnly]
+            public NativeList<int> batchSelfTeamList;
+            [Unity.Collections.ReadOnly]
+            public NativeArray<TeamManager.TeamData> teamDataArray;
+            // buffer
+            [Unity.Collections.WriteOnly]
+            [NativeDisableParallelForRestriction]
+            public NativeArray<byte> intersectFlagArray;
+
+            public void Execute(int index)
+            {
+                // 各ベースポインタ
+                TeamManager.TeamData* teamPt = (TeamManager.TeamData*)teamDataArray.GetUnsafeReadOnlyPtr();
+
+                // チームインデックス
+                int teamId = batchSelfTeamList[index];
+                ref var tdata = ref *(teamPt + teamId);
+                if (tdata.IsProcess == false)
+                    return;
+                if (tdata.ParticleCount == 0)
+                    return;
+
+                int pindex = tdata.particleChunk.startIndex;
+                for (int i = 0; i < tdata.particleChunk.dataLength; i++, pindex++)
+                {
+                    intersectFlagArray[pindex] = 0;
+                }
+            }
+        }
+
+        [BurstCompile]
+        unsafe internal struct SelfSolverIntersectJob : IJobParallelForDefer
+        {
             // particle
             [Unity.Collections.ReadOnly]
             public NativeArray<float3> nextPosArray;
 
-            // constraint
-            [NativeDisableParallelForRestriction]
-            public NativeArray<Primitive> primitiveArray;
-
-            // processing
+            // self collision
             [Unity.Collections.ReadOnly]
-            public NativeArray<uint> processingArray;
+            public NativeList<IntersectInfo> intersectList;
 
-            public void Execute(int index)
-            {
-                uint pack = processingArray[index];
-                int teamId = DataUtility.Unpack32Hi(pack);
-                int l_index = DataUtility.Unpack32Low(pack);
-
-                // チームはこのステップで有効であることが保証されている
-                var tdata = teamDataArray[teamId];
-                if (kind == KindEdge && tdata.flag.TestAny(TeamManager.Flag_Self_EdgeTriangleIntersect, 3) == false)
-                    return;
-                if (kind == KindTriangle && tdata.flag.TestAny(TeamManager.Flag_Self_TriangleEdgeIntersect, 3) == false)
-                    return;
-
-                // primitive
-                int pri_index = 0;
-                switch (kind)
-                {
-                    case KindPoint:
-                        pri_index = tdata.selfPointChunk.startIndex + l_index;
-                        break;
-                    case KindEdge:
-                        pri_index = tdata.selfEdgeChunk.startIndex + l_index;
-                        break;
-                    case KindTriangle:
-                        pri_index = tdata.selfTriangleChunk.startIndex + l_index;
-                        break;
-                }
-                var primitive = primitiveArray[pri_index];
-
-                // プリミティブnextPos更新
-                int ac = (int)kind + 1; // 軸の数
-                for (int i = 0; i < ac; i++)
-                {
-                    int pindex = primitive.particleIndices[i];
-                    primitive.nextPos[i] = nextPosArray[pindex];
-                }
-                primitiveArray[pri_index] = primitive;
-            }
-        }
-
-        [BurstCompile]
-        struct IntersectEdgeTriangleJob : IJobParallelForDefer
-        {
-            public uint mainKind;
-            public int execNumber;
-            public int div;
-
-            // team
-            [Unity.Collections.ReadOnly]
-            public NativeArray<TeamManager.TeamData> teamDataArray;
-
-            // constraint
-            [Unity.Collections.ReadOnly]
-            public NativeArray<Primitive> primitiveArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<SortData> sortAndSweepArray;
-
-            // processing
-            [Unity.Collections.ReadOnly]
-            public NativeArray<uint> processingEdgeEdgeArray;
-
-            // out
+            // buffer
+            [Unity.Collections.WriteOnly]
             [NativeDisableParallelForRestriction]
             public NativeArray<byte> intersectFlagArray;
 
-            // 解決Edge/Triangleごと
+
             public void Execute(int index)
             {
-#if true
-                // 分割実行判定
-                if (index % div != execNumber)
-                    return;
-#endif
+                IntersectInfo* it = (IntersectInfo*)intersectList.GetUnsafeReadOnlyPtr();
 
-                uint pack = processingEdgeEdgeArray[index];
-                int teamId = DataUtility.Unpack32Hi(pack);
-                int l_index = DataUtility.Unpack32Low(pack);
+                ref var intersect = ref *(it + index);
 
-                // チームはこのステップで有効であることが保証されている
-                var tdata = teamDataArray[teamId];
-                if (mainKind == KindEdge && tdata.flag.TestAny(TeamManager.Flag_Self_EdgeTriangleIntersect, 3) == false)
-                    return;
-                if (mainKind == KindTriangle && tdata.flag.TestAny(TeamManager.Flag_Self_TriangleEdgeIntersect, 3) == false)
-                    return;
+                // edge
+                float3 p = nextPosArray[intersect.edgeParticeIndices.x];
+                float3 q = nextPosArray[intersect.edgeParticeIndices.y];
 
-                // メインとサブのチャンク
-                bool isEdge = mainKind == KindEdge;
-                var mainChunk = isEdge ? tdata.selfEdgeChunk : tdata.selfTriangleChunk;
-                var subChunk = isEdge ? tdata.selfTriangleChunk : tdata.selfEdgeChunk;
+                // triangle
+                float3 a = nextPosArray[intersect.triangleParticleIndices.x];
+                float3 b = nextPosArray[intersect.triangleParticleIndices.y];
+                float3 c = nextPosArray[intersect.triangleParticleIndices.z];
 
-                // メインプリミティブ情報
-                int priIndex0 = mainChunk.startIndex + l_index;
-                var primitive0 = primitiveArray[priIndex0];
-                var sd0 = sortAndSweepArray[primitive0.sortIndex];
-
-                //=============================================================
-                // Self
-                //=============================================================
-                if (tdata.flag.IsSet(isEdge ? TeamManager.Flag_Self_EdgeTriangleIntersect : TeamManager.Flag_Self_TriangleEdgeIntersect))
-                {
-                    SweepTest(ref primitive0, sd0, subChunk, true);
-                }
-
-                //=============================================================
-                // Sync
-                //=============================================================
-                if (tdata.flag.IsSet(isEdge ? TeamManager.Flag_Sync_EdgeTriangleIntersect : TeamManager.Flag_Sync_TriangleEdgeIntersect))
-                {
-                    var stdata = teamDataArray[tdata.syncTeamId];
-                    SweepTest(ref primitive0, sd0, isEdge ? stdata.selfTriangleChunk : stdata.selfEdgeChunk, false);
-                }
-
-                //=============================================================
-                // Parent Sync
-                //=============================================================
-                if (tdata.flag.IsSet(isEdge ? TeamManager.Flag_PSync_EdgeTriangleIntersect : TeamManager.Flag_PSync_TriangleEdgeIntersect))
-                {
-                    int cnt = tdata.syncParentTeamId.Length;
-                    for (int j = 0; j < cnt; j++)
-                    {
-                        int parentTeamId = tdata.syncParentTeamId[j];
-                        var stdata = teamDataArray[parentTeamId];
-                        if (stdata.flag.IsSet(isEdge ? TeamManager.Flag_Sync_TriangleEdgeIntersect : TeamManager.Flag_Sync_EdgeTriangleIntersect))
-                        {
-                            SweepTest(ref primitive0, sd0, isEdge ? stdata.selfTriangleChunk : stdata.selfEdgeChunk, false);
-                        }
-                    }
-                }
-            }
-
-            void SweepTest(ref Primitive primitive0, in SortData sd0, in DataChunk subChunk, bool connectionCheck)
-            {
-                // スイープ
-                int sortIndex = BinarySearchSortAndlSweep(ref sortAndSweepArray, sd0, subChunk);
-                float end = sd0.firstMinMax.y;
-                int endIndex = subChunk.startIndex + subChunk.dataLength;
-                while (sortIndex < endIndex)
-                {
-                    var sd1 = sortAndSweepArray[sortIndex];
-                    sortIndex++;
-
-                    // first
-                    if (sd1.firstMinMax.x <= end)
-                    {
-                        // second
-                        if (sd1.secondMinMax.y < sd0.secondMinMax.x || sd1.secondMinMax.x > sd0.secondMinMax.y)
-                            continue;
-
-                        // third
-                        if (sd1.thirdMinMax.y < sd0.thirdMinMax.x || sd1.thirdMinMax.x > sd0.thirdMinMax.y)
-                            continue;
-
-                        // この時点で両方のAABBは衝突している
-                        var primitive1 = primitiveArray[sd1.primitiveIndex];
-
-                        // プリミティブ同士が接続している場合は無効
-                        if (connectionCheck && primitive0.AnyParticle(primitive1))
-                            continue;
-
-                        // 両方のプリミティブが完全固定ならば無効
-                        if ((primitive0.flagAndTeamId & Flag_AllFix) != 0 && (primitive1.flagAndTeamId & Flag_AllFix) != 0)
-                            continue;
-
-                        // 交差判定
-                        if (mainKind == KindEdge)
-                        {
-                            IntersectTest(ref primitive0, ref primitive1);
-                        }
-                        else
-                        {
-                            IntersectTest(ref primitive1, ref primitive0);
-                        }
-                    }
-                    else
-                        break;
-                }
-            }
-
-            void IntersectTest(ref Primitive epri, ref Primitive tpri)
-            {
-                //Debug.Log($"IntersectTest. edge:{epri.particleIndices.xy}, tri:{tpri.particleIndices.xyz}");
-
+                // Intersect test
                 // 線分とトライアングルの交差判定
-                var p = epri.nextPos.c0;
-                var q = epri.nextPos.c1;
                 var qp = p - q;
 
-                float3 a = tpri.nextPos.c0;
-                float3 b = tpri.nextPos.c1;
-                float3 c = tpri.nextPos.c2;
                 var ac = c - a;
                 var ab = b - a;
                 float3 n = math.cross(ab, ac);
@@ -2529,7 +2282,8 @@ namespace MagicaCloth2
                 // 法線裏側からの侵入に対応
                 if (d < 0.0f)
                 {
-                    p = epri.nextPos.c1;
+                    //p = epri.nextPos.c1;
+                    p = q;
                     qp = -qp;
                     d = -d;
                 }
@@ -2549,15 +2303,14 @@ namespace MagicaCloth2
                 if (w < 0.0f || (v + w) > d)
                     return;
 
-                // 交差
-                // EdgeとTriangleにフラグを立てる
-                intersectFlagArray[epri.particleIndices.x] = 1;
-                intersectFlagArray[epri.particleIndices.y] = 1;
-                intersectFlagArray[tpri.particleIndices.x] = 1;
-                intersectFlagArray[tpri.particleIndices.y] = 1;
-                intersectFlagArray[tpri.particleIndices.z] = 1;
+                // !交差!
+                // Edgeにフラグを立てる
+                intersectFlagArray[intersect.edgeParticeIndices.x] = 1;
+                intersectFlagArray[intersect.edgeParticeIndices.y] = 1;
 
-                //Debug.Log($"Intersect.[{execNumber}] Edge:{epri.particleIndices.xy}, Tri:{tpri.particleIndices.xyz}");
+                // Triangleにはフラグは立てない
+
+                //Debug.Log($"Intersect! edge:{p0.particleIndices.xyz}, tri:{p1.particleIndices.xyz}");
             }
         }
     }

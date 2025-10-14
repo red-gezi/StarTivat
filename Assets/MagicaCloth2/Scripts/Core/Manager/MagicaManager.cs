@@ -40,6 +40,7 @@ namespace MagicaCloth2
         public static SimulationManager Simulation => managers?[6] as SimulationManager;
         public static ColliderManager Collider => managers?[7] as ColliderManager;
         public static WindManager Wind => managers?[8] as WindManager;
+        public static PreBuildManager PreBuild => managers?[9] as PreBuildManager;
 
         //=========================================================================================
         // player loop delegate
@@ -56,9 +57,19 @@ namespace MagicaCloth2
         public static UpdateMethod afterFixedUpdateDelegate;
 
         /// <summary>
+        /// PreUpdate()の開始直後
+        /// </summary>
+        public static UpdateMethod firstPreUpdateDelegate;
+
+        /// <summary>
         /// Update()の後
         /// </summary>
         public static UpdateMethod afterUpdateDelegate;
+
+        /// <summary>
+        /// LateUpdate()の前
+        /// </summary>
+        public static UpdateMethod beforeLateUpdateDelegate;
 
         /// <summary>
         /// LateUpdate()の後
@@ -85,8 +96,6 @@ namespace MagicaCloth2
 
         //=========================================================================================
         static volatile bool isPlaying = false;
-
-        //static bool isValid = false;
 
         //=========================================================================================
         /// <summary>
@@ -117,11 +126,15 @@ namespace MagicaCloth2
             managers.Add(new SimulationManager()); // [6]
             managers.Add(new ColliderManager()); // [7]
             managers.Add(new WindManager()); // [8]
+            managers.Add(new PreBuildManager()); // [9]
             foreach (var manager in managers)
                 manager.Initialize();
 
             // カスタム更新ループ登録
             InitCustomGameLoop();
+
+            // アプリ終了イベント
+            Application.quitting += OnAppQuitting;
 
             isPlaying = true;
             //isValid = true;
@@ -244,6 +257,14 @@ namespace MagicaCloth2
         }
 #endif
 
+        /// <summary>
+        /// アプリ終了イベント
+        /// </summary>
+        static void OnAppQuitting()
+        {
+            Develop.DebugLog($"OnAppQuitting!");
+            Dispose();
+        }
 
         /// <summary>
         /// マネージャの破棄
@@ -262,6 +283,10 @@ namespace MagicaCloth2
             // clear static member.
             OnPreSimulation = null;
             OnPostSimulation = null;
+
+            Application.quitting -= OnAppQuitting;
+
+            isPlaying = false;
         }
 
         public static bool IsPlaying()
@@ -316,7 +341,7 @@ namespace MagicaCloth2
                 type = typeof(MagicaManager),
                 updateDelegate = () => afterEarlyUpdateDelegate?.Invoke()
             };
-            AddPlayerLoop(afterEarlyUpdate, ref playerLoop, "EarlyUpdate", string.Empty, last: true);
+            AddPlayerLoop(afterEarlyUpdate, ref playerLoop, "EarlyUpdate", string.Empty, firstLast: 1);
 
             // after fixed update 
             // FixedUpdate()の後
@@ -329,6 +354,17 @@ namespace MagicaCloth2
                 }
             };
             AddPlayerLoop(afterFixedUpdate, ref playerLoop, "FixedUpdate", "ScriptRunBehaviourFixedUpdate");
+
+            // first pre update
+            PlayerLoopSystem firstPreUpdate = new PlayerLoopSystem()
+            {
+                type = typeof(MagicaManager),
+                updateDelegate = () =>
+                {
+                    firstPreUpdateDelegate?.Invoke();
+                }
+            };
+            AddPlayerLoop(firstPreUpdate, ref playerLoop, "PreUpdate", string.Empty, firstLast: -1);
 
             // after update 
             // Update()の後
@@ -347,6 +383,15 @@ namespace MagicaCloth2
                 }
             };
             AddPlayerLoop(afterUpdate, ref playerLoop, "Update", "ScriptRunDelayedTasks");
+
+            // before late update 
+            // LateUpdate()の前
+            PlayerLoopSystem beforeLateUpdate = new PlayerLoopSystem()
+            {
+                type = typeof(MagicaManager),
+                updateDelegate = () => beforeLateUpdateDelegate?.Invoke()
+            };
+            AddPlayerLoop(beforeLateUpdate, ref playerLoop, "PreLateUpdate", "ScriptRunBehaviourLateUpdate", before: true);
 
             // after late update 
             // LateUpdate()の後
@@ -389,13 +434,18 @@ namespace MagicaCloth2
         /// <param name="playerLoop"></param>
         /// <param name="categoryName"></param>
         /// <param name="systemName"></param>
-        static void AddPlayerLoop(PlayerLoopSystem method, ref PlayerLoopSystem playerLoop, string categoryName, string systemName, bool last = false)
+        static void AddPlayerLoop(PlayerLoopSystem method, ref PlayerLoopSystem playerLoop, string categoryName, string systemName, int firstLast = 0, bool before = false)
         {
             int sysIndex = Array.FindIndex(playerLoop.subSystemList, (s) => s.type.Name == categoryName);
             PlayerLoopSystem category = playerLoop.subSystemList[sysIndex];
             var systemList = new List<PlayerLoopSystem>(category.subSystemList);
 
-            if (last)
+            if (firstLast < 0)
+            {
+                // 最初に追加
+                systemList.Insert(0, method);
+            }
+            else if (firstLast > 0)
             {
                 // 最後に追加
                 systemList.Add(method);
@@ -403,7 +453,10 @@ namespace MagicaCloth2
             else
             {
                 int index = systemList.FindIndex(h => h.type.Name.Contains(systemName));
-                systemList.Insert(index + 1, method);
+                if (before)
+                    systemList.Insert(index, method);
+                else
+                    systemList.Insert(index + 1, method);
             }
 
             category.subSystemList = systemList.ToArray();

@@ -24,7 +24,7 @@ namespace MagicaCloth2
         /// <summary>
         /// 重力方向（ワールド空間）
         /// </summary>
-        public float3 gravityDirection;
+        public float3 worldGravityDirection;
 
         /// <summary>
         /// 初期姿勢での重力の減衰率(0.0 ~ 1.0)
@@ -63,6 +63,9 @@ namespace MagicaCloth2
         public float rotationalInterpolation;
         public float rootRotation;
 
+        // カリング(Culling)
+        public CullingSettings.CullingParams culling;
+
         // 慣性制約(Inertia)
         public InertiaConstraint.InertiaConstraintParams inertiaConstraint;
 
@@ -81,13 +84,16 @@ namespace MagicaCloth2
         // モーション(MaxDistance/Backstop)
         public MotionConstraint.MotionConstraintParams motionConstraint;
 
-        // コライダーコリジョン
+        // コライダーコリジョン(Collider Collision)
         public ColliderCollisionConstraint.ColliderCollisionConstraintParams colliderCollisionConstraint;
 
-        // セルフコリジョン
+        // セルフコリジョン(Self Collision)
         public SelfCollisionConstraint.SelfCollisionConstraintParams selfCollisionConstraint;
 
-        // 風
+        // 風(Wind)
         public WindParams wind;
+
+        // スプリング(Spring)
+        public SpringConstraint.SpringConstraintParams springConstraint;
     }
 }

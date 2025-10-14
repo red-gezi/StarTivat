@@ -4,9 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Unity.Burst;
 using Unity.Collections;
-using Unity.Jobs;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -17,6 +16,11 @@ namespace MagicaCloth2
     /// </summary>
     public class TriangleBendingConstraint : IDisposable
     {
+        /// <summary>
+        /// ボリュームとして処理する判定フラグ
+        /// </summary>
+        const sbyte VOLUME_SIGN = 100;
+
         public enum Method
         {
             None = 0,
@@ -29,7 +33,7 @@ namespace MagicaCloth2
 
             /// <summary>
             /// 方向性ありの２面角曲げ制約
-            /// 初期姿勢を保た持つように復元する
+            /// 初期姿勢を保つように復元する
             /// </summary>
             DirectionDihedralAngle = 2,
         }
@@ -73,16 +77,17 @@ namespace MagicaCloth2
 
             public void Convert(SerializeData sdata)
             {
-                //method = sdata.method;
                 // モードはDirectionDihedralAngleに固定する
                 method = sdata.stiffness > Define.System.Epsilon ? Method.DirectionDihedralAngle : Method.None;
+                //method = sdata.stiffness > Define.System.Epsilon ? Method.DihedralAngle : Method.None;
 
                 stiffness = sdata.stiffness;
             }
         }
 
         //=========================================================================================
-        internal class ConstraintData : IValid
+        [System.Serializable]
+        public class ConstraintData : IValid
         {
             public ResultCode result;
             public ulong[] trianglePairArray;
@@ -116,29 +121,16 @@ namespace MagicaCloth2
         public ExNativeArray<float> restAngleOrVolumeArray;
 
         /// <summary>
-        /// トライアングルペアごとの復元方向もしくはボリューム判定（100=このペアはボリュームである）
+        /// トライアングルペアごとの復元方向もしくはボリューム判定（VOLUME_SIGN(100)=このペアはボリュームである）
         /// </summary>
         public ExNativeArray<sbyte> signOrVolumeArray;
 
-        /// <summary>
-        /// トライアングルペアごとの結果書き込みローカルインデックス
-        /// ４つのbyteを１つのuintに結合したもの
-        /// </summary>
-        public ExNativeArray<uint> writeDataArray;
+        //public int DataCount => trianglePairArray?.Count ?? 0;
 
         /// <summary>
-        /// 頂点ごとの書き込みバッファの数と開始インデックス
-        /// (上位10bit = カウンタ, 下位22bit = 開始インデックス）
+        /// ボリューム計算の浮動小数点誤差を回避するための倍数
         /// </summary>
-        public ExNativeArray<uint> writeIndexArray;
-
-        /// <summary>
-        /// 頂点ごとの書き込みバッファ（集計用）
-        /// writeIndexArrayに従う
-        /// </summary>
-        public ExNativeArray<float3> writeBuffer;
-
-        public int DataCount => trianglePairArray?.Count ?? 0;
+        const float VolumeScale = 1000.0f;
 
         //=========================================================================================
         public TriangleBendingConstraint()
@@ -146,9 +138,6 @@ namespace MagicaCloth2
             trianglePairArray = new ExNativeArray<ulong>(0, true);
             restAngleOrVolumeArray = new ExNativeArray<float>(0, true);
             signOrVolumeArray = new ExNativeArray<sbyte>(0, true);
-            writeDataArray = new ExNativeArray<uint>(0, true);
-            writeIndexArray = new ExNativeArray<uint>(0, true);
-            writeBuffer = new ExNativeArray<float3>(0, true);
         }
 
         public void Dispose()
@@ -156,9 +145,6 @@ namespace MagicaCloth2
             trianglePairArray?.Dispose();
             restAngleOrVolumeArray?.Dispose();
             signOrVolumeArray?.Dispose();
-            writeDataArray?.Dispose();
-            writeIndexArray?.Dispose();
-            writeBuffer?.Dispose();
 
             trianglePairArray = null;
             restAngleOrVolumeArray = null;
@@ -172,9 +158,6 @@ namespace MagicaCloth2
             sb.AppendLine($"  -trianglePairArray:{trianglePairArray.ToSummary()}");
             sb.AppendLine($"  -restAngleOrVolumeArray:{restAngleOrVolumeArray.ToSummary()}");
             sb.AppendLine($"  -signOrVolumeArray:{signOrVolumeArray.ToSummary()}");
-            sb.AppendLine($"  -writeDataArray:{writeDataArray.ToSummary()}");
-            sb.AppendLine($"  -writeIndexArray:{writeIndexArray.ToSummary()}");
-            sb.AppendLine($"  -writeBuffer:{writeBuffer.ToSummary()}");
 
             return sb.ToString();
         }
@@ -186,7 +169,7 @@ namespace MagicaCloth2
         /// <param name="proxyMesh"></param>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        internal static ConstraintData CreateData(VirtualMesh proxyMesh, in ClothParameters parameters)
+        public static ConstraintData CreateData(VirtualMesh proxyMesh, in ClothParameters parameters)
         {
             var constraintData = new ConstraintData();
 
@@ -223,7 +206,7 @@ namespace MagicaCloth2
                     if (proxyMesh.edgeToTriangles.ContainsKey(edge) == false)
                         continue;
 
-                    var triangles = proxyMesh.edgeToTriangles.ToFixedList128Bytes(edge);
+                    var triangles = proxyMesh.edgeToTriangles.MC2ToFixedList128Bytes(edge);
                     int tcnt = triangles.Length;
 
                     // トライアングルの組み合わせ
@@ -276,6 +259,7 @@ namespace MagicaCloth2
                                 trianglePairList.Add(pair);
                                 restAngleOrVolumeList.Add(restData);
                                 signOrVolumeList.Add(signFlag);
+                                //Debug.Log($"rest angle:{math.degrees(restData)}, signFlag:{signFlag}");
 
                                 uint writeData = DataUtility.Pack32(
                                     multiBuilder.CountValuesForKey(vtx.x),
@@ -320,7 +304,7 @@ namespace MagicaCloth2
 
                                     volumeCount++;
 
-                                    //Develop.DebugLog($"Volume Pair. edge:{edge}, tri:({tri0},{tri1}) restAngle:{degAngle}");
+                                    //Develop.DebugLog($"Volume Pair. edge:{edge}, tri:({tri0},{tri1}) restAngle:{degAngle}, restData:{restData}, signFlag:{signFlag}");
                                 }
                             }
                             //if (math.all(tri0 - 243) == false || math.all(tri1 - 243) == false)
@@ -357,13 +341,15 @@ namespace MagicaCloth2
         static void InitVolume(VirtualMesh proxyMesh, int v0, int v1, int v2, int v3, out float volumeRest, out sbyte signFlag)
         {
             // 0/1が対角点,2/3が共通辺
-            float3 pos0 = proxyMesh.localPositions[v0];
-            float3 pos1 = proxyMesh.localPositions[v1];
-            float3 pos2 = proxyMesh.localPositions[v2];
-            float3 pos3 = proxyMesh.localPositions[v3];
+            // ここは実行時とボリューム値を合わせるためワールド座標で計算する必要がある。
+            float3 pos0 = MathUtility.TransformPoint(proxyMesh.localPositions[v0], proxyMesh.initLocalToWorld);
+            float3 pos1 = MathUtility.TransformPoint(proxyMesh.localPositions[v1], proxyMesh.initLocalToWorld);
+            float3 pos2 = MathUtility.TransformPoint(proxyMesh.localPositions[v2], proxyMesh.initLocalToWorld);
+            float3 pos3 = MathUtility.TransformPoint(proxyMesh.localPositions[v3], proxyMesh.initLocalToWorld);
 
             volumeRest = (1.0f / 6.0f) * math.dot(math.cross(pos1 - pos0, pos2 - pos0), pos3 - pos0);
-            signFlag = 100; // Volume
+            volumeRest *= VolumeScale; // 浮動小数点演算誤差回避
+            signFlag = VOLUME_SIGN; // Volume
         }
 
         static void InitDihedralAngle(VirtualMesh proxyMesh, int v0, int v1, int v2, int v3, out float restAngle, out sbyte signFlag)
@@ -409,11 +395,6 @@ namespace MagicaCloth2
                 tdata.bendingPairChunk = trianglePairArray.AddRange(cdata.trianglePairArray);
                 restAngleOrVolumeArray.AddRange(cdata.restAngleOrVolumeArray);
                 signOrVolumeArray.AddRange(cdata.signOrVolumeArray);
-                writeDataArray.AddRange(cdata.writeDataArray);
-
-                // write buffer
-                tdata.bendingWriteIndexChunk = writeIndexArray.AddRange(cdata.writeIndexArray);
-                tdata.bendingBufferChunk = writeBuffer.AddRange(cdata.writeBufferCount);
             }
         }
 
@@ -430,159 +411,78 @@ namespace MagicaCloth2
                 trianglePairArray.Remove(tdata.bendingPairChunk);
                 restAngleOrVolumeArray.Remove(tdata.bendingPairChunk);
                 signOrVolumeArray.Remove(tdata.bendingPairChunk);
-                writeDataArray.Remove(tdata.bendingPairChunk);
-
-                // write buffer
-                writeIndexArray.Remove(tdata.bendingWriteIndexChunk);
-                writeBuffer.Remove(tdata.bendingBufferChunk);
 
                 tdata.bendingPairChunk.Clear();
-                tdata.bendingWriteIndexChunk.Clear();
-                tdata.bendingBufferChunk.Clear();
             }
         }
 
         //=========================================================================================
-        /// <summary>
-        /// 制約の解決
-        /// </summary>
-        /// <param name="jobHandle"></param>
-        /// <returns></returns>
-        unsafe internal JobHandle SolverConstraint(JobHandle jobHandle)
-        {
-            var tm = MagicaManager.Team;
-            var sm = MagicaManager.Simulation;
-            var vm = MagicaManager.VMesh;
-
-            if (DataCount > 0)
-            {
-                var triangleBendingJob = new TriangleBendingJob()
-                {
-                    simulationPower = MagicaManager.Time.SimulationPower,
-
-                    stepTriangleBendIndexArray = sm.processingStepTriangleBending.Buffer,
-
-                    teamDataArray = tm.teamDataArray.GetNativeArray(),
-                    parameterArray = tm.parameterArray.GetNativeArray(),
-
-                    attributes = vm.attributes.GetNativeArray(),
-                    depthArray = vm.vertexDepths.GetNativeArray(),
-
-                    nextPosArray = sm.nextPosArray.GetNativeArray(),
-                    frictionArray = sm.frictionArray.GetNativeArray(),
-
-                    trianglePairArray = trianglePairArray.GetNativeArray(),
-                    restAngleOrVolumeArray = restAngleOrVolumeArray.GetNativeArray(),
-                    signOrVolumeArray = signOrVolumeArray.GetNativeArray(),
-
-                    writeDataArray = writeDataArray.GetNativeArray(),
-                    writeIndexArray = writeIndexArray.GetNativeArray(),
-                    writeBuffer = writeBuffer.GetNativeArray(),
-                };
-                jobHandle = triangleBendingJob.Schedule(sm.processingStepTriangleBending.GetJobSchedulePtr(), 16, jobHandle);
-
-                // 集計（速度影響はなし）
-                var aggregateJob = new SolveAggregateBufferJob()
-                {
-                    stepParticleIndexArray = sm.processingStepParticle.Buffer,
-
-                    teamDataArray = tm.teamDataArray.GetNativeArray(),
-
-                    attributes = vm.attributes.GetNativeArray(),
-
-                    teamIdArray = sm.teamIdArray.GetNativeArray(),
-                    nextPosArray = sm.nextPosArray.GetNativeArray(),
-
-                    writeIndexArray = writeIndexArray.GetNativeArray(),
-                    writeBuffer = writeBuffer.GetNativeArray(),
-                };
-                jobHandle = aggregateJob.Schedule(sm.processingStepParticle.GetJobSchedulePtr(), 16, jobHandle);
-            }
-
-            return jobHandle;
-        }
-
-        [BurstCompile]
-        struct TriangleBendingJob : IJobParallelForDefer
-        {
-            public float4 simulationPower;
-
-            [Unity.Collections.ReadOnly]
-            public NativeArray<int> stepTriangleBendIndexArray;
-
+        // Solver
+        //=========================================================================================
+        internal unsafe static void SolverConstraint(
+            DataChunk chunk,
+            in float4 simulationPower,
             // team
-            [Unity.Collections.ReadOnly]
-            public NativeArray<TeamManager.TeamData> teamDataArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<ClothParameters> parameterArray;
-
+            ref TeamManager.TeamData tdata,
+            ref ClothParameters param,
             // vmesh
-            [Unity.Collections.ReadOnly]
-            public NativeArray<VertexAttribute> attributes;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float> depthArray;
-
-
+            ref NativeArray<VertexAttribute> attributes,
+            ref NativeArray<float> depthArray,
             // particle
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float3> nextPosArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float> frictionArray;
-
+            ref NativeArray<float3> nextPosArray,
+            ref NativeArray<float> frictionArray,
             // constraints
-            [Unity.Collections.ReadOnly]
-            public NativeArray<ulong> trianglePairArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float> restAngleOrVolumeArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<sbyte> signOrVolumeArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<uint> writeDataArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<uint> writeIndexArray;
+            ref NativeArray<ulong> trianglePairArray,
+            ref NativeArray<float> restAngleOrVolumeArray,
+            ref NativeArray<sbyte> signOrVolumeArray,
+            // buffer2
+            ref NativeArray<float3> tempVectorBufferA,
+            ref NativeArray<int> tempCountBuffer
+            )
+        {
+            if (param.triangleBendingConstraint.method == Method.None)
+                return;
 
-            // output
-            [NativeDisableParallelForRestriction]
-            public NativeArray<float3> writeBuffer;
+            if (tdata.bendingPairChunk.IsValid == false)
+                return;
 
-            // ベンドトライアングルペアごと
-            public void Execute(int index)
+            // 剛性
+            float stiffness = param.triangleBendingConstraint.stiffness;
+            if (stiffness < 1e-06f)
+                return;
+            stiffness = math.saturate(stiffness * simulationPower.y);
+
+            int p_start = tdata.particleChunk.startIndex;
+            int v_start = tdata.proxyCommonChunk.startIndex;
+            int pindex;
+            int vindex;
+
+            int* sumPt = (int*)tempVectorBufferA.GetUnsafePtr();
+            int* cntPt = (int*)tempCountBuffer.GetUnsafePtr();
+
+            // ■計算
+            // ベンドペアごと
+            //int pairIndex = tdata.bendingPairChunk.startIndex;
+            int pairIndex = tdata.bendingPairChunk.startIndex + chunk.startIndex;
+            //for (int k = 0; k < tdata.bendingPairChunk.dataLength; k++, pairIndex++)
+            for (int k = 0; k < chunk.dataLength; k++, pairIndex++)
             {
-                // インデックスのチームは有効であることが保証されている
-                //int pairIndex = stepTriangleBendIndexArray[index];
-                //int teamId = trianglePairTeamIdArray[pairIndex];
-                uint pack = (uint)stepTriangleBendIndexArray[index];
-                int pairIndex = DataUtility.Unpack12_20Low(pack);
-                int teamId = DataUtility.Unpack12_20Hi(pack);
-                var tdata = teamDataArray[teamId];
-                var parameter = parameterArray[teamId].triangleBendingConstraint;
-                if (parameter.method == Method.None)
-                    return;
-
-                // 剛性
-                float stiffness = parameter.stiffness;
-                if (stiffness < 1e-06f)
-                    return;
-                stiffness = math.saturate(stiffness * simulationPower.y);
-
-
-                int p_start = tdata.particleChunk.startIndex;
-                int v_start = tdata.proxyCommonChunk.startIndex;
-
                 // トライアングルペア
                 var pairData = trianglePairArray[pairIndex];
                 int4 vertices = DataUtility.Unpack64(pairData);
                 //Debug.Log(vertices);
 
+                int4 pindex4 = vertices + p_start;
+                int4 vindex4 = vertices + v_start;
+
                 // 状態
                 float3x4 nextPosBuffer = 0;
                 float3x4 addPosBuffer = 0;
                 float4 invMassBuffer = 1;
-                //int4 fixedBuffer = 0;
                 for (int i = 0; i < 4; i++)
                 {
-                    int pindex = p_start + vertices[i];
-                    int vindex = v_start + vertices[i];
+                    pindex = pindex4[i];
+                    vindex = vindex4[i];
                     nextPosBuffer[i] = nextPosArray[pindex];
                     float friction = frictionArray[pindex];
                     float depth = depthArray[vindex];
@@ -598,220 +498,241 @@ namespace MagicaCloth2
 
                 // メソッドごとの解決
                 bool result = false;
-                if (signOrVolume == 100)
+                if (signOrVolume == VOLUME_SIGN)
                 {
                     // Volume
-                    result = Volume(nextPosBuffer, invMassBuffer, restAngle, stiffness, ref addPosBuffer);
+                    float volumeRest = restAngle * tdata.scaleRatio; // スケール倍率
+
+                    // マイナススケール
+                    volumeRest *= tdata.negativeScaleSign;
+
+                    result = CalcVolume(nextPosBuffer, invMassBuffer, volumeRest, stiffness, ref addPosBuffer);
                 }
                 else
                 {
                     // Triangle Bending
-                    float sign = signOrVolume < 0 ? -1 : 1;
-                    if (parameter.method == Method.DihedralAngle)
+                    if (param.triangleBendingConstraint.method == Method.DihedralAngle)
                     {
-                        // 二面角
-                        result = DihedralAngle(0, nextPosBuffer, invMassBuffer, restAngle, stiffness, ref addPosBuffer);
+                        // 方向性なし二面角
+                        result = CalcDihedralAngle(0, nextPosBuffer, invMassBuffer, restAngle, stiffness, ref addPosBuffer);
                     }
-                    else if (parameter.method == Method.DirectionDihedralAngle)
+                    else if (param.triangleBendingConstraint.method == Method.DirectionDihedralAngle)
                     {
-                        // 方向性二面角
+                        // 方向性あり二面角
+                        float sign = signOrVolume < 0 ? -1 : 1;
                         restAngle *= sign;
-                        result = DihedralAngle(sign, nextPosBuffer, invMassBuffer, restAngle, stiffness, ref addPosBuffer);
+
+                        // マイナススケール
+                        restAngle *= tdata.negativeScaleSign;
+
+                        result = CalcDihedralAngle(sign, nextPosBuffer, invMassBuffer, restAngle, stiffness, ref addPosBuffer);
                     }
                 }
 
                 // 集計バッファへ格納
                 if (result)
                 {
-                    int4 writeData = DataUtility.Unpack32(writeDataArray[dataIndex]);
-                    int indexStart = tdata.bendingWriteIndexChunk.startIndex;
-                    int bufferStart = tdata.bendingBufferChunk.startIndex;
                     for (int i = 0; i < 4; i++)
                     {
-                        int l_vindex = vertices[i];
-                        int start = DataUtility.Unpack12_20Low(writeIndexArray[indexStart + l_vindex]);
-                        int bufferIndex = bufferStart + start + writeData[i];
-                        writeBuffer[bufferIndex] = addPosBuffer[i];
+                        pindex = pindex4[i];
+                        InterlockUtility.AddFloat3(pindex, addPosBuffer[i], cntPt, sumPt);
                     }
                 }
             }
+        }
 
-            bool Volume(in float3x4 nextPosBuffer, in float4 invMassBuffer, float volumeRest, float stiffness, ref float3x4 addPosBuffer)
+        internal unsafe static void SumConstraint(
+            DataChunk chunk,
+            // team
+            ref TeamManager.TeamData tdata,
+            ref ClothParameters param,
+            // vmesh
+            ref NativeArray<VertexAttribute> attributes,
+            // particle
+            ref NativeArray<float3> nextPosArray,
+            // buffer2
+            ref NativeArray<float3> tempVectorBufferA,
+            ref NativeArray<int> tempCountBuffer
+            )
+        {
+            if (param.triangleBendingConstraint.method == Method.None)
+                return;
+
+            if (tdata.bendingPairChunk.IsValid == false)
+                return;
+
+            // 剛性
+            float stiffness = param.triangleBendingConstraint.stiffness;
+            if (stiffness < 1e-06f)
+                return;
+
+            int p_start = tdata.particleChunk.startIndex;
+            int v_start = tdata.proxyCommonChunk.startIndex;
+
+            int* sumPt = (int*)tempVectorBufferA.GetUnsafePtr();
+            int* cntPt = (int*)tempCountBuffer.GetUnsafePtr();
+
+            // ■集計
+            // パーティクルごと
+            int pindex = p_start + chunk.startIndex;
+            int vindex = v_start + chunk.startIndex;
+            //for (int k = 0; k < tdata.particleChunk.dataLength; k++, pindex++, vindex++)
+            for (int k = 0; k < chunk.dataLength; k++, pindex++, vindex++)
             {
-                float3 nextPos0 = nextPosBuffer[0];
-                float3 nextPos1 = nextPosBuffer[1];
-                float3 nextPos2 = nextPosBuffer[2];
-                float3 nextPos3 = nextPosBuffer[3];
-
-                float invMass0 = invMassBuffer[0];
-                float invMass1 = invMassBuffer[1];
-                float invMass2 = invMassBuffer[2];
-                float invMass3 = invMassBuffer[3];
-
-                float volume = (1.0f / 6.0f) * math.dot(math.cross(nextPos1 - nextPos0, nextPos2 - nextPos0), nextPos3 - nextPos0);
-
-                float3 grad0 = math.cross(nextPos1 - nextPos2, nextPos3 - nextPos2);
-                float3 grad1 = math.cross(nextPos2 - nextPos0, nextPos3 - nextPos0);
-                float3 grad2 = math.cross(nextPos0 - nextPos1, nextPos3 - nextPos1);
-                float3 grad3 = math.cross(nextPos1 - nextPos0, nextPos2 - nextPos0);
-
-                float lambda =
-                    invMass0 * math.lengthsq(grad0) +
-                    invMass1 * math.lengthsq(grad1) +
-                    invMass2 * math.lengthsq(grad2) +
-                    invMass3 * math.lengthsq(grad3);
-
-                if (math.abs(lambda) < 1e-06f)
-                    return false;
-
-                lambda = stiffness * (volume - volumeRest) / lambda;
-
-                addPosBuffer[0] = -lambda * invMass0 * grad0;
-                addPosBuffer[1] = -lambda * invMass1 * grad1;
-                addPosBuffer[2] = -lambda * invMass2 * grad2;
-                addPosBuffer[3] = -lambda * invMass3 * grad3;
-
-                return true;
-            }
-
-            bool DihedralAngle(float sign, in float3x4 nextPosBuffer, in float4 invMassBuffer, float restAngle, float stiffness, ref float3x4 addPosBuffer)
-            {
-                float3 nextPos0 = nextPosBuffer[0];
-                float3 nextPos1 = nextPosBuffer[1];
-                float3 nextPos2 = nextPosBuffer[2];
-                float3 nextPos3 = nextPosBuffer[3];
-
-                float invMass0 = invMassBuffer[0];
-                float invMass1 = invMassBuffer[1];
-                float invMass2 = invMassBuffer[2];
-                float invMass3 = invMassBuffer[3];
-
-                float3 e = nextPos3 - nextPos2;
-                float elen = math.length(e);
-                if (elen < 1e-08f)
-                    return false;
-
-                float invElen = 1.0f / elen;
-
-                float3 n1 = math.cross(nextPos2 - nextPos0, nextPos3 - nextPos0);
-                float3 n2 = math.cross(nextPos3 - nextPos1, nextPos2 - nextPos1);
-                float n1_lengsq = math.lengthsq(n1);
-                float n2_lengsq = math.lengthsq(n2);
-
-                // 稀に発生する長さ０に対処
-                if (n1_lengsq == 0.0f || n2_lengsq == 0.0f)
-                    return false;
-                //Develop.Assert(n1_lengsq > 0.0f);
-                //Develop.Assert(n2_lengsq > 0.0f);
-                n1 /= n1_lengsq;
-                n2 /= n2_lengsq;
-
-                float3 d0 = elen * n1;
-                float3 d1 = elen * n2;
-                float3 d2 = math.dot(nextPos0 - nextPos3, e) * invElen * n1 + math.dot(nextPos1 - nextPos3, e) * invElen * n2;
-                float3 d3 = math.dot(nextPos2 - nextPos0, e) * invElen * n1 + math.dot(nextPos2 - nextPos1, e) * invElen * n2;
-
-                n1 = math.normalize(n1);
-                n2 = math.normalize(n2);
-                float dot = math.dot(n1, n2);
-                dot = MathUtility.Clamp1(dot);
-                float phi = math.acos(dot);
-
-                // 方向性
-                float dir = math.dot(math.cross(n1, n2), e);
-                if (sign != 0)
+                // 移動のみ
+                if (attributes[vindex].IsDontMove() == false)
                 {
-                    phi *= math.sign(dir);
-                    dir = 1; // lambdaを反転させるため
+                    int cnt = cntPt[pindex];
+                    if (cnt > 0)
+                    {
+                        int pindex2 = pindex * 3;
+                        float3 add = new float3(sumPt[pindex2], sumPt[pindex2 + 1], sumPt[pindex2 + 2]);
+                        add /= cnt;
+                        // データは固定小数点なので戻す
+                        add *= InterlockUtility.ToFloat;
+
+                        nextPosArray[pindex] = nextPosArray[pindex] + add;
+                    }
                 }
 
-                float lambda =
-                    invMass0 * math.lengthsq(d0) +
-                    invMass1 * math.lengthsq(d1) +
-                    invMass2 * math.lengthsq(d2) +
-                    invMass3 * math.lengthsq(d3);
-
-                if (lambda == 0.0f)
-                    return false;
-
-                lambda = (phi - restAngle) / lambda * stiffness;
-
-                if (dir > 0.0f)
-                    lambda = -lambda;
-
-                float3 corr0 = -invMass0 * lambda * d0;
-                float3 corr1 = -invMass1 * lambda * d1;
-                float3 corr2 = -invMass2 * lambda * d2;
-                float3 corr3 = -invMass3 * lambda * d3;
-
-                addPosBuffer[0] = corr0;
-                addPosBuffer[1] = corr1;
-                addPosBuffer[2] = corr2;
-                addPosBuffer[3] = corr3;
-
-                return true;
+                // バッファクリア
+                tempCountBuffer[pindex] = 0;
+                tempVectorBufferA[pindex] = 0;
             }
         }
 
-        [BurstCompile]
-        struct SolveAggregateBufferJob : IJobParallelForDefer
+        static bool CalcVolume(
+            in float3x4 nextPosBuffer,
+            in float4 invMassBuffer,
+            float volumeRest,
+            float stiffness,
+            ref float3x4 addPosBuffer
+            )
         {
-            [Unity.Collections.ReadOnly]
-            public NativeArray<int> stepParticleIndexArray;
+            float3 nextPos0 = nextPosBuffer[0];
+            float3 nextPos1 = nextPosBuffer[1];
+            float3 nextPos2 = nextPosBuffer[2];
+            float3 nextPos3 = nextPosBuffer[3];
 
-            // team
-            [Unity.Collections.ReadOnly]
-            public NativeArray<TeamManager.TeamData> teamDataArray;
+            float invMass0 = invMassBuffer[0];
+            float invMass1 = invMassBuffer[1];
+            float invMass2 = invMassBuffer[2];
+            float invMass3 = invMassBuffer[3];
 
-            // vmesh
-            [Unity.Collections.ReadOnly]
-            public NativeArray<VertexAttribute> attributes;
+            float volume = (1.0f / 6.0f) * math.dot(math.cross(nextPos1 - nextPos0, nextPos2 - nextPos0), nextPos3 - nextPos0);
+            volume *= VolumeScale; // 浮動小数点演算誤差回避
 
-            // particle
-            [Unity.Collections.ReadOnly]
-            public NativeArray<short> teamIdArray;
-            [NativeDisableParallelForRestriction]
-            public NativeArray<float3> nextPosArray;
+            float3 grad0 = math.cross(nextPos1 - nextPos2, nextPos3 - nextPos2);
+            float3 grad1 = math.cross(nextPos2 - nextPos0, nextPos3 - nextPos0);
+            float3 grad2 = math.cross(nextPos0 - nextPos1, nextPos3 - nextPos1);
+            float3 grad3 = math.cross(nextPos1 - nextPos0, nextPos2 - nextPos0);
 
-            // constraint
-            [Unity.Collections.ReadOnly]
-            public NativeArray<uint> writeIndexArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float3> writeBuffer;
+            float lambda =
+                invMass0 * math.lengthsq(grad0) +
+                invMass1 * math.lengthsq(grad1) +
+                invMass2 * math.lengthsq(grad2) +
+                invMass3 * math.lengthsq(grad3);
+            lambda *= VolumeScale; // 浮動小数点演算誤差回避
 
-            // ステップパーティクルごと
-            public void Execute(int index)
+            if (math.abs(lambda) < 1e-06f)
+                return false;
+
+            lambda = stiffness * (volumeRest - volume) / lambda;
+
+            addPosBuffer[0] = lambda * invMass0 * grad0;
+            addPosBuffer[1] = lambda * invMass1 * grad1;
+            addPosBuffer[2] = lambda * invMass2 * grad2;
+            addPosBuffer[3] = lambda * invMass3 * grad3;
+
+            return true;
+        }
+
+        static bool CalcDihedralAngle(
+            float sign,
+            in float3x4 nextPosBuffer,
+            in float4 invMassBuffer,
+            float restAngle,
+            float stiffness,
+            ref float3x4 addPosBuffer
+            )
+        {
+            float3 nextPos0 = nextPosBuffer[0];
+            float3 nextPos1 = nextPosBuffer[1];
+            float3 nextPos2 = nextPosBuffer[2];
+            float3 nextPos3 = nextPosBuffer[3];
+
+            float invMass0 = invMassBuffer[0];
+            float invMass1 = invMassBuffer[1];
+            float invMass2 = invMassBuffer[2];
+            float invMass3 = invMassBuffer[3];
+
+            float3 e = nextPos3 - nextPos2;
+            float elen = math.length(e);
+            if (elen < 1e-08f)
+                return false;
+
+            float invElen = 1.0f / elen;
+
+            float3 n1 = math.cross(nextPos2 - nextPos0, nextPos3 - nextPos0);
+            float3 n2 = math.cross(nextPos3 - nextPos1, nextPos2 - nextPos1);
+
+            float n1_lengsq = math.lengthsq(n1);
+            float n2_lengsq = math.lengthsq(n2);
+
+            // 稀に発生する長さ０に対処
+            if (n1_lengsq == 0.0f || n2_lengsq == 0.0f)
+                return false;
+            //Develop.Assert(n1_lengsq > 0.0f);
+            //Develop.Assert(n2_lengsq > 0.0f);
+            n1 /= n1_lengsq;
+            n2 /= n2_lengsq;
+
+            float3 d0 = elen * n1;
+            float3 d1 = elen * n2;
+            float3 d2 = math.dot(nextPos0 - nextPos3, e) * invElen * n1 + math.dot(nextPos1 - nextPos3, e) * invElen * n2;
+            float3 d3 = math.dot(nextPos2 - nextPos0, e) * invElen * n1 + math.dot(nextPos2 - nextPos1, e) * invElen * n2;
+
+            n1 = math.normalize(n1);
+            n2 = math.normalize(n2);
+            float dot = math.dot(n1, n2);
+            dot = MathUtility.Clamp1(dot);
+            float phi = math.acos(dot);
+
+            float lambda =
+                invMass0 * math.lengthsq(d0) +
+                invMass1 * math.lengthsq(d1) +
+                invMass2 * math.lengthsq(d2) +
+                invMass3 * math.lengthsq(d3);
+
+            if (lambda == 0.0f)
+                return false;
+
+            // 方向性
+            float dirSign = math.sign(math.dot(math.cross(n1, n2), e));
+            if (sign != 0)
             {
-                // pindexのチームは有効であることが保証されている
-                int pindex = stepParticleIndexArray[index];
-                int teamId = teamIdArray[pindex];
-                var tdata = teamDataArray[teamId];
-                if (tdata.bendingPairChunk.IsValid == false)
-                    return;
-
-                int l_index = pindex - tdata.particleChunk.startIndex;
-
-                // 固定なら無効
-                int vindex = tdata.proxyCommonChunk.startIndex + l_index;
-                if (attributes[vindex].IsDontMove())
-                    return;
-
-                // 書き込みバッファの値を平均化してnextPosに加算する
-                uint pack = writeIndexArray[tdata.bendingWriteIndexChunk.startIndex + l_index];
-                int cnt = DataUtility.Unpack12_20Hi(pack);
-                int start = DataUtility.Unpack12_20Low(pack);
-                int bufferIndex = tdata.bendingBufferChunk.startIndex + start;
-                float3 add = 0;
-                for (int i = 0; i < cnt; i++)
-                {
-                    add += writeBuffer[bufferIndex + i];
-                }
-                if (cnt > 0)
-                {
-                    add /= cnt;
-                    nextPosArray[pindex] = nextPosArray[pindex] + add;
-                }
+                // 方向性あり(DirectionDihedralAngle)
+                phi *= dirSign;
             }
+            else
+            {
+                // 方向性なし(DihedralAngle)
+                lambda *= dirSign;
+            }
+
+            lambda = (restAngle - phi) / lambda * stiffness;
+
+            float3 corr0 = -invMass0 * lambda * d0;
+            float3 corr1 = -invMass1 * lambda * d1;
+            float3 corr2 = -invMass2 * lambda * d2;
+            float3 corr3 = -invMass3 * lambda * d3;
+
+            addPosBuffer[0] = corr0;
+            addPosBuffer[1] = corr1;
+            addPosBuffer[2] = corr2;
+            addPosBuffer[3] = corr3;
+
+            return true;
         }
     }
 }

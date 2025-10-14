@@ -35,7 +35,7 @@ namespace MagicaCloth2
                 }
 
                 // カスタムスキニングボーン追加
-                if (sdata.customSkinningSetting.enable)
+                if (sdata.customSkinningSetting.enable && sdata.IsBoneSpring() == false)
                 {
                     SetCustomSkinningBones(clothTransformRecord, customSkinningBoneRecords);
                 }
@@ -246,7 +246,7 @@ namespace MagicaCloth2
                 //JobUtility.CalcAABBRun(localPositions.GetNativeArray(), VertexCount, boundingBox);
 
                 // カスタムスキニング設定
-                if (sdata.customSkinningSetting.enable)
+                if (sdata.customSkinningSetting.enable && sdata.IsBoneSpring() == false)
                 {
                     CreateCustomSkinning(sdata.customSkinningSetting, customSkinningBoneRecords);
                 }
@@ -346,9 +346,6 @@ namespace MagicaCloth2
                 {
                     center = center,
                     localPositions = localPositions.GetNativeArray(),
-                    vertexParentIndices = vertexParentIndices,
-                    vertexChildIndexArray = vertexChildIndexArray,
-                    vertexChildDataArray = vertexChildDataArray,
 
                     localNormals = localNormals.GetNativeArray(),
                     localTangents = localTangents.GetNativeArray(),
@@ -356,96 +353,7 @@ namespace MagicaCloth2
                 };
                 job1.Run(vcnt);
             }
-#if false // ★どうもうまくいかないので一旦停止！
-            // 頂点ウエイトから
-            else if (mode == NormalAlignmentSettings.AlignmentMode.BoneWeight)
-            {
-                var job2 = new ProxyNormalWeightAdjustmentJob()
-                {
-                    WtoL = initWorldToLocal,
-                    localPositions = localPositions.GetNativeArray(),
-                    boneWeights = boneWeights.GetNativeArray(),
-
-                    transformPositionArray = transformData.positionArray.GetNativeArray(),
-
-                    localNormals = localNormals.GetNativeArray(),
-                    localTangents = localTangents.GetNativeArray(),
-                    normalAdjustmentRotations = normalAdjustmentRotations,
-                };
-                job2.Run(vcnt);
-            }
-#endif
         }
-
-#if false
-        [BurstCompile]
-        struct ProxyNormalWeightAdjustmentJob : IJobParallelFor
-        {
-            public float4x4 WtoL;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float3> localPositions;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<VirtualMeshBoneWeight> boneWeights;
-
-            // transform
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float3> transformPositionArray;
-
-            // out
-            //[Unity.Collections.WriteOnly]
-            public NativeArray<float3> localNormals;
-            //[Unity.Collections.WriteOnly]
-            public NativeArray<float3> localTangents;
-            [Unity.Collections.WriteOnly]
-            public NativeArray<quaternion> normalAdjustmentRotations;
-
-            public void Execute(int vindex)
-            {
-                var lpos = localPositions[vindex];
-                var bw = boneWeights[vindex];
-
-                // 現在の回転
-                var lrot = MathUtility.ToRotation(localNormals[vindex], localTangents[vindex]);
-
-                // 影響するボーンへの方向をまとめる
-                float3 bv = 0;
-                int bcnt = bw.Count;
-                if (bcnt == 0)
-                    return;
-                for (int i = 0; i < bcnt; i++)
-                {
-                    var bonePos = math.transform(WtoL, transformPositionArray[bw.boneIndices[i]]);
-                    //var v = transformPositionArray[bw.boneIndices[i]] - lpos;
-                    var v = lpos - bonePos;
-                    v = math.normalizesafe(v, float3.zero);
-                    v *= bw.weights[i];
-                    bv += v;
-                }
-                if (math.lengthsq(bv) < Define.System.Epsilon)
-                    return;
-
-                // 法線確定
-                float3 n = math.normalize(bv);
-
-                // 法線をもとに接線を計算する
-                var lnor = localNormals[vindex];
-                var ltan = localTangents[vindex];
-                var dotNormal = math.dot(n, lnor);
-                var dotTangent = math.dot(n, ltan);
-                float3 tv = dotNormal < dotTangent ? lnor : ltan;
-                float3 tan = math.cross(tv, n);
-
-                //localNormals[vindex] = tan;
-                //localTangents[vindex] = n;
-                localNormals[vindex] = n;
-                localTangents[vindex] = tan;
-                var nrot = MathUtility.ToRotation(n, tan);
-
-                // 補正用回転を算出し格納する
-                normalAdjustmentRotations[vindex] = math.mul(math.inverse(lrot), nrot);
-            }
-        }
-#endif
 
         [BurstCompile]
         struct ProxyNormalRadiationAdjustmentJob : IJobParallelFor
@@ -453,12 +361,6 @@ namespace MagicaCloth2
             public float3 center;
             [Unity.Collections.ReadOnly]
             public NativeArray<float3> localPositions;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<int> vertexParentIndices;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<uint> vertexChildIndexArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<ushort> vertexChildDataArray;
 
             // out
             public NativeArray<float3> localNormals;
@@ -472,57 +374,32 @@ namespace MagicaCloth2
                 var v = lpos - center;
                 if (math.length(v) < Define.System.Epsilon)
                     return;
-                v = math.normalize(v);
+
+                // 指定されたセンターからの放射方向に法線を変更する
+                var n = math.normalize(v);
 
                 // 現在の回転
-                var lrot = MathUtility.ToRotation(localNormals[vindex], localTangents[vindex]);
+                var ln = localNormals[vindex];
+                var lt = localTangents[vindex];
+                var lrot = MathUtility.ToRotation(ln, lt);
 
-                // 子がいる場合は子へのベクトルから算出
-                var nrot = lrot;
-                int pindex = vertexParentIndices[vindex];
-                var pack = vertexChildIndexArray[vindex];
-                DataUtility.Unpack12_20(pack, out var dcnt, out var dstart);
-                if (dcnt > 0)
+                // 接線を補正する
+                float dot = math.dot(n, lt);
+                if (dot < 0.99f)
                 {
-                    float3 cv = 0;
-                    for (int i = 0; i < dcnt; i++)
-                    {
-                        int cindex = vertexChildDataArray[dstart + i];
-                        cv += localPositions[cindex] - lpos;
-                    }
-                    if (math.lengthsq(cv) > Define.System.Epsilon)
-                    {
-                        cv = math.normalize(cv);
-                        float3 n = math.cross(cv, v);
-                        n = math.cross(n, cv);
-
-                        if (math.lengthsq(n) > Define.System.Epsilon)
-                        {
-                            n = math.normalize(n);
-                            localNormals[vindex] = n;
-                            localTangents[vindex] = cv;
-                            nrot = MathUtility.ToRotation(n, cv);
-                        }
-                    }
+                    float3 bn = math.normalize(math.cross(n, lt));
+                    lt = math.normalize(math.cross(bn, n));
                 }
-                // 子がいなく親がいる場合は親からのベクトルから算出
-                else if (pindex >= 0)
+                else
                 {
-                    var ppos = localPositions[pindex];
-                    var w = lpos - ppos;
-                    w = math.normalize(w);
-
-                    float3 n = math.cross(w, v);
-                    n = math.cross(n, w);
-
-                    if (math.lengthsq(n) > Define.System.Epsilon)
-                    {
-                        n = math.normalize(n);
-                        localNormals[vindex] = n;
-                        localTangents[vindex] = w;
-                        nrot = MathUtility.ToRotation(n, w);
-                    }
+                    // 元の接線と新しい法線が同じベクトルの場合は、従法線から新しい接線を算出する
+                    var lbn = math.normalize(math.cross(ln, lt));
+                    lt = math.normalize(math.cross(lbn, n));
                 }
+
+                localNormals[vindex] = n;
+                localTangents[vindex] = lt;
+                var nrot = MathUtility.ToRotation(n, lt);
 
                 // 補正用回転を算出し格納する
                 normalAdjustmentRotations[vindex] = math.mul(math.inverse(lrot), nrot);
@@ -837,11 +714,11 @@ namespace MagicaCloth2
                     var vset_z = (ptr + tri.z);
 
                     if (vset_x->Length < 7)
-                        vset_x->Set(tindex);
+                        vset_x->MC2Set(tindex);
                     if (vset_y->Length < 7)
-                        vset_y->Set(tindex);
+                        vset_y->MC2Set(tindex);
                     if (vset_z->Length < 7)
-                        vset_z->Set(tindex);
+                        vset_z->MC2Set(tindex);
                 }
             }
         }
@@ -1103,7 +980,10 @@ namespace MagicaCloth2
                 // 頂点のローカル回転
                 var vrot = MathUtility.ToRotation(localNormals[vindex], localTangents[vindex]);
 
-                vertexToTransformRotations[vindex] = math.mul(math.inverse(vrot), trot);
+                // 頂点ローカル回転をトランスフォームローカル回転に復元する回転を求める
+                var toRot = math.mul(math.inverse(vrot), trot);
+
+                vertexToTransformRotations[vindex] = toRot;
             }
         }
 
@@ -1131,7 +1011,7 @@ namespace MagicaCloth2
                     for (int j = 0; j < 3; j++)
                     {
                         int2 edge = edges[j];
-                        edgeToTriangles.UniqueAdd(edge, (ushort)i);
+                        edgeToTriangles.MC2UniqueAdd(edge, (ushort)i);
                     }
                 }
             }
@@ -1157,13 +1037,13 @@ namespace MagicaCloth2
 
             public void Execute(int vindex)
             {
-                float3 pos = localPositions[vindex];
-                var nor = localNormals[vindex];
-                var tan = localTangents[vindex];
+                float3 lpos = localPositions[vindex];
+                var lnor = localNormals[vindex];
+                var ltan = localTangents[vindex];
 
                 // マッピング用の頂点バインドポーズを求める
-                quaternion rot = MathUtility.ToRotation(nor, tan);
-                vertexBindPosePositions[vindex] = -pos;
+                quaternion rot = MathUtility.ToRotation(lnor, ltan);
+                vertexBindPosePositions[vindex] = -lpos;
                 vertexBindPoseRotations[vindex] = math.inverse(rot);
             }
         }
@@ -1192,12 +1072,12 @@ namespace MagicaCloth2
                     ushort y = (ushort)tri.y;
                     ushort z = (ushort)tri.z;
 
-                    vertexToVertexMap.UniqueAdd(tri.x, y);
-                    vertexToVertexMap.UniqueAdd(tri.x, z);
-                    vertexToVertexMap.UniqueAdd(tri.y, x);
-                    vertexToVertexMap.UniqueAdd(tri.y, z);
-                    vertexToVertexMap.UniqueAdd(tri.z, x);
-                    vertexToVertexMap.UniqueAdd(tri.z, y);
+                    vertexToVertexMap.MC2UniqueAdd(tri.x, y);
+                    vertexToVertexMap.MC2UniqueAdd(tri.x, z);
+                    vertexToVertexMap.MC2UniqueAdd(tri.y, x);
+                    vertexToVertexMap.MC2UniqueAdd(tri.y, z);
+                    vertexToVertexMap.MC2UniqueAdd(tri.z, x);
+                    vertexToVertexMap.MC2UniqueAdd(tri.z, y);
 
                     edgeSet.Add(DataUtility.PackInt2(tri.xy));
                     edgeSet.Add(DataUtility.PackInt2(tri.yz));
@@ -1226,8 +1106,8 @@ namespace MagicaCloth2
                 {
                     int2 line = lines[i];
 
-                    vertexToVertexMap.UniqueAdd(line.x, (ushort)line.y);
-                    vertexToVertexMap.UniqueAdd(line.y, (ushort)line.x);
+                    vertexToVertexMap.MC2UniqueAdd(line.x, (ushort)line.y);
+                    vertexToVertexMap.MC2UniqueAdd(line.y, (ushort)line.x);
 
                     edgeSet.Add(DataUtility.PackInt2(line));
                 }
@@ -1268,10 +1148,10 @@ namespace MagicaCloth2
         struct SkinningBoneInfo
         {
             //public int transformIndex;
-            public int startTransformIndex;
-            public float3 startPos;
-            public int endTransformIndex;
-            public float3 endPos;
+            public int parentTransformIndex;
+            public float3 parentPos;
+            public int childTransformIndex;
+            public float3 childPos;
         }
 
         /// <summary>
@@ -1282,39 +1162,6 @@ namespace MagicaCloth2
             if (CustomSkinningBoneCount == 0)
                 return;
 
-#if false
-            // ボーン情報の構築
-            using var boneInfoList = new NativeList<SkinningBoneInfo>(CustomSkinningBoneCount, Allocator.Persistent);
-            for (int i = 0; i < CustomSkinningBoneCount; i++)
-            {
-                int tindex = customSkinningBoneIndices[i];
-                if (tindex == -1)
-                    continue;
-
-                // 登録
-                var info = new SkinningBoneInfo();
-                info.transformIndex = tindex;
-                info.startPos = bones[i].localPosition;
-                boneInfoList.Add(info);
-                Debug.Log($"[{boneInfoList.Length - 1}] {i}, tindex:{tindex}");
-            }
-            if (boneInfoList.Length == 0)
-                return;
-
-            // 頂点ごとにカスタムスキニングウエイトを算出
-            var job = new Proxy_CalcCustomSkinningWeightsJob2()
-            {
-                distanceReduction = setting.distanceReduction,
-                distancePow = setting.distancePow,
-
-                //attributes = attributes.GetNativeArray(),
-                localPositions = localPositions.GetNativeArray(),
-                boneInfoList = boneInfoList,
-                boneWeights = boneWeights.GetNativeArray(),
-            };
-            job.Run(VertexCount);
-#endif
-#if true
             // ボーン情報の構築
             using var boneInfoList = new NativeList<SkinningBoneInfo>(CustomSkinningBoneCount * 2, Allocator.Persistent);
             for (int i = 0; i < CustomSkinningBoneCount; i++)
@@ -1322,6 +1169,9 @@ namespace MagicaCloth2
                 int tindex = customSkinningBoneIndices[i];
                 if (tindex == -1)
                     continue;
+
+#if MC2_CUSTOM_SKINNING_V1
+                // 旧
                 int pid = bones[i].pid;
                 if (pid == 0)
                     continue;
@@ -1330,16 +1180,22 @@ namespace MagicaCloth2
                     continue;
 
                 // ボーンライン情報の作成
+                // localPositonはクロス空間での座標に変換済み
                 var info = new SkinningBoneInfo();
-                //info.transformIndex = customSkinningBoneIndices[pindex];
-                info.startTransformIndex = customSkinningBoneIndices[pindex];
-                info.startPos = bones[pindex].localPosition;
-                info.endTransformIndex = tindex;
-                info.endPos = bones[i].localPosition;
+                info.parentTransformIndex = customSkinningBoneIndices[pindex];
+                info.parentPos = bones[pindex].localPosition;
+                info.childTransformIndex = tindex;
+                info.childPos = bones[i].localPosition;
 
                 // 距離がほぼ０なら無効
-                if (math.distance(info.startPos, info.endPos) < Define.System.Epsilon)
+                if (math.distance(info.parentPos, info.childPos) < Define.System.Epsilon)
                     continue;
+#else
+                // V2
+                var info = new SkinningBoneInfo();
+                info.childTransformIndex = tindex;
+                info.childPos = bones[i].localPosition;
+#endif
 
                 // 登録
                 boneInfoList.Add(info);
@@ -1349,12 +1205,11 @@ namespace MagicaCloth2
                 return;
 
             // 頂点ごとにカスタムスキニングウエイトを算出
+#if MC2_CUSTOM_SKINNING_V1
+            // 旧
             var job = new Proxy_CalcCustomSkinningWeightsJob()
             {
                 isBoneCloth = isBoneCloth,
-                //angularAttenuation = setting.angularAttenuation,
-                //distanceReduction = setting.distanceReduction,
-                //distancePow = setting.distancePow,
                 angularAttenuation = Define.System.CustomSkinningAngularAttenuation,
                 distanceReduction = Define.System.CustomSkinningDistanceReduction,
                 distancePow = Define.System.CustomSkinningDistancePow,
@@ -1364,19 +1219,36 @@ namespace MagicaCloth2
                 boneInfoList = boneInfoList,
                 boneWeights = boneWeights.GetNativeArray(),
             };
-            job.Run(VertexCount);
+#else
+            // V2
+            var job = new Proxy_CalcCustomSkinningWeightsJobV2()
+            {
+                isBoneCloth = isBoneCloth,
+                angularAttenuation = Define.System.CustomSkinningAngularAttenuation,
+                distanceReduction = Define.System.CustomSkinningDistanceReduction,
+                distancePow = Define.System.CustomSkinningDistancePow,
+
+                attributes = attributes.GetNativeArray(),
+                localPositions = localPositions.GetNativeArray(),
+                boneInfoList = boneInfoList,
+                boneWeights = boneWeights.GetNativeArray(),
+            };
 #endif
+            job.Run(VertexCount);
         }
 
-#if false
+#if !MC2_CUSTOM_SKINNING_V1
+        // V2
         [BurstCompile]
-        struct Proxy_CalcCustomSkinningWeightsJob2 : IJobParallelFor
+        struct Proxy_CalcCustomSkinningWeightsJobV2 : IJobParallelFor
         {
+            public bool isBoneCloth;
+            public float angularAttenuation;
             public float distanceReduction;
             public float distancePow;
 
-            //[Unity.Collections.ReadOnly]
-            //public NativeArray<VertexAttribute> attributes;
+            [Unity.Collections.ReadOnly]
+            public NativeArray<VertexAttribute> attributes;
             [Unity.Collections.ReadOnly]
             public NativeArray<float3> localPositions;
             [Unity.Collections.ReadOnly]
@@ -1384,12 +1256,12 @@ namespace MagicaCloth2
             [Unity.Collections.WriteOnly]
             public NativeArray<VirtualMeshBoneWeight> boneWeights;
 
+            // プロキシメッシュ頂点ごと
             public void Execute(int vindex)
             {
-                // 固定は無効(※この時点ではまだ属性がない！）
-                //var attr = attributes[vindex];
-                //if (attr.IsMove() == false)
-                //    return;
+                // 移動属性のみ
+                if (attributes[vindex].IsDontMove())
+                    return;
 
                 var lpos = localPositions[vindex];
 
@@ -1398,12 +1270,14 @@ namespace MagicaCloth2
                 for (int i = 0; i < bcnt; i++)
                 {
                     var binfo = boneInfoList[i];
+                    var bpos = binfo.childPos;
+                    int boneIndex = binfo.childTransformIndex;
 
                     // 距離
-                    float dist = math.distance(lpos, binfo.startPos);
+                    var v = lpos - bpos;
+                    float dist = math.length(v);
 
                     // 登録。すでに登録済みならばdistがより小さい場合のみ再登録
-                    int boneIndex = binfo.transformIndex;
                     int nowIndex = costList.indexOf(boneIndex);
                     if (nowIndex >= 0)
                     {
@@ -1417,59 +1291,67 @@ namespace MagicaCloth2
                         costList.Add(dist, boneIndex);
                 }
 
-                // ウエイト算出
-                // (0)最小距離のn%を減算する
+                // (1)最小距離のn%を減算する
                 int cnt = costList.Count;
-                //const float lengthWeight = 0.8f;
-                float mindist = costList.MinCost * distanceReduction;
-                costList.costs -= mindist;
-
-                // (1)distanceをn乗する
-                //const float pow = 2.0f;
-                costList.costs = math.pow(costList.costs, distancePow);
-
-                // (2)最小値の逆数にする
-                float min = math.max(costList.MinCost, 1e-06f);
-                float sum = 0;
+                float mindist = costList.MinCost * distanceReduction; // 0.6
                 for (int i = 0; i < cnt; i++)
+                    costList.costs[i] = costList.costs[i] - mindist;
+
+                // (2)distanceをn乗する
+                for (int i = 0; i < cnt; i++)
+                    costList.costs[i] = math.pow(costList.costs[i], distancePow); // 2.0
+
+                // ウエイト算出
+                if (costList.MinCost < Define.System.Epsilon)
                 {
-                    costList.costs[i] = min / costList.costs[i];
-                    sum += costList.costs[i];
+                    costList.costs = new float4(1, 0, 0, 0);
+                    costList.data = new int4(costList.data[0], 0, 0, 0);
                 }
-
-                // (3)割合を出す
-                costList.costs /= sum;
-
-                // (4)極小のウエイトは削除する
-                sum = 0;
-                for (int i = 0; i < 4; i++)
+                else
                 {
-                    if (costList.costs[i] < 0.01f || i >= cnt)
+                    // コストの逆数の合計
+                    cnt = costList.Count;
+                    float sum = 0;
+                    for (int i = 0; i < cnt; i++)
                     {
-                        // 打ち切り
-                        costList.costs[i] = 0.0f;
-                        costList.data[i] = 0;
+                        sum += 1.0f / costList.costs[i];
                     }
-                    else
+
+                    // 1.0fに正規化
+                    for (int i = 0; i < cnt; i++)
                     {
-                        sum += costList.costs[i];
+                        costList.costs[i] = (1.0f / costList.costs[i]) / sum;
                     }
+
+                    // 極小のウエイトは削除する
+                    const float InvalidWeight = 0.001f; // 0.1%
+                    sum = 0;
+                    for (int i = 0; i < 4; i++)
+                    {
+                        if (costList.costs[i] < InvalidWeight || i >= cnt)
+                        {
+                            // 打ち切り
+                            costList.costs[i] = 0.0f;
+                            costList.data[i] = 0;
+                        }
+                        else
+                        {
+                            sum += costList.costs[i];
+                        }
+                    }
+                    Debug.Assert(sum > 0);
+                    costList.costs /= sum; // 再度1.0正規化
                 }
-                Debug.Assert(sum > 0);
-
-                // (5)再度1.0に平均化
-                costList.costs /= sum;
-
                 //Debug.Log($"[{vindex}] :{costList}");
 
-                // ウエイト作成
+                // ウエイト構造体に変換して格納
                 var bw = new VirtualMeshBoneWeight(costList.data, costList.costs);
                 boneWeights[vindex] = bw;
             }
         }
 #endif
 
-#if true
+#if MC2_CUSTOM_SKINNING_V1
         [BurstCompile]
         struct Proxy_CalcCustomSkinningWeightsJob : IJobParallelFor
         {
@@ -1487,7 +1369,7 @@ namespace MagicaCloth2
             [Unity.Collections.WriteOnly]
             public NativeArray<VirtualMeshBoneWeight> boneWeights;
 
-
+            // プロキシメッシュ頂点ごと
             public void Execute(int vindex)
             {
                 // BoneClothカスタムスキニングでは固定は動かさない
@@ -1501,21 +1383,21 @@ namespace MagicaCloth2
                 for (int i = 0; i < bcnt; i++)
                 {
                     var binfo = boneInfoList[i];
-                    float3 d = MathUtility.ClosestPtPointSegment(lpos, binfo.startPos, binfo.endPos);
+                    float3 d = MathUtility.ClosestPtPointSegment(lpos, binfo.parentPos, binfo.childPos);
                     //float dist = math.distance(lpos, d);
 
                     // ボーンラインとの角度により判定距離を調整する
                     // ラインと水平になるほど影響がよわくなる
                     var v = lpos - d;
-                    var bv = binfo.endPos - binfo.startPos;
+                    var bv = binfo.childPos - binfo.parentPos;
                     float dot = math.dot(math.normalize(v), math.normalize(bv));
-                    float ratio = 1.0f + math.abs(dot) * angularAttenuation;
+                    float ratio = 1.0f + math.abs(dot) * angularAttenuation; // 1.0
 
                     // 登録。すでに登録済みならばdistがより小さい場合のみ再登録
                     for (int j = 0; j < 2; j++)
                     {
-                        int boneIndex = j == 0 ? binfo.startTransformIndex : binfo.endTransformIndex;
-                        float dist = j == 0 ? math.distance(lpos, binfo.startPos) : math.distance(lpos, binfo.endPos);
+                        int boneIndex = j == 0 ? binfo.parentTransformIndex : binfo.childTransformIndex;
+                        float dist = j == 0 ? math.distance(lpos, binfo.parentPos) : math.distance(lpos, binfo.childPos);
                         dist *= ratio;
 
                         int nowIndex = costList.indexOf(boneIndex);
@@ -1535,11 +1417,11 @@ namespace MagicaCloth2
                 // ウエイト算出
                 // (0)最小距離のn%を減算する
                 int cnt = costList.Count;
-                float mindist = costList.MinCost * distanceReduction;
+                float mindist = costList.MinCost * distanceReduction; // 0.6
                 costList.costs -= mindist;
 
                 // (1)distanceをn乗する
-                costList.costs = math.pow(costList.costs, distancePow);
+                costList.costs = math.pow(costList.costs, distancePow); // 2.0
 
                 // (2)最小値の逆数にする
                 float min = math.max(costList.MinCost, 1e-06f);
@@ -1950,7 +1832,7 @@ namespace MagicaCloth2
                         int pindex = vertexParentIndices[vindex];
                         if (pindex >= 0)
                         {
-                            vertexChildMap.UniqueAdd(pindex, (ushort)vindex);
+                            vertexChildMap.MC2UniqueAdd(pindex, (ushort)vindex);
                         }
                     }
 
@@ -2261,16 +2143,21 @@ namespace MagicaCloth2
                     float3 tan = localTangents[vindex];
                     quaternion rot = MathUtility.ToRotation(nor, tan);
 
-
                     float3 lpos = math.mul(iprot, pos - ppos);
                     quaternion lrot = math.mul(iprot, rot);
                     vertexLocalPositions[vindex] = lpos;
                     vertexLocalRotations[vindex] = lrot;
+
+                    //Debug.Log($"vertexLocalPositions [{vindex}] : {lpos}");
+                    //Debug.Log($"vertexLocalRotations [{vindex}] : {lrot}");
                 }
                 else
                 {
                     vertexLocalPositions[vindex] = 0;
                     vertexLocalRotations[vindex] = quaternion.identity;
+
+                    //Debug.Log($"vertexLocalPositions [{vindex}] : 0");
+                    //Debug.Log($"vertexLocalRotations [{vindex}] : (0, 0, 0, 1)");
                 }
             }
         }
@@ -2379,7 +2266,7 @@ namespace MagicaCloth2
         }
 
         //=========================================================================================
-#if false // pitch/yaw個別制限はv1.0では実装しないので一旦ん停止
+#if false // pitch/yaw個別制限はv1.0では実装しないので一旦停止
         /// <summary>
         /// 角度制限計算用ローカル回転の算出
         /// </summary>

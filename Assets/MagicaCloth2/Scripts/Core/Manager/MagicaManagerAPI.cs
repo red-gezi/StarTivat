@@ -33,7 +33,6 @@ namespace MagicaCloth2
         {
             if (IsPlaying())
             {
-                //Team.globalTimeScale = Mathf.Clamp01(timeScale);
                 Time.GlobalTimeScale = Mathf.Clamp01(timeScale);
             }
         }
@@ -47,11 +46,13 @@ namespace MagicaCloth2
         {
             if (IsPlaying())
             {
-                //return Team.globalTimeScale;
                 return Time.GlobalTimeScale;
             }
             else
+            {
+                Develop.LogError("MagicaManager is not starting!");
                 return 1.0f;
+            }
         }
 
         /// <summary>
@@ -80,7 +81,10 @@ namespace MagicaCloth2
             if (IsPlaying())
                 return Time.simulationFrequency;
             else
+            {
+                Develop.LogError("MagicaManager is not starting!");
                 return 0;
+            }
         }
 
         /// <summary>
@@ -115,7 +119,106 @@ namespace MagicaCloth2
             if (IsPlaying())
                 return Time.maxSimulationCountPerFrame;
             else
+            {
+                Develop.LogError("MagicaManager is not starting!");
                 return 0;
+            }
+        }
+
+        /// <summary>
+        /// シミュレーションの更新場所を変更します
+        /// Change the simulation update location.
+        /// </summary>
+        /// <param name="updateLocation"></param>
+        public static void SetUpdateLocation(TimeManager.UpdateLocation updateLocation)
+        {
+            if (IsPlaying())
+                Time.updateLocation = updateLocation;
+        }
+
+        /// <summary>
+        /// 現在のシミュレーションの更新場所を取得します
+        /// Get the current simulation update location.
+        /// </summary>
+        /// <returns></returns>
+        public static TimeManager.UpdateLocation GetUpdateLocation()
+        {
+            if (IsPlaying())
+                return Time.updateLocation;
+            else
+            {
+                Develop.LogError("MagicaManager is not starting!");
+                return TimeManager.UpdateLocation.AfterLateUpdate;
+            }
+        }
+
+        /// <summary>
+        /// 未使用のデータをすべて解放します
+        /// Free all unused data.
+        /// - Unused PreBuild data
+        /// </summary>
+        public static void UnloadUnusedData()
+        {
+            if (IsPlaying())
+            {
+                PreBuild.UnloadUnusedData();
+            }
+        }
+
+        /// <summary>
+        /// MonoBehaviourでのMagicaClothの初期化場所
+        /// MagicaCloth initialization location in MonoBehaviour.
+        /// </summary>
+        public enum InitializationLocation
+        {
+            /// <summary>
+            /// Initialize with MonoBehaviour.Start().
+            /// (Default)
+            /// </summary>
+            Start = 0,
+
+            /// <summary>
+            /// Initialize with MonoBehaviour.Awake().
+            /// </summary>
+            Awake = 1,
+        }
+        internal static InitializationLocation initializationLocation = InitializationLocation.Start;
+
+        /// <summary>
+        /// MonoBehaviourでのMagicaClothの初期化場所を設定する
+        /// Setting MagicaCloth initialization location in MonoBehaviour.
+        /// </summary>
+        /// <param name="initLocation"></param>
+        public static void SetInitializationLocation(InitializationLocation initLocation)
+        {
+            initializationLocation = initLocation;
+        }
+
+        /// <summary>
+        /// 分割ジョブを適用するプロキシメッシュの頂点数を設定する
+        /// Sets the number of vertices for the proxy mesh to which the split job will be applied.
+        /// </summary>
+        /// <param name="vertexCount"></param>
+        public static void SetSplitProxyMeshVertexCount(int vertexCount)
+        {
+            if (IsPlaying())
+                Simulation.splitProxyMeshVertexCount = vertexCount;
+        }
+
+        /// <summary>
+        /// 分割ジョブを適用するプロキシメッシュの頂点数を取得する
+        /// Gets the vertex count of the proxy mesh to which the split job is applied.
+        /// </summary>
+        /// <returns></returns>
+        public static int GetSplitProxyMeshVertexCount()
+        {
+            if (IsPlaying())
+                return Simulation.splitProxyMeshVertexCount;
+            else
+            {
+                Develop.LogError("MagicaManager is not starting!");
+                return 0;
+            }
         }
     }
 }

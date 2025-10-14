@@ -3,17 +3,15 @@
 // https://magicasoft.jp
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Unity.Mathematics;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEditor.Compilation;
-#if UNITY_2020
-using UnityEditor.Experimental.SceneManagement;
-#else
+using UnityEditor.PackageManager;
 using UnityEditor.SceneManagement;
-#endif
 using UnityEngine;
 
 namespace MagicaCloth2
@@ -34,9 +32,10 @@ namespace MagicaCloth2
             public GizmoType gizmoType;
             public ClothBehaviour component;
             public int componentHash;
-            public VirtualMesh editMesh;
+            public VirtualMeshContainer editMeshContainer;
             public int nextBuildHash;
             public int importCount;
+            public ClothInitSerializeData editInitSerializeData;
         }
 
         static Dictionary<int, ClothInfo> editClothDict = new Dictionary<int, ClothInfo>();
@@ -139,6 +138,22 @@ namespace MagicaCloth2
             ForceUpdateAllComponents();
         }
 
+        //=========================================================================================
+        static bool IsActive(GizmoType gizmoType)
+        {
+            return gizmoType.HasFlag(GizmoType.Active);
+        }
+
+        static bool IsActiveOrSelected(GizmoType gizmoType)
+        {
+            return IsActive(gizmoType) || gizmoType.HasFlag(GizmoType.Selected);
+        }
+
+        static bool IsSelectionHierarchy(GizmoType gizmoType)
+        {
+            return IsActiveOrSelected(gizmoType) || gizmoType.HasFlag(GizmoType.InSelectionHierarchy);
+        }
+
         /// <summary>
         /// MagidaClothコンポーネントの登録および編集メッシュの作成/更新
         /// </summary>
@@ -161,39 +176,26 @@ namespace MagicaCloth2
             //if (cloth)
             //    Develop.DebugLog($"Register Cloth:{component.name}, gizmoType:{gizmoType}");
 
-            // ギズモ表示判定
-            if (gizmoType.HasFlag(GizmoType.Active))
-            {
-                gizmoType = GizmoType.Active;
-            }
+#if true
+            // Unity2023のみ何故かGizmoTypeの挙動が異なり、実際には選択されてなくても親が選択中だとSelectedフラグが立ってしまう。
+            // そのため、Selectedフラグに関してはここで手動で判定することにする。
+#if UNITY_6000_3_OR_NEWER
+            if (Selection.Contains(component.gameObject.GetEntityId()))
+#else
+            if (Selection.Contains(component.gameObject.GetInstanceID()))
+#endif
+                gizmoType |= GizmoType.Selected;
             else
-            {
-                // ★何故かGizmoType.InSelectionHierarchyが正常に判定できないので手動で解決する！(2022/10/14)
-                // ★GizmoType.InSelectionHierarchyがバグっている？
-                gizmoType = 0;
-                var t = component.transform.parent;
-                var activeT = Selection.activeTransform;
-                if (activeT)
-                {
-                    while (t)
-                    {
-                        if (t == activeT)
-                        {
-                            gizmoType = GizmoType.Selected;
-                            break;
-                        }
-                        else
-                            t = t.parent;
-                    }
-                }
+                gizmoType &= ~GizmoType.Selected;
+#endif
 
-                // 常に表示
-                if (cloth && cloth.GizmoSerializeData.IsAlways())
-                    gizmoType = GizmoType.Active;
-            }
+            // ギズモ表示判定
+            // 常に表示
+            if (cloth && cloth.GizmoSerializeData.IsAlways())
+                gizmoType = GizmoType.Active;
 
             // クロス指定のコライダー表示
-            if (cloth && cloth.GizmoSerializeData.clothDebugSettings.collider && gizmoType != 0)
+            if (cloth && cloth.GizmoSerializeData.clothDebugSettings.enable && cloth.GizmoSerializeData.clothDebugSettings.collider && IsSelectionHierarchy(gizmoType))
             {
                 foreach (var col in cloth.SerializeData.colliderCollisionConstraint.colliderList)
                 {
@@ -210,7 +212,7 @@ namespace MagicaCloth2
                     info.building = false;
                     info.result = ResultCode.Empty;
                     info.component = component;
-                    info.editMesh = null;
+                    info.editMeshContainer = null;
                     info.gizmoType = gizmoType;
                     info.componentHash = 0;
                     info.nextBuildHash = 0;
@@ -219,8 +221,7 @@ namespace MagicaCloth2
                 }
                 else
                 {
-                    if (gizmoType > editClothDict[id].gizmoType)
-                        editClothDict[id].gizmoType = gizmoType;
+                    editClothDict[id].gizmoType |= gizmoType;
                 }
             }
 
@@ -228,6 +229,7 @@ namespace MagicaCloth2
             if (cloth && EditorApplication.isPlaying == false)
             {
                 int hash = component.GetMagicaHashCode();
+                //Debug.Log($"Hash:{hash}");
 
                 lock (editClothDict)
                 {
@@ -252,7 +254,7 @@ namespace MagicaCloth2
                                 info.componentHash = hash;
                                 info.nextBuildHash = 0;
 
-                                if (cloth.isActiveAndEnabled)
+                                if (cloth.isActiveAndEnabled || forceUpdate)
                                 {
                                     // スレッドで作成
                                     info.building = true;
@@ -265,19 +267,19 @@ namespace MagicaCloth2
             }
         }
 
-        public static VirtualMesh GetEditMesh(ClothBehaviour comp)
+        public static VirtualMeshContainer GetEditMeshContainer(ClothBehaviour comp)
         {
             if (isValid == false)
                 return null;
             if (comp == null)
                 return null;
             int id = comp.GetInstanceID();
-            VirtualMesh vmesh = null;
+            VirtualMeshContainer cmesh = null;
             lock (editClothDict)
             {
-                vmesh = editClothDict.ContainsKey(id) ? editClothDict[id].editMesh : null;
+                cmesh = editClothDict.ContainsKey(id) ? editClothDict[id].editMeshContainer : null;
             }
-            return vmesh;
+            return cmesh;
         }
 
         /// <summary>
@@ -311,7 +313,7 @@ namespace MagicaCloth2
             {
                 foreach (var info in editClothDict.Values)
                 {
-                    info?.editMesh?.Dispose();
+                    info?.editMeshContainer?.Dispose();
                 }
                 editClothDict.Clear();
             }
@@ -335,7 +337,7 @@ namespace MagicaCloth2
                 foreach (var id in destroyList)
                 {
                     //Debug.Log($"削除");
-                    editClothDict[id].editMesh?.Dispose();
+                    editClothDict[id].editMeshContainer?.Dispose();
                     editClothDict.Remove(id);
                 }
                 destroyList.Clear();
@@ -440,7 +442,8 @@ namespace MagicaCloth2
             var sdata = cloth.SerializeData;
             var sdata2 = cloth.GetSerializeData2();
             var setupList = new List<RenderSetupData>();
-            VirtualMesh editMesh = null;
+            VirtualMeshContainer editMeshContainer = null;
+            ClothInitSerializeData editInitSerializeData = new ClothInitSerializeData();
             ResultCode result = new ResultCode();
 
             try
@@ -451,11 +454,16 @@ namespace MagicaCloth2
                     result.SetError(Define.Result.CreateCloth_InvalidCloth);
                     throw new MagicaClothProcessingException();
                 }
+                var statusResult = cloth.Process.GenerateStatusCheck();
+                result.Merge(statusResult);
+                if (statusResult.IsError())
+                {
+                    throw new MagicaClothProcessingException();
+                }
 
                 // メッシュを構築するための最低限のデータが揃っているか確認
                 if (sdata.IsValid() == false)
                 {
-                    //result.SetResult(Define.Result.Empty);
                     result.SetResult(sdata.VerificationResult);
                     throw new MagicaClothProcessingException();
                 }
@@ -467,7 +475,7 @@ namespace MagicaCloth2
                     {
                         if (ren)
                         {
-                            var setup = new RenderSetupData(ren);
+                            var setup = new RenderSetupData(null, ren);
                             result.Merge(setup.result);
                             if (setup.IsFaild())
                             {
@@ -485,9 +493,16 @@ namespace MagicaCloth2
                 }
                 else if (sdata.clothType == ClothProcess.ClothType.BoneCloth)
                 {
-                    var setup = new RenderSetupData(cloth.ClothTransform, sdata.rootBones, sdata.connectionMode, cloth.name);
+                    var setup = new RenderSetupData(null, RenderSetupData.SetupType.BoneCloth, cloth.ClothTransform, sdata.rootBones, null, sdata.connectionMode, cloth.name);
                     setupList.Add(setup);
                 }
+                else if (sdata.clothType == ClothProcess.ClothType.BoneSpring)
+                {
+                    // BoneSpringではLine接続のみ
+                    var setup = new RenderSetupData(null, RenderSetupData.SetupType.BoneSpring, cloth.ClothTransform, sdata.rootBones, sdata.colliderCollisionConstraint.collisionBones, RenderSetupData.BoneConnectionMode.Line, cloth.name);
+                    setupList.Add(setup);
+                }
+
                 if (setupList.Count == 0)
                 {
                     result.SetError(Define.Result.CreateCloth_InvalidSetupList);
@@ -495,13 +510,21 @@ namespace MagicaCloth2
                 }
 
                 // クロスコンポーネントトランスフォーム情報
-                var clothTransformRecord = new TransformRecord(cloth.ClothTransform);
+                var clothTransformRecord = new TransformRecord(cloth.ClothTransform, read: true);
 
                 // 法線調整用トランスフォーム
                 var normalAdjustmentTransformRecored = new TransformRecord(
                     sdata.normalAlignmentSetting.adjustmentTransform ?
                     sdata.normalAlignmentSetting.adjustmentTransform :
-                    cloth.ClothTransform
+                    cloth.ClothTransform, read: true
+                    );
+
+                // 初期化情報収集
+                editInitSerializeData.Serialize(
+                    sdata,
+                    clothTransformRecord,
+                    normalAdjustmentTransformRecored,
+                    setupList
                     );
 
                 // ペイントマップデータの作成（これはメインスレッドでのみ作成可能）
@@ -526,7 +549,8 @@ namespace MagicaCloth2
                 // エディットメッシュ作成
                 // メッシュはセンター空間で作成される
                 ct.ThrowIfCancellationRequested();
-                editMesh = new VirtualMesh("EditMesh");
+                var editMesh = new VirtualMesh("EditMesh");
+                editMeshContainer = new VirtualMeshContainer(editMesh);
                 if (sdata.clothType == ClothProcess.ClothType.MeshCloth)
                 {
                     // MeshClothではクロストランスフォームを追加しておく
@@ -536,7 +560,6 @@ namespace MagicaCloth2
 
                 // セレクションデータ
                 // ペイントマップ指定の場合は空で初期化
-                //SelectionData selectionData = usePaintMap ? new SelectionData() : sdata2.selectionData;
                 SelectionData selectionData = usePaintMap ? new SelectionData() : sdata2.selectionData.Clone();
 
                 // ■スレッド
@@ -557,7 +580,7 @@ namespace MagicaCloth2
                                 renderMesh.result.SetProcess();
 
                                 // インポート
-                                renderMesh.ImportFrom(setup);
+                                renderMesh.ImportFrom(setup, sdata.GetUvChannel());
                                 //Debug.Log($"(IMPORT) {renderMesh}");
                                 if (renderMesh.IsError)
                                     continue;
@@ -595,10 +618,10 @@ namespace MagicaCloth2
                                 //Debug.Log($"(REDUCTION) {editMesh}");
                             }
                         }
-                        else if (sdata.clothType == ClothProcess.ClothType.BoneCloth)
+                        else if (sdata.clothType == ClothProcess.ClothType.BoneCloth || sdata.clothType == ClothProcess.ClothType.BoneSpring)
                         {
                             // import
-                            editMesh.ImportFrom(setupList[0]);
+                            editMesh.ImportFrom(setupList[0], 0);
                             if (editMesh.IsError)
                             {
                                 result.Merge(editMesh.result);
@@ -716,8 +739,6 @@ namespace MagicaCloth2
                 ct.ThrowIfCancellationRequested();
                 if (cloth == null || isValid == false)
                 {
-                    //result.SetError(Define.Result.CreateCloth_InvalidCloth);
-                    //throw new MagicaClothProcessingException();
                     // キャンセル扱いにする
                     throw new OperationCanceledException();
                 }
@@ -753,16 +774,22 @@ namespace MagicaCloth2
                             var info = editClothDict[id];
                             info.building = false;
                             info.result = result;
-                            info.editMesh?.Dispose();
+                            info.editMeshContainer?.Dispose();
                             if (result.IsSuccess())
                             {
-                                info.editMesh = editMesh;
-                                editMesh = null;
+                                info.editMeshContainer = editMeshContainer;
+                                editMeshContainer = null;
+                                info.editInitSerializeData = editInitSerializeData;
                                 Develop.DebugLog($"Registration Complete : {cloth.name}");
+
+                                // 初期化データの保存
+                                // ここではローカルハッシュのみの比較とする
+                                ApplyInitData(cloth, global: false);
                             }
                             else
                             {
-                                info.editMesh = null;
+                                info.editMeshContainer = null;
+                                info.editInitSerializeData = null;
                             }
                         }
                     }
@@ -773,7 +800,7 @@ namespace MagicaCloth2
                 {
                     setup?.Dispose();
                 }
-                editMesh?.Dispose();
+                editMeshContainer?.Dispose();
 
                 //span.DebugLog();
 
@@ -815,6 +842,42 @@ namespace MagicaCloth2
         }
 
         /// <summary>
+        /// 初期化データをシリアライズ化する
+        /// </summary>
+        /// <param name="cloth"></param>
+        /// <param name="global"></param>
+        public static void ApplyInitData(MagicaCloth cloth, bool global)
+        {
+            if (cloth == null)
+                return;
+            int id = cloth.GetInstanceID();
+            if (editClothDict.ContainsKey(id) == false)
+                return;
+
+            var info = editClothDict[id];
+            if (info.editInitSerializeData == null)
+                return;
+
+            // ハッシュ比較
+            var sdata2 = cloth.GetSerializeData2();
+            int oldLocalHash = sdata2.initData?.localHash ?? 0;
+            bool change = oldLocalHash != info.editInitSerializeData.localHash;
+            if (global && change == false)
+            {
+                int oldGlobalHash = sdata2.initData?.globalHash ?? 0;
+                change = oldGlobalHash != info.editInitSerializeData.globalHash;
+            }
+            if (change == false)
+                return; // 変更なし
+
+            // 初期化データ保存
+            // Undoの対象にはしない
+            sdata2.initData = info.editInitSerializeData;
+            EditorUtility.SetDirty(cloth);
+            Develop.DebugLog($"* Apply initData. [{cloth.name}]");
+        }
+
+        /// <summary>
         /// セレクションデータをシリアライズ化する
         /// </summary>
         /// <param name="cloth"></param>
@@ -852,12 +915,15 @@ namespace MagicaCloth2
                 return selectionData;
 
             // BoneClothはRootをFixedに定義する、それ以外はMove
-            if (sdata.clothType == ClothProcess.ClothType.BoneCloth)
+            if (sdata.clothType == ClothProcess.ClothType.BoneCloth || sdata.clothType == ClothProcess.ClothType.BoneSpring)
             {
                 selectionData.Fill(VertexAttribute.Move);
 
                 // BoneClothではセットアップデータのrootのみ固定に設定する
-                using var setup = new RenderSetupData(cloth.ClothTransform, sdata.rootBones, sdata.connectionMode, cloth.name);
+                // BoneSpringではLine接続のみとなる
+                var connectionMode = sdata.clothType == ClothProcess.ClothType.BoneSpring ? RenderSetupData.BoneConnectionMode.Line : sdata.connectionMode;
+                var setupType = sdata.clothType == ClothProcess.ClothType.BoneSpring ? RenderSetupData.SetupType.BoneSpring : RenderSetupData.SetupType.BoneCloth;
+                using var setup = new RenderSetupData(null, setupType, cloth.ClothTransform, sdata.rootBones, null, connectionMode, cloth.name);
                 foreach (int id in setup.rootTransformIdList)
                 {
                     int rootIndex = setup.GetTransformIndexFromId(id);
@@ -894,8 +960,7 @@ namespace MagicaCloth2
                 drawList.Clear();
                 bool isPainting = ClothPainter.IsPainting();
                 bool isPlaying = EditorApplication.isPlaying;
-                var camPos = sceneView.camera.transform.position;
-                Quaternion camRot = sceneView.camera.transform.rotation;
+                sceneView.camera.transform.GetPositionAndRotation(out var camPos, out Quaternion camRot);
 
                 lock (editClothDict)
                 {
@@ -907,33 +972,33 @@ namespace MagicaCloth2
                         if (info.component.isActiveAndEnabled == false)
                             continue;
 
+                        if (info.component.IsGizmoVisible == false)
+                            continue;
+
                         // ペイント中は表示しない
                         if (isPainting)
                             continue;
 
-                        // アクティブ状態
-                        bool active = info.gizmoType.HasFlag(GizmoType.Active);
-
                         // 選択状態
-                        bool selected = Selection.Contains(info.component.gameObject);
+                        bool selected = IsActiveOrSelected(info.gizmoType);
                         float dist = Vector3.Distance(camPos, info.component.transform.position);
 
                         // Collider
                         if (info.component is ColliderComponent)
                         {
-                            if (active == false && info.gizmoType.HasFlag(GizmoType.Selected) == false)
+                            // Colliderは親選択時にも表示する
+                            if (IsSelectionHierarchy(info.gizmoType) == false)
                                 continue;
                             if (selected == false && dist >= 20.0f)
                                 continue;
 
-                            GizmoUtility.DrawCollider(info.component as ColliderComponent, camRot, true, active);
+                            GizmoUtility.DrawCollider(info.component as ColliderComponent, camRot, selected);
                         }
                         // MagicaCloth
                         else if (info.component is MagicaCloth)
                         {
-                            if (active == false)
-                                continue;
-                            if (selected == false && dist >= 20.0f)
+                            // Clothはアクティブもしくはマルチ選択時のみ表示
+                            if (IsActiveOrSelected(info.gizmoType) == false)
                                 continue;
 
                             var cloth = info.component as MagicaCloth;
@@ -941,11 +1006,10 @@ namespace MagicaCloth2
                             // Cloth
                             if (cloth.GizmoSerializeData.clothDebugSettings.enable)
                             {
-                                //Debug.Log($"ペイントくろす");
                                 if (isPlaying)
-                                    ClothEditorUtility.DrawClothRuntime(cloth.Process, cloth.GizmoSerializeData.clothDebugSettings, active);
+                                    ClothEditorUtility.DrawClothRuntime(cloth.Process, cloth.GizmoSerializeData.clothDebugSettings, selected);
                                 else
-                                    ClothEditorUtility.DrawClothEditor(info.editMesh, cloth.GizmoSerializeData.clothDebugSettings, cloth.SerializeData, active, false, false);
+                                    ClothEditorUtility.DrawClothEditor(info.editMeshContainer, cloth.GizmoSerializeData.clothDebugSettings, cloth.SerializeData, selected, false, false);
                             }
 
 #if MC2_DEBUG
@@ -953,9 +1017,9 @@ namespace MagicaCloth2
                             if (cloth.GizmoSerializeData.proxyDebugSettings.enable)
                             {
                                 if (isPlaying)
-                                    VirtualMeshEditorUtility.DrawRuntimeGizmos(cloth.Process, false, cloth.Process.ProxyMesh, cloth.GizmoSerializeData.proxyDebugSettings, active, true);
+                                    VirtualMeshEditorUtility.DrawRuntimeGizmos(cloth.Process, false, cloth.Process.ProxyMeshContainer, cloth.GizmoSerializeData.proxyDebugSettings, selected, true);
                                 else
-                                    VirtualMeshEditorUtility.DrawGizmos(info.editMesh, cloth.GizmoSerializeData.proxyDebugSettings, active, true);
+                                    VirtualMeshEditorUtility.DrawGizmos(info.editMeshContainer, cloth.GizmoSerializeData.proxyDebugSettings, selected, true);
                             }
 
                             // Mapping Mesh
@@ -964,8 +1028,8 @@ namespace MagicaCloth2
                                 if (isPlaying)
                                 {
                                     var renderMeshInfo = cloth.Process.GetRenderMeshInfo(cloth.GizmoSerializeData.debugMappingIndex);
-                                    if (renderMeshInfo != null && renderMeshInfo.renderMesh != null)
-                                        VirtualMeshEditorUtility.DrawRuntimeGizmos(cloth.Process, true, renderMeshInfo.renderMesh, cloth.GizmoSerializeData.mappingDebugSettings, active, true);
+                                    if (renderMeshInfo != null && renderMeshInfo.renderMeshContainer != null)
+                                        VirtualMeshEditorUtility.DrawRuntimeGizmos(cloth.Process, true, renderMeshInfo.renderMeshContainer, cloth.GizmoSerializeData.mappingDebugSettings, selected, true);
                                 }
                             }
 #endif // MC2_DEBUG
@@ -973,14 +1037,74 @@ namespace MagicaCloth2
                         // WindZone
                         else if (info.component is MagicaWindZone)
                         {
-                            GizmoUtility.DrawWindZone(info.component as MagicaWindZone, camRot, active);
+                            GizmoUtility.DrawWindZone(info.component as MagicaWindZone, camRot, selected);
                         }
+                    }
 
-                        // 描画フラグoff
-                        info.gizmoType = 0;
+                    // 描画フラグoff
+                    foreach (var info in editClothDict.Values)
+                    {
+                        if (info != null)
+                        {
+                            info.gizmoType = 0;
+                            if (info.component)
+                                info.component.IsGizmoVisible = false;
+                        }
                     }
                 }
             }
+        }
+
+        //=========================================================================================
+        public static async Task InformationLog(StringBuilder allsb)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendLine($"========== System Info ==========");
+            sb.AppendLine($"Unity Version:{Application.unityVersion}");
+            sb.AppendLine($"MagicaCloth Version:{AboutMenu.MagicaClothVersion}");
+            sb.AppendLine($"PlayMode:{Application.isPlaying}");
+            sb.AppendLine($"CPU Type:{SystemInfo.processorType}");
+            sb.AppendLine($"CPU Freq:{SystemInfo.processorFrequency}");
+            sb.AppendLine($"CPU Core:{SystemInfo.processorCount}");
+            sb.AppendLine($"Device Type:{SystemInfo.deviceType}");
+            sb.AppendLine($"OS:{SystemInfo.operatingSystem}");
+            sb.AppendLine($"OS Family:{SystemInfo.operatingSystemFamily}");
+
+            // インストールパッケージ一覧
+            sb.AppendLine($"<< Install Packages >>");
+            var listRequest = Client.List(true, false);
+            int timeout = 5000; // 5s
+            while (listRequest.IsCompleted == false && timeout > 0)
+            {
+                await Task.Delay(50);
+                timeout -= 50;
+            }
+            if (listRequest.IsCompleted)
+            {
+                if (listRequest.Status == StatusCode.Success)
+                {
+                    foreach (var package in listRequest.Result)
+                    {
+                        //Debug.Log($"{package.name} : {package.version}");
+                        sb.AppendLine($"{package.name} : {package.version}");
+                    }
+                }
+                else
+                {
+                    sb.AppendLine($"Package request error!");
+                    Debug.LogWarning($"Package request error!");
+                }
+            }
+            else
+            {
+                sb.AppendLine($"Package request timeout!");
+                Debug.LogWarning($"Package request timeout!");
+            }
+            sb.AppendLine();
+
+            Debug.Log(sb.ToString());
+            allsb.Append(sb);
         }
     }
 }

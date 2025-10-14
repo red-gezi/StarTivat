@@ -2,9 +2,7 @@
 // Copyright (c) 2023 MagicaSoft.
 // https://magicasoft.jp
 using System;
-using Unity.Burst;
 using Unity.Collections;
-using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -32,7 +30,7 @@ namespace MagicaCloth2
 
             public SerializeData()
             {
-                distanceCompression = 0.9f;
+                distanceCompression = 0.4f;
             }
 
             public void DataValidate()
@@ -51,8 +49,6 @@ namespace MagicaCloth2
 
         public struct TetherConstraintParams
         {
-            //public float stiffness;
-
             /// <summary>
             /// 最大縮小割合(0.0 ~ 1.0)
             /// 0.0=縮小しない
@@ -65,23 +61,20 @@ namespace MagicaCloth2
             /// </summary>
             public float stretchLimit;
 
-            /// <summary>
-            /// stiffnessのフェード範囲(0.0 ~ 1.0)
-            /// </summary>
-            //public float stiffnessWidth;
-
-            /// <summary>
-            /// 速度減衰
-            /// </summary>
-            //public float velocityAttenuation;
-
-            public void Convert(SerializeData sdata)
+            public void Convert(SerializeData sdata, ClothProcess.ClothType clothType)
             {
-                //stiffness = Define.System.TetherStiffness;
-                compressionLimit = sdata.distanceCompression;
+                switch (clothType)
+                {
+                    case ClothProcess.ClothType.BoneCloth:
+                    case ClothProcess.ClothType.MeshCloth:
+                        compressionLimit = sdata.distanceCompression;
+                        break;
+                    case ClothProcess.ClothType.BoneSpring:
+                        // BoneSpringは定数
+                        compressionLimit = Define.System.BoneSpringTetherCompressionLimit;
+                        break;
+                }
                 stretchLimit = Define.System.TetherStretchLimit;
-                //stiffnessWidth = Define.System.TetherStiffnessWidth;
-                //velocityAttenuation = Define.System.TehterVelocityAttenuation;
             }
         }
 
@@ -90,102 +83,41 @@ namespace MagicaCloth2
         }
 
         //=========================================================================================
-        /// <summary>
-        /// 制約の解決
-        /// </summary>
-        /// <param name="clothBase"></param>
-        /// <param name="jobHandle"></param>
-        /// <returns></returns>
-        unsafe internal JobHandle SolverConstraint(JobHandle jobHandle)
-        {
-            var tm = MagicaManager.Team;
-            var sm = MagicaManager.Simulation;
-            var vm = MagicaManager.VMesh;
-
-            var job = new TethreConstraintJob()
-            {
-                stepParticleIndexArray = sm.processingStepParticle.Buffer,
-
-                teamDataArray = tm.teamDataArray.GetNativeArray(),
-                parameterArray = tm.parameterArray.GetNativeArray(),
-                centerDataArray = tm.centerDataArray.GetNativeArray(),
-
-                attributes = vm.attributes.GetNativeArray(),
-                vertexDepths = vm.vertexDepths.GetNativeArray(),
-                vertexRootIndices = vm.vertexRootIndices.GetNativeArray(),
-
-                teamIdArray = sm.teamIdArray.GetNativeArray(),
-                nextPosArray = sm.nextPosArray.GetNativeArray(),
-                velocityPosArray = sm.velocityPosArray.GetNativeArray(),
-                frictionArray = sm.frictionArray.GetNativeArray(),
-
-                stepBasicPositionBuffer = sm.stepBasicPositionBuffer,
-            };
-            jobHandle = job.Schedule(sm.processingStepParticle.GetJobSchedulePtr(), 32, jobHandle);
-
-            return jobHandle;
-        }
-
-        [BurstCompile]
-        struct TethreConstraintJob : IJobParallelForDefer
-        {
-            [Unity.Collections.ReadOnly]
-            public NativeArray<int> stepParticleIndexArray;
-
+        // Solver
+        //=========================================================================================
+        internal static void SolverConstraint(
+            DataChunk chunk,
             // team
-            [Unity.Collections.ReadOnly]
-            public NativeArray<TeamManager.TeamData> teamDataArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<ClothParameters> parameterArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<InertiaConstraint.CenterData> centerDataArray;
-
+            ref TeamManager.TeamData tdata,
+            ref ClothParameters param,
+            ref InertiaConstraint.CenterData cdata,
             // vmesh
-            [Unity.Collections.ReadOnly]
-            public NativeArray<VertexAttribute> attributes;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float> vertexDepths;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<int> vertexRootIndices;
-
+            ref NativeArray<VertexAttribute> attributes,
+            ref NativeArray<float> vertexDepths,
+            ref NativeArray<int> vertexRootIndices,
             // particle
-            [Unity.Collections.ReadOnly]
-            public NativeArray<short> teamIdArray;
-            [NativeDisableParallelForRestriction]
-            public NativeArray<float3> nextPosArray;
-            [NativeDisableParallelForRestriction]
-            public NativeArray<float3> velocityPosArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float> frictionArray;
-
+            ref NativeArray<float3> nextPosArray,
+            ref NativeArray<float3> velocityPosArray,
+            ref NativeArray<float> frictionArray,
             // buffer
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float3> stepBasicPositionBuffer;
-
-            // パーティクルごと
-            public void Execute(int index)
+            ref NativeArray<float3> stepBasicPositionBuffer
+            )
+        {
+            int p_start = tdata.particleChunk.startIndex;
+            //int pindex = p_start;
+            int pindex = p_start + chunk.startIndex;
+            //int vindex = tdata.proxyCommonChunk.startIndex;
+            int vindex = tdata.proxyCommonChunk.startIndex + chunk.startIndex;
+            //for (int k = 0; k < tdata.particleChunk.dataLength; k++, pindex++, vindex++)
+            for (int k = 0; k < chunk.dataLength; k++, pindex++, vindex++)
             {
-                // pindexのチームは有効であることが保証されている
-                int pindex = stepParticleIndexArray[index];
-
-                int teamId = teamIdArray[pindex];
-                var tdata = teamDataArray[teamId];
-                var param = parameterArray[teamId].tetherConstraint;
-                //if (param.stiffness < 1e-06f)
-                //    return;
-
-                int p_start = tdata.particleChunk.startIndex;
-                int l_index = pindex - p_start;
-                int v_start = tdata.proxyCommonChunk.startIndex;
-                int vindex = v_start + l_index;
-
                 var attr = attributes[vindex];
                 if (attr.IsMove() == false)
-                    return;
+                    continue;
 
                 int rootIndex = vertexRootIndices[vindex];
                 if (rootIndex < 0)
-                    return;
+                    continue;
 
                 //Debug.Log($"Tether [{pindex}] root:{rootIndex + p_start}");
 
@@ -203,7 +135,7 @@ namespace MagicaCloth2
 
                 // 距離がほぼ０ならば処理をスキップする（エラーの回避）
                 if (distance < Define.System.Epsilon)
-                    return;
+                    continue;
 
                 // 復元距離
                 // フラグにより初期姿勢かアニメーション後姿勢かを切り替える
@@ -215,7 +147,7 @@ namespace MagicaCloth2
 
                 // 初期位置がまったく同じ状況を考慮
                 if (calcDistance == 0.0f)
-                    return;
+                    continue;
 
                 // 現在の伸縮割合
                 //Develop.Assert(calcDistance > 0.0f);
@@ -225,8 +157,8 @@ namespace MagicaCloth2
                 float dist = 0;
                 float stiffness;
                 float attn;
-                float compressionLimit = 1.0f - param.compressionLimit;
-                float stretchLimit = 1.0f + param.stretchLimit;
+                float compressionLimit = 1.0f - param.tetherConstraint.compressionLimit;
+                float stretchLimit = 1.0f + param.tetherConstraint.stretchLimit;
                 //float widthRatio = math.max(param.stiffnessWidth, 0.001f); // 0.2?
                 //float widthRatio = 0.1f; // 0.2?
                 if (ratio < compressionLimit)
@@ -248,7 +180,7 @@ namespace MagicaCloth2
                     attn = Define.System.TetherStretchVelocityAttenuation;
                 }
                 else
-                    return;
+                    continue;
 
                 // 移動量
                 float3 add = (v / distance) * (dist * stiffness);

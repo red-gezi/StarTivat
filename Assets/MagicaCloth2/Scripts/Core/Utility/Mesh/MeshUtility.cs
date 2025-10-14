@@ -25,8 +25,7 @@ namespace MagicaCloth2
             else
             {
                 // mesh filter
-                var filter = ren.GetComponent<MeshFilter>();
-                if (filter == null)
+                if (!ren.TryGetComponent<MeshFilter>(out var filter))
                 {
                     Debug.LogError("Not found MeshFilter!");
                     return null;
@@ -55,8 +54,7 @@ namespace MagicaCloth2
             else
             {
                 // mesh filter
-                var filter = ren.GetComponent<MeshFilter>();
-                if (filter == null)
+                if (!ren.TryGetComponent<MeshFilter>(out var filter))
                 {
                     Debug.LogError("Not found MeshFilter!");
                     return false;

@@ -45,14 +45,14 @@ namespace Hotfix
         [MenuItem("StarTivat/Tools/打开表格数据实时同步工具", false, 52)]
         static void UpdateXls() => System.Diagnostics.Process.Start(@"OtherSolution\xls检测更新\bin\Debug\net6.0\xls检测更新.exe");
         /////////////////////////////////////////////////////////////////场景///////////////////////////////////////////////////////////////////////////////////////////
-        [MenuItem("StarTivat/Scene/载入初始化场景", priority = 150)]
-        static void LoadInitScene() => System.Diagnostics.Process.Start(@"Assets\Scenes\-1_InitScene.unity");
-        [MenuItem("StarTivat/Scene/载入热更场景", priority = 151)]
-        static void LoadHotFixScene() => System.Diagnostics.Process.Start(@"Assets\Scenes\0_HotfixScene.unity");
-        [MenuItem("StarTivat/Scene/载入登录场景", priority = 152)]
-        static void LoadLoginScene() => System.Diagnostics.Process.Start(@"Assets\Scenes\1_LoginScene.unity");
-        [MenuItem("StarTivat/Scene/载入对战场景", priority = 153)]
-        static void LoaBattleScene() => System.Diagnostics.Process.Start(@"Assets\Scenes\2_BattleScene.unity");
+        [MenuItem("StarTivat/Scene/载入热更场景", priority = 150)]
+        static void LoadInitScene() => System.Diagnostics.Process.Start(@"Assets\GameResource\Scenes\0_Menu.unity");
+        [MenuItem("StarTivat/Scene/载入游戏场景", priority = 151)]
+        static void LoadHotFixScene() => System.Diagnostics.Process.Start(@"Assets\GameResource\Scenes\1_Game.unity");
+        //[MenuItem("StarTivat/Scene/载入登录场景", priority = 152)]
+        //static void LoadLoginScene() => System.Diagnostics.Process.Start(@"Assets\Scenes\1_LoginScene.unity");
+        //[MenuItem("StarTivat/Scene/载入对战场景", priority = 153)]
+        //static void LoaBattleScene() => System.Diagnostics.Process.Start(@"Assets\Scenes\2_BattleScene.unity");
         /////////////////////////////////////////////////////////////////项目配置///////////////////////////////////////////////////////////////////////////////////////////
         [MenuItem("StarTivat/Config/切换当前卡牌使用线上版本（确保debug完要切回来）", priority = 1)]
         static void ChangeToOnlineCardScript()

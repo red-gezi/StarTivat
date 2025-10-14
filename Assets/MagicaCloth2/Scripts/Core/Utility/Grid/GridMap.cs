@@ -17,7 +17,7 @@ namespace MagicaCloth2
     /// GridSize>0である必要あり!
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class GridMap<T> : IDisposable where T : unmanaged, IEquatable<T>
+    public class GridMap<T> : IDisposable where T : unmanaged // , IEquatable<T>
     {
         private NativeParallelMultiHashMap<int3, T> gridMap;
 

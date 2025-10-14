@@ -42,7 +42,14 @@ namespace MagicaCloth2
         /// General processing.
         /// </summary>
         private ClothProcess process = new ClothProcess();
-        public ClothProcess Process { get { process.cloth = this; return process; } }
+        public ClothProcess Process
+        {
+            get
+            {
+                process.cloth = this;
+                return process;
+            }
+        }
 
         /// <summary>
         /// Cloth component transform.
@@ -53,7 +60,14 @@ namespace MagicaCloth2
         /// <summary>
         /// Synchronization target.
         /// </summary>
-        public MagicaCloth SyncCloth => SerializeData.selfCollisionConstraint.GetSyncPartner();
+        public MagicaCloth SyncPartnerCloth
+        {
+            get
+            {
+                var syncCloth = SerializeData.IsBoneSpring() ? null : SerializeData.selfCollisionConstraint.GetSyncPartner();
+                return syncCloth == this ? null : syncCloth;
+            }
+        }
 
         /// <summary>
         /// Check if the cloth component is in a valid state.
@@ -66,35 +80,50 @@ namespace MagicaCloth2
         }
 
         //=========================================================================================
-        private void OnValidate()
+        protected void Reset()
+        {
+#if UNITY_EDITOR
+            // Automatically generate pre-build ID
+            serializeData2.preBuildData.buildId = PreBuildSerializeData.GenerateBuildID();
+#endif
+        }
+
+        protected void OnValidate()
         {
             Process.DataUpdate();
         }
 
-        private void Awake()
+        protected void Awake()
         {
-            Process.Init();
-
-            // If Awake() is called, OnDestroy() will also be called, so remove it from monitoring.
-            MagicaManager.Team.RemoveMonitoringProcess(Process);
+            if (MagicaManager.initializationLocation == MagicaManager.InitializationLocation.Awake)
+            {
+                Process.Init();
+                MagicaManager.Team.RemoveMonitoringProcess(Process);
+            }
         }
 
-        private void OnEnable()
+        protected void OnEnable()
         {
             Process.StartUse();
         }
 
-        private void OnDisable()
+        protected void OnDisable()
         {
             Process.EndUse();
         }
 
-        void Start()
+        protected void Start()
         {
+            if (MagicaManager.initializationLocation == MagicaManager.InitializationLocation.Start)
+            {
+                Process.Init();
+                MagicaManager.Team.RemoveMonitoringProcess(Process);
+            }
+
             Process.AutoBuild();
         }
 
-        private void OnDestroy()
+        protected void OnDestroy()
         {
             Process.Dispose();
         }

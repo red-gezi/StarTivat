@@ -14,7 +14,7 @@ public class RoomConfigData
     public List<int> DoorCount { get; set; } = new();
     public List<int> OccurrenceCount { get; set; } = new();
     public List<int> MonstertCount { get; set; } = new();
-    public List<EnemyType> MonstertType { get; set; } = new();
+    public List<EnemyName> MonstertType { get; set; } = new();
     //public List<EnemyType> MonstertType { get; set; } = new();
     public List<int> ChestCount { get; set; } = new();
     public List<int> SceneObjectCount { get; set; } = new();

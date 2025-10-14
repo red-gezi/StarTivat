@@ -246,6 +246,17 @@ public class TeamManager
             .ToList();
         OutBattleUIManager.Instance.RefreshTeamAppearanceList();
     }
+    //设置下载角色
+    public static void SetDownloadChara(CharaName charaName)
+    {
+        GameManager.gameData.DownloadChara = GameManager.gameData.TeamCharaPool.FirstOrDefault(chara => chara.CharaNameType == charaName);
+        OutBattleUIManager.Instance.RefreshTeamAppearanceList();
+    }
+    public static void RemoveDownloadChara()
+    {
+        GameManager.gameData.DownloadChara = null;
+       OutBattleUIManager.Instance.RefreshTeamAppearanceList();
+    }
     #endregion
 
 

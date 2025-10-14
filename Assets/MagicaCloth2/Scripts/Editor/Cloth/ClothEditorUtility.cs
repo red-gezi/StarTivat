@@ -54,22 +54,24 @@ namespace MagicaCloth2
         /// </summary>
         /// <param name="editMesh"></param>
         /// <param name="drawSettings"></param>
-        public static void DrawClothEditor(VirtualMesh editMesh, ClothDebugSettings drawSettings, ClothSerializeData serializeData, bool selected, bool direction, bool paint)
+        /// <param name="painting">頂点ペイント中はtrue</param>
+        public static void DrawClothEditor(VirtualMeshContainer editMeshContainer, ClothDebugSettings drawSettings, ClothSerializeData serializeData, bool selected, bool direction, bool painting)
         {
-            if (editMesh == null || editMesh.IsSuccess == false)
+            if (editMeshContainer == null || editMeshContainer.shareVirtualMesh == null || editMeshContainer.shareVirtualMesh.IsSuccess == false)
                 return;
 
             if (drawSettings.enable == false || serializeData == null)
                 return;
 
             // シーンカメラ
-            var scam = SceneView.currentDrawingSceneView?.camera;
+            var scam = SceneView.currentDrawingSceneView != null ? SceneView.currentDrawingSceneView.camera : null;
             if (scam == null)
                 return;
             var crot = scam.transform.rotation;
 
             // 座標空間に合わせる
-            var t = editMesh.GetCenterTransform();
+            var editMesh = editMeshContainer.shareVirtualMesh;
+            var t = editMeshContainer.GetCenterTransform();
             if (t == null)
                 return;
 
@@ -116,6 +118,7 @@ namespace MagicaCloth2
                         var p = pointList[i];
 
                         var attr = editMesh.attributes[p.vindex];
+
                         var col = InvalidPointColor;
                         if (attr.IsFixed()) col = FixedPointColor;
                         else if (attr.IsMove()) col = MovePointColor;
@@ -123,10 +126,18 @@ namespace MagicaCloth2
 
                         // radius
                         float depth = editMesh.vertexDepths[p.vindex];
-                        float radius = serializeData.radius.Evaluate(depth);
-                        radius *= worldToLocalScale;
                         var pos = editMesh.localPositions[p.vindex];
-                        GizmoUtility.DrawSphere(pos, drawSettings.CheckRadiusDrawing() ? radius : drawPointSize, true);
+                        if (attr.IsDisableCollision())
+                        {
+                            // コリジョン無効は固定サイズワイヤーフレーム表示
+                            GizmoUtility.DrawSimpleWireSphere(pos, 0.01f, crot, true);
+                        }
+                        else
+                        {
+                            float radius = serializeData.radius.Evaluate(depth);
+                            radius *= worldToLocalScale;
+                            GizmoUtility.DrawSphere(pos, drawSettings.CheckRadiusDrawing() ? radius : drawPointSize, true);
+                        }
                     }
                 }
             }
@@ -379,7 +390,7 @@ namespace MagicaCloth2
 #endif
 
             // inertia center
-            if (paint == false && editMesh.CenterFixedPointCount > 0)
+            if (painting == false && editMesh.CenterFixedPointCount > 0 && drawSettings.inertiaCenter)
             {
                 float3 pos = 0;
                 int ccnt = editMesh.CenterFixedPointCount;
@@ -393,17 +404,20 @@ namespace MagicaCloth2
             }
 
             Handles.matrix = Matrix4x4.identity;
+            crot = scam.transform.rotation;
 
             // custom skinning bone
-            if (paint == false)
+            if (painting == false && serializeData.customSkinningSetting.enable && drawSettings.customSkinningBone)
             {
                 Handles.color = SkininngLine * colorScale;
                 var boneList = serializeData.customSkinningSetting.skinningBones;
+#if MC2_CUSTOM_SKINNING_V1
                 for (int i = 0; i < boneList.Count - 1; i++)
                 {
                     var bone1 = boneList[i];
                     if (bone1 == null)
                         continue;
+
                     for (int j = i + 1; j < boneList.Count; j++)
                     {
                         var bone2 = boneList[j];
@@ -416,6 +430,17 @@ namespace MagicaCloth2
                         }
                     }
                 }
+#else
+                // V2
+                for (int i = 0; i < boneList.Count; i++)
+                {
+                    var bone1 = boneList[i];
+                    if (bone1 == null)
+                        continue;
+
+                    GizmoUtility.DrawWireSphere(bone1.position, quaternion.identity, drawSettings.GetCustomSkinningRadius(), crot, true);
+                }
+#endif
             }
         }
 
@@ -436,12 +461,12 @@ namespace MagicaCloth2
                 return;
 
             // プロキシメッシュ
-            var proxyMesh = cprocess.ProxyMesh;
+            var proxyMesh = cprocess.ProxyMeshContainer?.shareVirtualMesh;
             if (proxyMesh == null || proxyMesh.IsSuccess == false)
                 return;
 
             // シーンカメラ
-            var scam = SceneView.currentDrawingSceneView?.camera;
+            var scam = SceneView.currentDrawingSceneView != null ? SceneView.currentDrawingSceneView.camera : null;
             if (scam == null)
                 return;
             var crot = scam.transform.rotation;
@@ -501,6 +526,11 @@ namespace MagicaCloth2
                         int cvindex = tdata.proxyCommonChunk.startIndex + p.vindex;
 
                         var attr = vm.attributes[cvindex];
+
+                        // 無効属性は表示しない
+                        if (attr.IsInvalid())
+                            continue;
+
                         var col = InvalidPointColor;
                         if (attr.IsFixed()) col = FixedPointColor;
                         else if (attr.IsMove()) col = MovePointColor;
@@ -508,10 +538,18 @@ namespace MagicaCloth2
 
                         // radius
                         float depth = vm.vertexDepths[cvindex];
-                        float radius = cprocess.parameters.radiusCurveData.EvaluateCurve(depth);
-                        radius *= tdata.scaleRatio;
                         var pos = positionArray[pindex];
-                        GizmoUtility.DrawSphere(pos, drawSettings.CheckRadiusDrawing() ? radius : drawPointSize, true);
+                        if (attr.IsDisableCollision())
+                        {
+                            // コリジョン無効は固定サイズワイヤーフレーム表示
+                            GizmoUtility.DrawSimpleWireSphere(pos, 0.01f, crot, true);
+                        }
+                        else
+                        {
+                            float radius = cprocess.parameters.radiusCurveData.MC2EvaluateCurve(depth);
+                            radius *= tdata.scaleRatio;
+                            GizmoUtility.DrawSphere(pos, drawSettings.CheckRadiusDrawing() ? radius : drawPointSize, true);
+                        }
                     }
                 }
             }
@@ -535,8 +573,8 @@ namespace MagicaCloth2
                     int cvindex = tdata.proxyCommonChunk.startIndex + i;
 
                     // attribute
-                    //if (vm.attributes[cvindex].IsInvalid())
-                    //    continue;
+                    if (vm.attributes[cvindex].IsInvalid())
+                        continue;
 
                     var pos = positionArray[pindex];
                     var rot = vm.rotations[cvindex]; // 計算済みの前フレームの最終姿勢
@@ -698,9 +736,11 @@ namespace MagicaCloth2
                     int tindex = tdata.proxyTriangleChunk.startIndex + i;
                     int3 tri = vm.triangles[tindex];
 
-                    //int3 vtri = tri + tdata.proxyCommonChunk.startIndex;
-                    //if (vm.attributes[vtri.x].IsInvalid() || vm.attributes[vtri.y].IsInvalid() || vm.attributes[vtri.z].IsInvalid())
-                    //    continue;
+#if true
+                    int3 vtri = tri + tdata.proxyCommonChunk.startIndex;
+                    if (vm.attributes[vtri.x].IsInvalid() || vm.attributes[vtri.y].IsInvalid() || vm.attributes[vtri.z].IsInvalid())
+                        continue;
+#endif
 
                     segmentBuffer0.Add(tri.x);
                     segmentBuffer0.Add(tri.y);
@@ -718,9 +758,11 @@ namespace MagicaCloth2
                 {
                     int2 line = proxyMesh.lines[i];
 
-                    //int2 vline = line + tdata.proxyCommonChunk.startIndex;
-                    //if (vm.attributes[vline.x].IsInvalid() || vm.attributes[vline.y].IsInvalid())
-                    //    continue;
+#if true
+                    int2 vline = line + tdata.proxyCommonChunk.startIndex;
+                    if (vm.attributes[vline.x].IsInvalid() || vm.attributes[vline.y].IsInvalid())
+                        continue;
+#endif
 
                     segmentBuffer0.Add(line.x);
                     segmentBuffer0.Add(line.y);
@@ -1036,16 +1078,35 @@ namespace MagicaCloth2
                     Handles.Label(cen, i.ToString());
                 }
             }
+            // base line pos
+            if (drawSettings.baseLinePos)
+            {
+                var col = new Color(1.0f, 0.7f, 0.3f);
+                for (int i = 0; i < pcnt; i++)
+                {
+                    if (drawSettings.CheckParticleDrawing(i) == false)
+                        continue;
+
+                    int pindex = tdata.particleChunk.startIndex + i;
+
+                    var pos = sim.stepBasicPositionBuffer[pindex];
+                    GizmoUtility.SetColor(col * colorScale, true);
+                    GizmoUtility.DrawSphere(pos, drawPointSize, true);
+                }
+            }
 #endif
 
             // 空間を戻す
             Handles.matrix = Matrix4x4.identity;
+            crot = scam.transform.rotation;
 
             // 以下はワールド
             // custom skinning bone
+            if (cprocess.cloth.SerializeData.customSkinningSetting.enable && drawSettings.customSkinningBone)
             {
                 Handles.color = SkininngLine * colorScale;
                 var boneList = cprocess.cloth.SerializeData.customSkinningSetting.skinningBones;
+#if MC2_CUSTOM_SKINNING_V1
                 for (int i = 0; i < boneList.Count - 1; i++)
                 {
                     var bone1 = boneList[i];
@@ -1063,10 +1124,22 @@ namespace MagicaCloth2
                         }
                     }
                 }
+#else
+                // V2
+                for (int i = 0; i < boneList.Count; i++)
+                {
+                    var bone1 = boneList[i];
+                    if (bone1 == null)
+                        continue;
+
+                    GizmoUtility.DrawWireSphere(bone1.position, quaternion.identity, drawSettings.GetCustomSkinningRadius(), crot, true);
+                }
+#endif
             }
 
 
             // inertia center
+            if (drawSettings.inertiaCenter)
             {
                 var pos = cdata.nowWorldPosition;
                 var rot = cdata.nowWorldRotation;

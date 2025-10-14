@@ -212,13 +212,7 @@ namespace MagicaCloth2
 
         public void Fill(VertexAttribute attr)
         {
-#if UNITY_2020
-            int cnt = Count;
-            for (int i = 0; i < cnt; i++)
-                attributes[i] = attr;
-#else
             Array.Fill(attributes, attr);
-#endif
         }
 
         //=========================================================================================

@@ -9,11 +9,14 @@ public class BattleManager : MonoBehaviour
 {
     public static BattleManager Instance;
     //登场双方战前配置
-    public List<PlayerName> players;
-    public List<EnemyType> enemies;
+    public List<CharaName> players;
+    public List<EnemyName> enemies;
     //登场双方模型预制体
-    public List<GameObject> playerPrefebs;
-    public List<GameObject> enemyPrefebs;
+    //public List<GameObject> playerPrefebs { get; set; }
+    //public List<GameObject> enemyPrefebs { get; set; }
+    //所有角色的模型数据
+    public Transform charaPrefebs;
+    public Transform enemyPrefebs;
     //登场双方集合
     public List<Character> charaList = new();
     public List<Character> PlayerList => charaList.Where(chara => !chara.IsEnemy).ToList();
@@ -61,15 +64,18 @@ public class BattleManager : MonoBehaviour
         ActionBarManager.RunAction();
     }
 
-    public async void InitChara(List<PlayerName> playerList, List<OutBattleEnemyData> enemyDatas)
+    public async void InitChara(List<CharaName> playerList, List<OutBattleEnemyData> enemyDatas)
     {
         charaList.Clear();
         //根据配置创造场上人物
         for (int i = 0; i < playerList.Count; i++)
         {
             var charaName = playerList[i].ToString();
-            GameObject charaModel = playerPrefebs.FirstOrDefault(prefeb => prefeb.name == playerList[i].ToString());
+            //GameObject charaModel = playerPrefebs.FirstOrDefault(prefeb => prefeb.name == playerList[i].ToString());
+            GameObject charaModel = charaPrefebs.Find(charaName).gameObject;
             GameObject chara = Instantiate(charaModel, charaModel.transform.parent);
+            //角色设为局内模式
+
             chara.name = charaModel.name + $"站位:{i + 1}";
             chara.SetActive(true);
             Character charaScript = chara.GetComponent<Character>();
@@ -81,7 +87,8 @@ public class BattleManager : MonoBehaviour
         for (int i = 0; i < enemyDatas.Count; i++)
         {
             var charaName = enemyDatas[i].CurrentEnemyName.ToString();
-            GameObject charaModel = enemyPrefebs.FirstOrDefault(prefeb => prefeb.name == charaName);
+            //GameObject charaModel = enemyPrefebs.FirstOrDefault(prefeb => prefeb.name == charaName);
+            GameObject charaModel = enemyPrefebs.Find(charaName).gameObject;
             GameObject chara = Instantiate(charaModel, charaModel.transform.parent);
             chara.name = charaModel.name + $"站位:{i + 1}";
             chara.SetActive(true);

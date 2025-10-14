@@ -29,14 +29,15 @@ namespace MagicaCloth2
         /// </summary>
         /// <param name="vmesh"></param>
         /// <param name="debugSettings"></param>
-        public static void DrawGizmos(VirtualMesh vmesh, VirtualMeshDebugSettings debugSettings, bool selected, bool useHandles)
+        public static void DrawGizmos(VirtualMeshContainer cmesh, VirtualMeshDebugSettings debugSettings, bool selected, bool useHandles)
         {
             if (debugSettings.enable == false)
                 return;
-            if (vmesh == null || vmesh.IsSuccess == false || vmesh.VertexCount == 0)
+            if (cmesh == null || cmesh.shareVirtualMesh == null || cmesh.shareVirtualMesh.IsSuccess == false || cmesh.shareVirtualMesh.VertexCount == 0)
                 return;
 
-            var t = vmesh.GetCenterTransform();
+            var vmesh = cmesh.shareVirtualMesh;
+            var t = cmesh.GetCenterTransform();
             if (t == null)
                 return;
 
@@ -45,7 +46,7 @@ namespace MagicaCloth2
                 useHandles,
                 true,
                 selected,
-                vmesh,
+                cmesh,
                 debugSettings,
                 t,
                 0,
@@ -54,7 +55,9 @@ namespace MagicaCloth2
                 dummyRotations,
                 vmesh.localNormals.GetNativeArray(),
                 vmesh.localTangents.GetNativeArray(),
+                0,
                 vmesh.boneWeights.GetNativeArray(),
+                vmesh.skinBoneTransformIndices.GetNativeArray(),
                 vmesh.uv.GetNativeArray()
                );
         }
@@ -66,7 +69,7 @@ namespace MagicaCloth2
         /// <param name="cprocess"></param>
         /// <param name="vmesh"></param>
         /// <param name="debugSettings"></param>
-        public static void DrawRuntimeGizmos(ClothProcess cprocess, bool isMapping, VirtualMesh vmesh, VirtualMeshDebugSettings debugSettings, bool selected, bool useHandles)
+        public static void DrawRuntimeGizmos(ClothProcess cprocess, bool isMapping, VirtualMeshContainer cmesh, VirtualMeshDebugSettings debugSettings, bool selected, bool useHandles)
         {
             if (cprocess == null || cprocess.IsValid() == false)
                 return;
@@ -77,10 +80,10 @@ namespace MagicaCloth2
             if (MagicaManager.Team.ContainsTeamData(cprocess.TeamId) == false)
                 return;
 
-            if (vmesh == null || vmesh.IsSuccess == false)
+            if (cmesh == null || cmesh.shareVirtualMesh == null || cmesh.shareVirtualMesh.IsSuccess == false)
                 return;
 
-            var t = vmesh.GetCenterTransform();
+            var t = cmesh.GetCenterTransform();
             if (t == null)
                 return;
 
@@ -91,10 +94,13 @@ namespace MagicaCloth2
             var vm = MagicaManager.VMesh;
 
             // メッシュタイプにより参照するデータを切り替える
+            var vmesh = cmesh.shareVirtualMesh;
             var attributes = vmesh.IsMapping ? vm.mappingAttributes : vm.attributes;
             var positions = vmesh.IsMapping ? vm.mappingPositions : vm.positions;
             var rotations = vmesh.IsMapping ? null : vm.rotations;
+            int boneWeightOffset = vmesh.IsMapping ? 0 : tdata.proxySkinBoneChunk.startIndex + tdata.proxyTransformChunk.startIndex;
             var boneWeights = vmesh.IsMapping ? vm.mappingBoneWeights : vm.boneWeights;
+            var skinBoneTransformIndices = vmesh.IsMapping ? vm.skinBoneTransformIndices : vm.skinBoneTransformIndices;
             var uvs = vmesh.IsMapping ? null : vmesh.uv;
             int vstart = vmesh.IsMapping ? tm.mappingDataArray[vmesh.mappingId].mappingCommonChunk.startIndex : tdata.proxyCommonChunk.startIndex;
 
@@ -105,7 +111,7 @@ namespace MagicaCloth2
                 useHandles,
                 isMapping ? true : false,
                 selected,
-                vmesh,
+                cmesh,
                 debugSettings,
                 t,
                 vstart,
@@ -114,7 +120,9 @@ namespace MagicaCloth2
                 rotations != null ? rotations.GetNativeArray() : dummyRotations,
                 vmesh.localNormals.GetNativeArray(),
                 vmesh.localTangents.GetNativeArray(),
+                boneWeightOffset,
                 boneWeights.GetNativeArray(),
+                skinBoneTransformIndices.GetNativeArray(),
                 uvs != null ? uvs.GetNativeArray() : dummyUvs
                 );
         }
@@ -123,7 +131,7 @@ namespace MagicaCloth2
             bool useHandles,
             bool isLocal,
             bool selected,
-            VirtualMesh vmesh,
+            VirtualMeshContainer cmesh,
             VirtualMeshDebugSettings debugSettings,
             Transform center,
             int vstart,
@@ -132,7 +140,9 @@ namespace MagicaCloth2
             NativeArray<quaternion> rotations,
             NativeArray<float3> normals,
             NativeArray<float3> tangents,
+            int boneWeightOffset,
             NativeArray<VirtualMeshBoneWeight> boneWeights,
+            NativeArray<int> skinBoneTransformIndices,
             NativeArray<float2> uvs
             )
         {
@@ -154,7 +164,8 @@ namespace MagicaCloth2
             if (scam == null)
                 return;
             quaternion camRot = scam.transform.rotation;
-            quaternion invCamRot = math.inverse(camRot);
+            //quaternion invCamRot = math.inverse(camRot);
+            var vmesh = cmesh.shareVirtualMesh;
             int vcnt = vmesh.VertexCount;
 
             // 表示スケール調整
@@ -241,6 +252,11 @@ namespace MagicaCloth2
                         continue;
                     var pos = positions[vstart + i];
                     var bw = boneWeights[vstart + i];
+                    bw.boneIndices += boneWeightOffset; // グローバルインデックスに変換
+                    bw.boneIndices.x = skinBoneTransformIndices[bw.boneIndices.x];
+                    bw.boneIndices.y = skinBoneTransformIndices[bw.boneIndices.y];
+                    bw.boneIndices.z = skinBoneTransformIndices[bw.boneIndices.z];
+                    bw.boneIndices.w = skinBoneTransformIndices[bw.boneIndices.w];
                     Handles.Label(pos, $"[{bw.boneIndices.x},{bw.boneIndices.y},{bw.boneIndices.z},{bw.boneIndices.w}] w({bw.weights.x:0.###}, {bw.weights.y:0.###}, {bw.weights.z:0.###}, {bw.weights.w:0.###})");
                 }
             }
@@ -503,10 +519,12 @@ namespace MagicaCloth2
             // bone name
             if (debugSettings.boneName)
             {
-                int cnt = vmesh.transformData.Count;
+                //int cnt = vmesh.transformData.Count;
+                int cnt = cmesh.GetTransformCount();
                 for (int i = 0; i < cnt; i++)
                 {
-                    var t = vmesh.transformData.GetTransformFromIndex(i);
+                    //var t = vmesh.transformData.GetTransformFromIndex(i);
+                    var t = cmesh.GetTransformFromIndex(i);
                     if (t)
                     {
                         var pos = t.position;

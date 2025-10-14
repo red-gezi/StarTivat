@@ -86,6 +86,12 @@ namespace MagicaCloth2
             }
         }
 
+        public void CopyFrom(in TeamWindData wdata)
+        {
+            windZoneList = wdata.windZoneList;
+            movingWind = wdata.movingWind;
+        }
+
         //public void DebugLog(int teamId)
         //{
         //    Debug.Log($"TeamWindData:{teamId}, zoneCnt:{ZoneCount}");

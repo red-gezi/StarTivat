@@ -17,6 +17,8 @@ public class GameData
     public List<TeamCharaData> TeamAppearanceList { get; set; } = new();
     //当前登场的人物索引
     public int TeamAppearanceIndex { get; set; } = new();
+    //固定的下载对象
+    public TeamCharaData DownloadChara { get; set; }
     #endregion
 
     public GameConfigData CurrentGameConfigData { get; set; }

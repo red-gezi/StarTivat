@@ -29,8 +29,14 @@ namespace MagicaCloth2
         /// Event after completion of cloth data construction.
         /// (true = Success, false = Failure)
         /// </summary>
-        public Action<bool> OnBuildComplete;
+        public Action<MagicaCloth, bool> OnBuildComplete;
 
+        /// <summary>
+        /// レンダラーメッシュ変更後イベント
+        /// Renderer mesh change event.
+        /// (true = Change to custom mesh, false = Change to original mesh)
+        /// </summary>
+        public Action<MagicaCloth, Renderer, bool> OnRendererMeshChange;
 
         /// <summary>
         /// 初期化を実行します
@@ -67,38 +73,74 @@ namespace MagicaCloth2
         /// <returns>true=start build. false=build failed.</returns>
         public bool BuildAndRun()
         {
-            if (Application.isPlaying == false)
-                return false;
+            bool ret = false;
+            bool buildComplate = true;
 
-            DisableAutoBuild();
-
-            if (Process.IsState(ClothProcess.State_Build))
+            try
             {
-                Develop.LogError($"Already built.:{this.name}");
-                return false;
-            }
+                if (Application.isPlaying == false)
+                    throw new MagicaClothProcessingException();
 
-            // initialize generated data.
-            if (Process.GenerateInitialization() == false)
-                return false;
+                DisableAutoBuild();
 
-            // setting by type.
-            if (serializeData.clothType == ClothProcess.ClothType.BoneCloth)
-            {
-                // BoneCloth用のセレクションデータの作成
-                // ただしセレクションデータが存在し、かつユーザー定義されている場合は作成しない
-                var nowSelection = serializeData2.selectionData;
-                if (nowSelection == null || nowSelection.IsValid() == false || nowSelection.IsUserEdit() == false)
+                if (Process.IsState(ClothProcess.State_Build))
                 {
-                    if (Process.GenerateBoneClothSelection() == false)
-                        return false;
+                    Develop.LogError($"Already built.:{this.name}");
+                    throw new MagicaClothProcessingException();
+                }
+
+                // initialize generated data.
+                if (Process.GenerateInitialization() == false)
+                    throw new MagicaClothProcessingException();
+
+                // check Pre-Build
+                bool usePreBuildData = serializeData2.preBuildData.UsePreBuild();
+
+                if (usePreBuildData == false)
+                {
+                    // Runtime Build.
+                    // setting by type.
+                    switch (serializeData.clothType)
+                    {
+                        case ClothProcess.ClothType.BoneCloth:
+                        case ClothProcess.ClothType.BoneSpring:
+                            // BoneCloth用のセレクションデータの作成
+                            // ただしセレクションデータが存在し、かつユーザー定義されている場合は作成しない
+                            var nowSelection = serializeData2.selectionData;
+                            if (nowSelection == null || nowSelection.IsValid() == false || nowSelection.IsUserEdit() == false)
+                            {
+                                if (Process.GenerateBoneClothSelection() == false)
+                                    throw new MagicaClothProcessingException();
+                            }
+                            break;
+                    }
+
+                    // build and run.
+                    ret = Process.StartRuntimeBuild();
+                    if (ret)
+                        buildComplate = false; // OnBuildCompleteはランタイム構築後に呼ばれる
+                }
+                else
+                {
+                    // pre-build
+                    ret = Process.PreBuildDataConstruction();
                 }
             }
+            catch (MagicaClothProcessingException)
+            {
+            }
+            catch (Exception exception)
+            {
+                Debug.LogException(exception);
+            }
+            finally
+            {
+                // ビルド完了イベント
+                if (buildComplate)
+                    OnBuildComplete?.Invoke(this, ret);
+            }
 
-            // build and run.
-            Process.StartBuild();
-
-            return true;
+            return ret;
         }
 
         /// <summary>
@@ -120,7 +162,7 @@ namespace MagicaCloth2
             var replaceDict = new Dictionary<int, Transform>();
             foreach (var t in useTransformSet)
             {
-                if (targetTransformDict.ContainsKey(t.name))
+                if (t && targetTransformDict.ContainsKey(t.name))
                 {
                     replaceDict.Add(t.GetInstanceID(), targetTransformDict[t.name]);
                 }
@@ -128,6 +170,18 @@ namespace MagicaCloth2
 
             // 置換する
             Process.ReplaceTransform(replaceDict);
+        }
+
+        /// <summary>
+        /// コンポーネントが保持するすべてのトランスフォームを取得します。
+        /// Gets all the transforms held by the component.
+        /// </summary>
+        /// <returns></returns>
+        public HashSet<Transform> GetUsedTransform()
+        {
+            var useTransformSet = new HashSet<Transform>();
+            Process.GetUsedTransform(useTransformSet);
+            return useTransformSet;
         }
 
 
@@ -194,8 +248,8 @@ namespace MagicaCloth2
                     // Reset
                     tdata.flag.SetBits(TeamManager.Flag_Reset, true);
                     tdata.flag.SetBits(TeamManager.Flag_TimeReset, true);
-                    tdata.flag.SetBits(TeamManager.Flag_CullingKeep, false);
-                    Process.SetState(ClothProcess.State_CullingKeep, false);
+                    tdata.flag.SetBits(TeamManager.Flag_CameraCullingKeep, false);
+                    Process.SetState(ClothProcess.State_CameraCullingKeep, false);
                     Process.UpdateRendererUse();
                 }
             }
@@ -232,6 +286,68 @@ namespace MagicaCloth2
                 tdata.forceMode = fmode;
                 tdata.impactForce = forceDirection.normalized * forceVelocity;
             }
+        }
+
+        /// <summary>
+        /// TransformおよびMeshへの書き込みを禁止または許可します
+        /// この機能を使うことでストップモーションを実装することが可能です
+        /// Prevent or allow writing to Transform and Mesh.
+        /// By using this function, it is possible to implement stop motion.
+        /// </summary>
+        /// <param name="sw">true=write disabled, false=write enabled</param>
+        public void SetSkipWriting(bool sw)
+        {
+            if (IsValid())
+            {
+                Process.SetSkipWriting(sw);
+            }
+        }
+
+        private RenderData GetRenderData(Renderer ren)
+        {
+            if (IsValid() == false || ren == null)
+                return null;
+            int handle = ren.GetInstanceID();
+            return MagicaManager.Render.GetRendererData(handle);
+        }
+
+        /// <summary>
+        /// MeshClothのオリジナルメッシュを取得します
+        /// Get the original mesh of MeshCloth.
+        /// </summary>
+        /// <param name="ren"></param>
+        /// <returns>null if not found</returns>
+        public Mesh GetOriginalMesh(Renderer ren)
+        {
+            var rdata = GetRenderData(ren);
+            return rdata != null ? rdata.originalMesh : null;
+        }
+
+        /// <summary>
+        /// MeshClothのカスタムメッシュを取得します
+        /// Get the custom mesh for MeshCloth.
+        /// </summary>
+        /// <param name="ren"></param>
+        /// <returns>null if not found</returns>
+        public Mesh GetCustomMesh(Renderer ren)
+        {
+            var rdata = GetRenderData(ren);
+            return rdata != null ? rdata.customMesh : null;
+        }
+
+        /// <summary>
+        /// MeshClothのSkinnedMeshRendererに設定されているカスタムボーンリストを取得します
+        /// カスタムボーンリストはオリジナルのBonesからスキニングに不要なTransformをnullに設定し、
+        /// また最後にレンダラーのTransformが追加されるなど加工されているので注意してください。
+        /// Gets the custom bone list set for the SkinnedMeshRenderer of MeshCloth.
+        /// Please note that the custom bone list has been processed by setting Transforms 
+        /// that are not necessary for skinning to null from the original Bones, and adding the renderer Transform at the end.
+        /// </summary>
+        /// <param name="ren"></param>
+        /// <returns>null if not found</returns>
+        public List<Transform> GetCustomBones(Renderer ren)
+        {
+            return GetRenderData(ren)?.transformList ?? null;
         }
     }
 }

@@ -22,7 +22,7 @@ public class CharaInfoBoardManager : MonoBehaviour
     public Text debuffCount;
     private void Awake()
     {
-        CloseCharaInfoBoard();
+        //CloseCharaInfoBoard();
     }
     public void OpenCharaInfoBoard()
     {

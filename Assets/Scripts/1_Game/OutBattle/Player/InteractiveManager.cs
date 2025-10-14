@@ -5,6 +5,7 @@ public class InteractiveManager : MonoBehaviour
 {
     public bool CanTrigger { get; set; } = true;
     public UnityEvent Event;
+    public string InteractiveTag;
     public void Interactive()
     {
         Debug.Log("触发事件!" + gameObject.name);

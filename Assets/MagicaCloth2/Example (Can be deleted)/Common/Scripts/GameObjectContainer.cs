@@ -14,7 +14,7 @@ namespace MagicaCloth2
 
         private Dictionary<string, GameObject> gameObjectDict = new Dictionary<string, GameObject>();
 
-        private void Awake()
+        protected void Awake()
         {
             // create dictionary.
             foreach (var obj in gameObjectList)

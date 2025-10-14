@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// Magica Cloth 2.
+// Copyright (c) 2025 MagicaSoft.
+// https://magicasoft.jp
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace MagicaCloth2
@@ -83,8 +86,57 @@ namespace MagicaCloth2
         /// </summary>
         public List<Renderer> cameraCullingRenderers = new List<Renderer>();
 
+        /// <summary>
+        /// 距離カリングの状態と距離
+        /// Distance Culling State and Distance.
+        /// [OK] Runtime changes.
+        /// [NG] Export/Import with Presets
+        /// </summary>
+        public CheckSliderSerializeData distanceCullingLength;
+
+        /// <summary>
+        /// 距離カリングのフェード割合(0.0 ~ 1.0)
+        /// Distance culling fade rate (0.0 to 1.0).
+        /// [OK] Runtime changes.
+        /// [NG] Export/Import with Presets
+        /// </summary>
+        [Range(0.0f, 1.0f)]
+        public float distanceCullingFadeRatio;
+
+        /// <summary>
+        /// 距離カリングの測定対象(None=メインカメラ)
+        /// Distance culling measurement target (None = main camera).
+        /// [OK] Runtime changes.
+        /// [NG] Export/Import with Presets
+        /// </summary>
+        public GameObject distanceCullingReferenceObject;
+
+        //=========================================================================================
+        public struct CullingParams
+        {
+            public bool useDistanceCulling;
+            public float distanceCullingLength;
+            public float distanceCullingFadeRatio;
+
+            public void Convert(CullingSettings cullingSettings)
+            {
+                useDistanceCulling = cullingSettings.distanceCullingLength.use;
+                distanceCullingLength = cullingSettings.distanceCullingLength.value;
+                distanceCullingFadeRatio = cullingSettings.distanceCullingFadeRatio;
+            }
+        }
+
+        //=========================================================================================
+        public CullingSettings()
+        {
+            distanceCullingLength = new CheckSliderSerializeData(false, 30.0f);
+            distanceCullingFadeRatio = 0.2f;
+        }
+
         public void DataValidate()
         {
+            distanceCullingLength.DataValidate(0.0f, Define.System.DistanceCullingMaxLength);
+            distanceCullingFadeRatio = Mathf.Clamp01(distanceCullingFadeRatio);
         }
 
         public CullingSettings Clone()
@@ -94,6 +146,9 @@ namespace MagicaCloth2
                 cameraCullingMode = cameraCullingMode,
                 cameraCullingMethod = cameraCullingMethod,
                 cameraCullingRenderers = new List<Renderer>(cameraCullingRenderers),
+                distanceCullingLength = distanceCullingLength.Clone(),
+                distanceCullingFadeRatio = distanceCullingFadeRatio,
+                distanceCullingReferenceObject = distanceCullingReferenceObject,
             };
         }
 

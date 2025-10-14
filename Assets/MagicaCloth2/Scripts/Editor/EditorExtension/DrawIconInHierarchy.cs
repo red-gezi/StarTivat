@@ -22,7 +22,11 @@ namespace MagicaCloth2
         static void DrawIcon(int instanceId, Rect rect)
         {
             rect.width = iconSize;
+#if UNITY_6000_3_OR_NEWER
+            GameObject obj = UnityEditor.EditorUtility.EntityIdToObject(instanceId) as GameObject;
+#else
             GameObject obj = UnityEditor.EditorUtility.InstanceIDToObject(instanceId) as GameObject;
+#endif
             if (obj == null)
                 return;
             rect.x += EditorStyles.label.CalcSize(obj.name).x;

@@ -9,17 +9,11 @@ namespace MagicaCloth2
     {
         public int frameRate = 60;
 
-        void Start()
-        {
 #if !UNITY_EDITOR
-            Application.targetFrameRate = frameRate;
-#endif
-        }
-
-        // Update is called once per frame
-        void Update()
+        protected void Start()
         {
-
+            Application.targetFrameRate = frameRate;
         }
+#endif
     }
 }

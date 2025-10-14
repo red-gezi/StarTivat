@@ -1,3 +1,4 @@
+using MagicaCloth2;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,13 +40,16 @@ public class PlayerManager : MonoBehaviour
     public GameObject bullet;
     //所有角色的模型数据
     public GameObject CharaList;
-    public Character currentChara => transform.GetChild(0).GetComponent<Character>();
+    public Character currentChara => transform.GetChild(0)?.GetComponent<Character>();
     public CameraMode CurrentCameraMode { get; set; }
     public AttackMode CurrentAttackMode { get; set; }
     private void Awake() => Instance = this;
-    void Start() => animator = transform.GetChild(0).GetComponent<Animator>();
     void FixedUpdate()
     {
+        if (currentChara == null|| animator==null)
+        {
+            return;
+        }
         if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
         {
             animator.SetBool("IsRun", false);
@@ -127,8 +131,20 @@ public class PlayerManager : MonoBehaviour
             await Task.Delay(1000);
             await ScreenWarpManager.CloseScreen();
         }
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            GameManager.Instance.SwitchBattleMode(new OutBattleEnemy()
+            {
+                enemyDatas = new List<OutBattleEnemyData>()
+                {
+                    new OutBattleEnemyData(){CurrentEnemyName= EnemyName.Qiuqiu,},
+                    new OutBattleEnemyData(){CurrentEnemyName= EnemyName.Qiuqiu,},
+                    new OutBattleEnemyData(){CurrentEnemyName= EnemyName.Qiuqiu,},
+                }
+            });
+        }
     }
-    public async void OnMouseCliceCanve()
+    public async void OnMouseClickCanve()
     {
         if (!isBusy)
         {
@@ -168,7 +184,7 @@ public class PlayerManager : MonoBehaviour
     private async void Update()
     {
 
-        
+
         //if (Input.GetMouseButtonDown(1))
         //{
         //    //加速
@@ -191,12 +207,12 @@ public class PlayerManager : MonoBehaviour
     public void SwitchChara(CharaName charaName)
     {
         // 查找子物体（直接子物体，不递归）
-        if (currentChara.name == charaName.ToString())
+        if (currentChara != null && currentChara.name == charaName.ToString())
         {
             Debug.LogWarning("同人物无法切换");
             return;
         }
-        currentChara.gameObject.SetActive(false);
+        currentChara?.gameObject.SetActive(false);
         Transform targetChara = transform.Find(charaName.ToString());
         if (targetChara == null)
         {
@@ -212,6 +228,8 @@ public class PlayerManager : MonoBehaviour
             targetChara.SetAsFirstSibling();
             targetChara.gameObject.SetActive(true);
             Debug.Log($"已将 {charaName} 移动到首位");
+            //重定位控制目标
+            animator = transform.GetChild(0).GetChild(0).GetComponent<Animator>();
             //播放个特效
         }
         else

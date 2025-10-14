@@ -9,7 +9,7 @@ MagicaCloth2 is a general-purpose cloth simulation that can be used in Unity.
 
 
 ### Support Unity versions
-Unity2021.3.16 or higher
+Unity2021.3.20 or higher
 
 
 ### Required Unity package

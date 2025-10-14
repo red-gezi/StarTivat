@@ -1,0 +1,174 @@
+{
+  "trackName": "Nahida",
+  "trackType": 0,
+  "points": [
+    {
+      "pos": {
+        "x": 1.40830874,
+        "y": 2.0075984,
+        "z": -1.15818417,
+        "normalized": {
+          "x": 0.5192797,
+          "y": 0.74025327,
+          "z": -0.427052349,
+          "magnitude": 1.0,
+          "sqrMagnitude": 1.0
+        },
+        "magnitude": 2.71204257,
+        "sqrMagnitude": 7.3551755
+      },
+      "quat": {
+        "x": 0.130150244,
+        "y": -0.203884587,
+        "z": 0.0273977555,
+        "w": 0.9699183,
+        "eulerAngles": {
+          "x": 15.2862825,
+          "y": 336.2582,
+          "z": 0.004509079,
+          "normalized": {
+            "x": 0.04541305,
+            "y": 0.998968244,
+            "z": 1.33957374E-05,
+            "normalized": {
+              "x": 0.0454130545,
+              "y": 0.9989683,
+              "z": 1.33957383E-05,
+              "magnitude": 1.0,
+              "sqrMagnitude": 1.0
+            },
+            "magnitude": 0.99999994,
+            "sqrMagnitude": 0.9999999
+          },
+          "magnitude": 336.6055,
+          "sqrMagnitude": 113303.25
+        }
+      },
+      "trackType": 0,
+      "duration": 0.0,
+      "curve": {
+        "keys": [
+          {
+            "time": 0.0,
+            "value": 0.0,
+            "inTangent": 2.0,
+            "outTangent": 2.0,
+            "inWeight": 0.0,
+            "outWeight": 0.0,
+            "weightedMode": 0,
+            "tangentMode": 0
+          },
+          {
+            "time": 0.84854,
+            "value": 0.242638052,
+            "inTangent": 0.7757411,
+            "outTangent": 0.7757411,
+            "inWeight": 0.333333343,
+            "outWeight": 0.333333343,
+            "weightedMode": 0,
+            "tangentMode": 0
+          },
+          {
+            "time": 1.0,
+            "value": 1.0,
+            "inTangent": 0.0,
+            "outTangent": 0.0,
+            "inWeight": 0.0,
+            "outWeight": 0.0,
+            "weightedMode": 0,
+            "tangentMode": 0
+          }
+        ],
+        "length": 3,
+        "preWrapMode": 8,
+        "postWrapMode": 8
+      }
+    },
+    {
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "magnitude": 0.0,
+        "sqrMagnitude": 0.0
+      },
+      "quat": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0,
+        "eulerAngles": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "magnitude": 0.0,
+          "sqrMagnitude": 0.0
+        },
+        "normalized": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0,
+          "eulerAngles": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "magnitude": 0.0,
+            "sqrMagnitude": 0.0
+          }
+        }
+      },
+      "trackType": 0,
+      "duration": 0.0,
+      "curve": {
+        "keys": [],
+        "length": 0,
+        "preWrapMode": 8,
+        "postWrapMode": 8
+      }
+    },
+    {
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "magnitude": 0.0,
+        "sqrMagnitude": 0.0
+      },
+      "quat": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0,
+        "eulerAngles": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "magnitude": 0.0,
+          "sqrMagnitude": 0.0
+        },
+        "normalized": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0,
+          "eulerAngles": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "magnitude": 0.0,
+            "sqrMagnitude": 0.0
+          }
+        }
+      },
+      "trackType": 0,
+      "duration": 0.0,
+      "curve": {
+        "keys": [],
+        "length": 0,
+        "preWrapMode": 8,
+        "postWrapMode": 8
+      }
+    }
+  ]
+}

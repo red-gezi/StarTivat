@@ -1,6 +1,7 @@
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 
 public class CheckManager : MonoBehaviour
@@ -31,6 +32,7 @@ public class CheckManager : MonoBehaviour
         {
             interactives.Add(target);
             InteractiveUi.SetActive(true);
+            InteractiveUi.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = target.InteractiveTag == "" ? "½»»¥" : target.InteractiveTag;
             Debug.Log(other.gameObject.name);
         }
     }

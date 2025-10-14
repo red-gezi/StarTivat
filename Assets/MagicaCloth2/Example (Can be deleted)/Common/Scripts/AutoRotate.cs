@@ -9,6 +9,13 @@ namespace MagicaCloth2
     {
         public Vector3 eulers = new Vector3(0, 90, 0);
         public Space space = Space.World;
+        public enum UpdateMode
+        {
+            Update,
+            FixedUpdate,
+        }
+        [SerializeField]
+        private UpdateMode updateMode = UpdateMode.Update;
 
         [SerializeField]
         [Range(0.1f, 5.0f)]
@@ -19,11 +26,23 @@ namespace MagicaCloth2
 
         private float time = 0;
 
-        void Update()
+        protected void FixedUpdate()
+        {
+            if (updateMode == UpdateMode.FixedUpdate)
+                UpdatePosition(Time.fixedDeltaTime);
+        }
+
+        protected void Update()
+        {
+            if (updateMode == UpdateMode.Update)
+                UpdatePosition(Time.deltaTime);
+        }
+
+        void UpdatePosition(float dtime)
         {
             if (useSin)
             {
-                time += Time.deltaTime;
+                time += dtime;
                 float ang = (time % interval) / interval * Mathf.PI * 2.0f;
                 var t = Mathf.Sin(ang);
                 if (space == Space.World)
@@ -33,7 +52,7 @@ namespace MagicaCloth2
             }
             else
             {
-                transform.Rotate(eulers * Time.deltaTime, space);
+                transform.Rotate(eulers * dtime, space);
             }
         }
     }

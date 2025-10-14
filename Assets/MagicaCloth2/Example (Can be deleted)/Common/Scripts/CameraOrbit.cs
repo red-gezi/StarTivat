@@ -79,7 +79,7 @@ namespace MagicaCloth2
         private float cameraYawVelocity;
         private float offsetYaw;
 
-        void Start()
+        protected void Start()
         {
             if (cameraTransform == null)
             {
@@ -95,7 +95,7 @@ namespace MagicaCloth2
             setCameraYaw = cameraYaw;
         }
 
-        void OnEnable()
+        protected void OnEnable()
         {
             // 入力イベント登録
             SimpleInputManager.OnTouchMove += OnTouchMove;
@@ -103,7 +103,7 @@ namespace MagicaCloth2
             SimpleInputManager.OnTouchPinch += OnTouchPinch;
         }
 
-        void OnDisable()
+        protected void OnDisable()
         {
             // 入力イベント解除
             SimpleInputManager.OnTouchMove -= OnTouchMove;
@@ -111,7 +111,7 @@ namespace MagicaCloth2
             SimpleInputManager.OnTouchPinch -= OnTouchPinch;
         }
 
-        void LateUpdate()
+        protected void LateUpdate()
         {
             // カメラ更新
             updateCamera();
@@ -124,10 +124,7 @@ namespace MagicaCloth2
                 return;
 
             // カメラターゲットポジション
-            if (cameraTarget)
-            {
-                cameraTargetPos = cameraTarget.position;
-            }
+            cameraTargetPos = cameraTarget ? cameraTarget.position : transform.position;
 
             // 補間
             cameraDist = Mathf.SmoothDamp(cameraDist, setCameraDist, ref cameraDistVelocity, cameraDistHokanTime);
@@ -147,13 +144,13 @@ namespace MagicaCloth2
             Vector3 pos = q * v;
 
             // ターゲットポジション
-            Vector3 tarpos = cameraTargetPos + cameraTargetOffset;
+            Vector3 tarpos = cameraTargetPos + transform.TransformVector(cameraTargetOffset);
             Vector3 fixpos = tarpos + pos;
-            cameraTransform.localPosition = fixpos;
+            cameraTransform.position = fixpos;
 
             // 回転確定
             Vector3 relativePos = tarpos - cameraTransform.position;
-            Quaternion rot = Quaternion.LookRotation(relativePos);
+            Quaternion rot = Quaternion.LookRotation(relativePos, transform.up);
             cameraTransform.rotation = rot;
         }
 
@@ -182,8 +179,8 @@ namespace MagicaCloth2
             }
             else if (moveMode == MoveMode.Free)
             {
-                Vector3 offset = cameraTransform.up * -speed.y * moveSpeed;
-                offset += cameraTransform.right * -speed.x * moveSpeed;
+                Vector3 offset = moveSpeed * -speed.y * transform.InverseTransformDirection(cameraTransform.up);
+                offset += moveSpeed * -speed.x * transform.InverseTransformDirection(cameraTransform.right);
 
                 cameraTargetOffset += offset;
             }
@@ -207,7 +204,7 @@ namespace MagicaCloth2
         /// <param name="screenVelocity"></param>
         private void OnTouchMove(int fid, Vector2 screenPos, Vector2 screenVelocity, Vector2 cmVelocity)
         {
-            screenVelocity *= Time.deltaTime * 60.0f;
+            screenVelocity *= SpeedAdjustment();
 
             if (fid == 2)
             {
@@ -225,6 +222,8 @@ namespace MagicaCloth2
 
         private void OnDoubleTouchMove(int fid, Vector2 screenPos, Vector2 screenVelocity, Vector2 cmVelocity)
         {
+            screenVelocity *= SpeedAdjustment();
+
             if (SimpleInputManager.Instance.GetTouchCount() >= 3)
                 updateOffset(screenVelocity);
         }
@@ -236,9 +235,15 @@ namespace MagicaCloth2
         /// <param name="speedcm"></param>
         private void OnTouchPinch(float speedscr, float speedcm)
         {
-            //if (Mathf.Abs(speedcm) > 1.0f)
+            speedcm *= SpeedAdjustment();
+
             if (SimpleInputManager.Instance.GetTouchCount() < 3)
                 updateZoom(speedcm);
+        }
+
+        private float SpeedAdjustment()
+        {
+            return Time.deltaTime * 60.0f;
         }
     }
 }

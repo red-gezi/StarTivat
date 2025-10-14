@@ -34,9 +34,8 @@ namespace MagicaCloth2
         public bool animatedPosition = false;
         public DebugAxis animatedAxis = DebugAxis.None;
         public bool animatedShape = false;
-        //public bool basicPosition = false;
-        //public DebugAxis basicAxis = DebugAxis.None;
-        //public bool basicShape = false;
+        public bool inertiaCenter = true;
+        public bool customSkinningBone = true;
 
         //=====================================================================
         // ■デバッグ用
@@ -59,6 +58,7 @@ namespace MagicaCloth2
         //public bool horizontalDistanceConstraint = false;
         public bool collisionNormal = false;
         public bool cellCube = false;
+        public bool baseLinePos = false;
         public int vertexMinIndex = 0;
         public int vertexMaxIndex = 100000;
         public int triangleMinIndex = 0;
@@ -102,15 +102,11 @@ namespace MagicaCloth2
 #endif
         }
 
-        public float GetLineSize()
-        {
-            return 0.03f; // 固定
-        }
+        public float GetLineSize() => 0.05f; // 固定
 
-        public float GetInertiaCenterRadius()
-        {
-            return 0.01f; // 固定
-        }
+        public float GetInertiaCenterRadius() => 0.01f; // 固定
+
+        public float GetCustomSkinningRadius() => 0.02f; // 固定
 
         public bool IsReferOldPos()
         {

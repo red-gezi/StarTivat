@@ -1,14 +1,9 @@
 ﻿using System;
+using UnityEngine;
 
-internal class BattleUIManager
+internal class BattleUIManager : InstanceBehaviour<BattleUIManager>
 {
-    internal static void CloeUI()
-    {
-        throw new NotImplementedException();
-    }
-
-    internal static void ShowUI()
-    {
-        throw new NotImplementedException();
-    }
+    public GameObject UI;
+    internal static void ShowUI() => Instance.UI.SetActive(true);
+    internal static void CloeUI() => Instance.UI.SetActive(false);
 }

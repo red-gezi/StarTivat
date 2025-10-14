@@ -9,24 +9,40 @@ namespace MagicaCloth2
     /// SphereColliderのインスペクター拡張
     /// </summary>
     [CustomEditor(typeof(MagicaSphereCollider))]
-    public class MagicaSphereColliderEditor : Editor
+    [CanEditMultipleObjects]
+    public class MagicaSphereColliderEditor : MagicaEditorBase
     {
         public override void OnInspectorGUI()
         {
             var scr = target as MagicaSphereCollider;
+            const string undoName = "SphereCollider";
 
             serializedObject.Update();
-            Undo.RecordObject(scr, "SphereCollider");
+            Undo.RecordObject(scr, undoName);
 
-            // radius
-            var sizeValue = serializedObject.FindProperty("size");
-            var size = sizeValue.vector3Value;
-            size.x = EditorGUILayout.Slider("Radius", size.x, 0.001f, 0.5f);
-            sizeValue.vector3Value = size;
+            using (var check = new EditorGUI.ChangeCheckScope())
+            {
+
+                // radius
+                var sizeValue = serializedObject.FindProperty("size");
+
+                //EditorGUI.showMixedValue = sizeValue.hasMultipleDifferentValues;
+                var size = sizeValue.vector3Value;
+                float newSize = EditorGUILayout.Slider("Radius", size.x, 0.001f, 0.5f);
+                //EditorGUI.showMixedValue = false;
+
+                ApplyMultiSelection<MagicaSphereCollider>(check.changed, undoName, x => x.SetSize(newSize));
+            }
 
             // center
-            var centerValue = serializedObject.FindProperty("center");
-            centerValue.vector3Value = EditorGUILayout.Vector3Field("Center", centerValue.vector3Value);
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("center"));
+
+            // Symmetry
+            EditorGUILayout.Space();
+            var symmetryModeProperty = serializedObject.FindProperty("symmetryMode");
+            EditorGUILayout.PropertyField(symmetryModeProperty);
+            if (symmetryModeProperty.enumValueIndex >= (int)ColliderSymmetryMode.AutomaticTarget)
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("symmetryTarget"));
 
             serializedObject.ApplyModifiedProperties();
         }

@@ -16,12 +16,9 @@ namespace MagicaCloth2
 
         private bool slow;
 
-        void Start()
+        protected void Start()
         {
-        }
-
-        void Update()
-        {
+            slow = false;
         }
 
         private void AnimatorAction(System.Action<Animator> act)

@@ -7,24 +7,10 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class OutBattleUIManager : MonoBehaviour
+public class OutBattleUIManager : InstanceBehaviour<OutBattleUIManager>
 {
-    public static OutBattleUIManager Instance;
-
-    public GameObject BlessingSelectionCanve;
-    public GameObject BlessingAcquisitionCanve;
-    public GameObject CurioSelectionCanve;
-    public GameObject CurioAcquisitionCanve;
-    public List<Sprite> Icons;
-    public List<Sprite> curioIcons;
-    bool isSelectionOver;
-    int SelectionIndex;
-    private void Awake()
-    {
-        Instance = this;
-        InitBlessingSelection();
-        InitCurioSelection();
-    }
+  
+    private void Start() => InitOutBattleUIManager();
     private void Update()
     {
         if (true)
@@ -35,6 +21,28 @@ public class OutBattleUIManager : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Alpha4)) SwitchChara(4);
         }
     }
+    //初始化所有局外ui的状态
+    public void InitOutBattleUIManager()
+    {
+        InitBlessingSelection();
+        InitCurioSelection();
+        InitCharaSelect();
+    }
+    // ==================== 整体ui界面 ====================
+    public GameObject UI;
+    internal static void ShowUI() => Instance.UI.SetActive(true);
+    internal static void CloeUI() => Instance.UI.SetActive(false);
+    public GameObject BlessingSelectionCanve;
+    public GameObject BlessingAcquisitionCanve;
+    public GameObject CurioSelectionCanve;
+    public GameObject CurioAcquisitionCanve;
+    public List<Sprite> Icons;
+    public List<Sprite> curioIcons;
+    bool isSelectionOver;
+    int SelectionIndex;
+    // ==================== 选择祝福界面 ====================
+
+    #region 选择祝福
     public void InitBlessingSelection()
     {
         foreach (Transform item in BlessingSelectionCanve.transform)
@@ -50,6 +58,7 @@ public class OutBattleUIManager : MonoBehaviour
             }
         }
     }
+
     public async Task<Buff> OpenBlessingSelection(List<Buff> buffs)
     {
         BlessingSelectionCanve.SetActive(true);
@@ -125,8 +134,9 @@ public class OutBattleUIManager : MonoBehaviour
         isSelectionOver = true;
         SelectionIndex = item.GetSiblingIndex();
     }
-
+    #endregion
     // ==================== 选择道具界面 ====================
+    #region 选择道具
     public void InitCurioSelection()
     {
         foreach (Transform item in CurioSelectionCanve.transform)
@@ -213,9 +223,12 @@ public class OutBattleUIManager : MonoBehaviour
         CurioSelectionCanve.SetActive(false);
         isSelectionOver = true;
         SelectionIndex = item.GetSiblingIndex();
-    }
 
+
+    }
+    #endregion
     // ==================== 获得祝福界面 ====================
+    #region 获得祝福界面
     public void OpenBlessingAcquisition(/* 可传递新祝福 Blessing newBlessing */)
     {
         // TODO: 显示获得祝福界面
@@ -231,8 +244,9 @@ public class OutBattleUIManager : MonoBehaviour
         // 2. 重置UI状态
         // 3. 触发后续回调
     }
-
+    #endregion
     // ==================== 获得道具界面 ====================
+    #region 获得道具
     public void OpenCurioAcquisition(/* 可传递新道具 Item newItem */)
     {
         // TODO: 显示获得道具界面
@@ -248,7 +262,10 @@ public class OutBattleUIManager : MonoBehaviour
         // 2. 更新背包数据
         // 3. 执行界面关闭过渡
     }
+    #endregion
     // ==================== 选择人物界面 ====================
+
+    #region 选择人物
     public enum CharaSelectCanvasMode
     {
         TeamCreat,
@@ -266,28 +283,34 @@ public class OutBattleUIManager : MonoBehaviour
     CharaSelectCanvasMode currentCharaSelectInitMode;
     List<TeamCharaData> targetCharaDatas;
     public List<Sprite> elements;
+    //临时角色队列的文字
+    public TextMeshProUGUI TempAvartListText;
+    public void InitCharaSelect()
+    {
+        CloseCharaSelectCanvas();
+    }
     public void OpenCharaSelectTeamCreatCanvas()
     {
         CharaSelectCanvas.SetActive(true);
-        InitCharaSelectCanves(CharaSelectCanvasMode.TeamCreat);
+        OpenCharaSelectCanves(CharaSelectCanvasMode.TeamCreat);
         //展开动画
     }
     public void OpenCharaSelectTeamSwapCanvas()
     {
         CharaSelectCanvas.SetActive(true);
-        InitCharaSelectCanves(CharaSelectCanvasMode.TeamSwap);
+        OpenCharaSelectCanves(CharaSelectCanvasMode.TeamSwap);
         //展开动画
     }
     public void OpenCharaSelectCharacterDownloadCanvas()
     {
         CharaSelectCanvas.SetActive(true);
-        InitCharaSelectCanves(CharaSelectCanvasMode.CharacterDownload);
+        OpenCharaSelectCanves(CharaSelectCanvasMode.CharacterDownload);
         //展开动画
     }
     public void OpenCharaSelectCharacterReviveCanvas()
     {
         CharaSelectCanvas.SetActive(true);
-        InitCharaSelectCanves(CharaSelectCanvasMode.CharacterRevive);
+        OpenCharaSelectCanves(CharaSelectCanvasMode.CharacterRevive);
         //展开动画
     }
     public void CloseCharaSelectCanvas()
@@ -301,15 +324,23 @@ public class OutBattleUIManager : MonoBehaviour
     //人物下载模式，从TeamManager.AllCharaData获取全人物模板数据,剔除已有人物，选择一个加入队伍池子
     //人物复活模式，从GameManager.gameData.TeamCharaPool,剔除未死亡人物，选择一个复活
     //属性变更模式，从TeamManager.AllCharaData获取全人物模板数据，选择一个进行修改
-    public void InitCharaSelectCanves(CharaSelectCanvasMode charaPoolInitMode)
+    private void OpenCharaSelectCanves(CharaSelectCanvasMode charaPoolInitMode)
     {
         //初始化按钮
         ConfirmButton.GetComponent<Button>().onClick.RemoveAllListeners();
         CloseButton.GetComponent<Button>().onClick.RemoveAllListeners();
         CloseButton.GetComponent<Button>().onClick.AddListener(CloseCharaSelectCanvas);
+        //开启所有界面
+        //设置四个人员框
+        foreach (Transform item in TempTeamAppearanceContent)
+        {
+            item.gameObject.SetActive(true);
+        }
         switch (currentCharaSelectInitMode)
         {
+            //队伍创建
             case CharaSelectCanvasMode.TeamCreat:
+                TempAvartListText.text = "当前队伍";
                 ConfirmButton.GetComponent<Button>().onClick.AddListener(() =>
                 {
                     List<CharaName> charaNameList = GameManager.gameData.TempTeamAppearanceList
@@ -320,7 +351,10 @@ public class OutBattleUIManager : MonoBehaviour
                     CloseCharaSelectCanvas();
                 });
                 break;
+            //队员更换
             case CharaSelectCanvasMode.TeamSwap:
+                TempAvartListText.text = "当前队伍";
+
                 ConfirmButton.GetComponent<Button>().onClick.AddListener(() =>
                 {
                     List<CharaName> charaNameList = GameManager.gameData.TempTeamAppearanceList
@@ -331,8 +365,24 @@ public class OutBattleUIManager : MonoBehaviour
                     CloseCharaSelectCanvas();
                 });
                 break;
+            //队员下载
             case CharaSelectCanvasMode.CharacterDownload:
+                TempAvartListText.text = "下载角色";
+                //关掉后三个人员框
+                for (int i = 1; i < TempTeamAppearanceContent.childCount; i++)
+                {
+                    TempTeamAppearanceContent.GetChild(i).gameObject.SetActive(false);
+                }
+                ConfirmButton.GetComponent<Button>().onClick.AddListener(() =>
+                {
+                    if (GameManager.gameData.DownloadChara != null)
+                    {
+                        GameManager.gameData.TeamCharaPool.Add(GameManager.gameData.DownloadChara);
+                    }
+                    CloseCharaSelectCanvas();
+                });
                 break;
+            //队员复活(改成吃东西)
             case CharaSelectCanvasMode.CharacterRevive:
                 break;
         }
@@ -398,8 +448,32 @@ public class OutBattleUIManager : MonoBehaviour
                     });
                     break;
                 case CharaSelectCanvasMode.TeamSwap:
+                    //设置点击事件-将角色列表人物加入到出战列表中/从出战列表移除
+                    item.GetComponent<Button>().onClick.AddListener(() =>
+                    {
+                        if (!GameManager.gameData.TempTeamAppearanceList.Contains(targetCharaDatas[rank]))
+                        {
+                            AddCharaIntoTempTeamAppearanceList(targetCharaDatas[rank].CharaNameType);
+                        }
+                        else
+                        {
+                            RemoveCharaFromTempTeamAppearanceList(targetCharaDatas[rank].CharaNameType);
+                        }
+                    });
                     break;
+                //设置点击事件-将角色列表人物加入到下载目标中
                 case CharaSelectCanvasMode.CharacterDownload:
+                    item.GetComponent<Button>().onClick.AddListener(() =>
+                    {
+                        if (GameManager.gameData.DownloadChara == null)
+                        {
+                            SetDownloadChara(targetCharaDatas[rank].CharaNameType);
+                        }
+                        else
+                        {
+                            RemoveDownloadChara();
+                        }
+                    });
                     break;
                 case CharaSelectCanvasMode.CharacterRevive:
                     break;
@@ -413,6 +487,8 @@ public class OutBattleUIManager : MonoBehaviour
     }
     public void AddCharaIntoTeamPool(CharaName charaName) => TeamManager.AddCharaIntoTeamPool(charaName);
     public void AddCharaIntoTempTeamAppearanceList(CharaName charaName) => TeamManager.AddCharaIntoTempTeamAppearanceList(charaName);
+    public void SetDownloadChara(CharaName charaName) => TeamManager.SetDownloadChara(charaName);
+
     [Button("刷新角色池列表ui")]
     public void RefreshCharaList()
     {
@@ -483,6 +559,7 @@ public class OutBattleUIManager : MonoBehaviour
     public void RemoveFromTeamAppearanceList(CharaName charaName) => TeamManager.RemoveCharaFromTeamAppearanceList(charaName);
     public void RemoveAllFromTeamAppearanceList() => TeamManager.RemoveAllFromTeamAppearanceList();
 
+    public void RemoveDownloadChara() => TeamManager.RemoveDownloadChara();
 
     public void SetCurrentChara(CharaData chara)
     {
@@ -491,11 +568,12 @@ public class OutBattleUIManager : MonoBehaviour
         //CharaConfigManager.Instance.SelectModel(chara);
         CloseCharaSelectCanvas();
     }
+    #endregion
+    #region 食物烹饪
+    #endregion
     // ==================== 队伍与出战人物界面 ====================
+    #region 出战人物
     public Transform TeamAvatarContent;
-    //[Button("队伍池添加人物")]
-    //public void AddCharaIntoTeamPool(CharaName charaName) => TeamManager.AddCharaIntoTeamPool(charaName);
-    //
     [Button("设置出战人物")]
     public void SetTeamAppearanceList(List<CharaName> charaNameList) => TeamManager.SetTeamAppearanceList(charaNameList);
     [Button("队伍切换人物")]
@@ -520,20 +598,9 @@ public class OutBattleUIManager : MonoBehaviour
             item.Find("bg_b").gameObject.SetActive(i + 1 != GameManager.gameData.TeamAppearanceIndex);
         }
     }
-
-
-
-
-    internal static void ShowUI()
-    {
-        throw new NotImplementedException();
-    }
-
-    internal static void CloeUI()
-    {
-        throw new NotImplementedException();
-    }
+    #endregion
     // ==================== 道具获得提示界面 ====================
+    #region 道具获得
     [Header("道具获得提示")]
     public GameObject GetItemPrefab;
 
@@ -549,5 +616,6 @@ public class OutBattleUIManager : MonoBehaviour
         newItem.SetActive(true);
         Destroy(newItem, 3);
     }
-
+    #endregion
+    
 }

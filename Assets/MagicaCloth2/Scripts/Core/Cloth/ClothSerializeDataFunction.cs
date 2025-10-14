@@ -34,31 +34,43 @@ namespace MagicaCloth2
         /// <returns></returns>
         public bool IsValid()
         {
-            verificationResult.SetError(Define.Result.Empty); // 空データ
+            verificationResult.SetResult(Define.Result.Empty); // 空データ
 
-            if (clothType == ClothProcess.ClothType.BoneCloth)
+            switch (clothType)
             {
-                if (rootBones == null || rootBones.Count == 0)
-                    return false;
-                if (rootBones.Count(x => x != null) == 0)
+                case ClothProcess.ClothType.BoneCloth:
+                case ClothProcess.ClothType.BoneSpring:
+                    if (rootBones == null || rootBones.Count == 0)
+                        return false;
+                    if (rootBones.Count(x => x != null) == 0)
+                        return false;
+                    if (rootBones.Distinct().Count() != rootBones.Count)
+                    {
+                        verificationResult.SetError(Define.Result.SerializeData_DuplicateRootBone);
+                        return false;
+                    }
+                    break;
+                case ClothProcess.ClothType.MeshCloth:
+                    if (sourceRenderers == null || sourceRenderers.Count == 0)
+                        return false;
+                    if (sourceRenderers.Count(x => x != null) == 0)
+                        return false;
+
+                    // レンダラーの最大数
+                    if (sourceRenderers.Count > Define.System.MaxRendererCount)
+                    {
+                        verificationResult.SetError(Define.Result.SerializeData_Over31Renderers);
+                        return false;
+                    }
+                    if (sourceRenderers.Distinct().Count() != sourceRenderers.Count)
+                    {
+                        verificationResult.SetError(Define.Result.SerializeData_DuplicateRenderer);
+                        return false;
+                    }
+                    break;
+                default:
                     return false;
             }
-            else if (clothType == ClothProcess.ClothType.MeshCloth)
-            {
-                if (sourceRenderers == null || sourceRenderers.Count == 0)
-                    return false;
-                if (sourceRenderers.Count(x => x != null) == 0)
-                    return false;
-
-                // レンダラーの最大数
-                if (sourceRenderers.Count > Define.System.MaxRendererCount)
-                {
-                    verificationResult.SetError(Define.Result.SerializeData_Over15Renderers);
-                    return false;
-                }
-            }
-            else
-                return false;
 
             verificationResult.SetSuccess();
             return true;
@@ -105,10 +117,12 @@ namespace MagicaCloth2
         /// <returns></returns>
         public override int GetHashCode()
         {
+            const int NullHash = -3910836;
+
             int hash = 0;
             hash += (int)clothType;
             foreach (var ren in sourceRenderers)
-                hash += ren?.GetInstanceID() ?? 0;
+                hash += ren != null ? ren.GetInstanceID() : NullHash;
             foreach (var t in rootBones)
             {
                 var stack = new Stack<Transform>(30);
@@ -117,7 +131,10 @@ namespace MagicaCloth2
                 {
                     var t2 = stack.Pop();
                     if (t2 == null)
+                    {
+                        hash += NullHash;
                         continue;
+                    }
                     hash += t2.GetInstanceID();
                     hash += t2.localPosition.GetHashCode();
                     hash += t2.localRotation.GetHashCode();
@@ -140,6 +157,8 @@ namespace MagicaCloth2
                     hash += map.isReadable ? 1 : 0;
                 }
             }
+            hash += paintMapUvChannel * 123;
+            hash += colliderCollisionConstraint.GetHashCode();
 
             return hash;
         }
@@ -154,8 +173,8 @@ namespace MagicaCloth2
             var cparams = new ClothParameters();
 
             //cparams.solverFrequency = Define.System.SolverFrequency;
-            cparams.gravity = gravity;
-            cparams.gravityDirection = gravityDirection;
+            cparams.gravity = clothType == ClothProcess.ClothType.BoneSpring ? 0.0f : gravity; // BoneSpring has no gravity.
+            cparams.worldGravityDirection = gravityDirection;
             cparams.gravityFalloff = gravityFalloff;
             cparams.stablizationTimeAfterReset = stablizationTimeAfterReset;
             cparams.blendWeight = blendWeight;
@@ -166,15 +185,17 @@ namespace MagicaCloth2
             cparams.rotationalInterpolation = rotationalInterpolation;
             cparams.rootRotation = rootRotation;
 
+            cparams.culling.Convert(cullingSettings);
             cparams.inertiaConstraint.Convert(inertiaConstraint);
-            cparams.tetherConstraint.Convert(tetherConstraint);
-            cparams.distanceConstraint.Convert(distanceConstraint);
+            cparams.tetherConstraint.Convert(tetherConstraint, clothType);
+            cparams.distanceConstraint.Convert(distanceConstraint, clothType);
             cparams.triangleBendingConstraint.Convert(triangleBendingConstraint);
             cparams.angleConstraint.Convert(angleRestorationConstraint, angleLimitConstraint);
-            cparams.motionConstraint.Convert(motionConstraint);
-            cparams.colliderCollisionConstraint.Convert(colliderCollisionConstraint);
-            cparams.selfCollisionConstraint.Convert(selfCollisionConstraint);
-            cparams.wind.Convert(wind);
+            cparams.motionConstraint.Convert(motionConstraint, clothType);
+            cparams.colliderCollisionConstraint.Convert(colliderCollisionConstraint, clothType);
+            cparams.selfCollisionConstraint.Convert(selfCollisionConstraint, clothType);
+            cparams.wind.Convert(wind, clothType);
+            cparams.springConstraint.Convert(springConstraint, clothType);
 
             return cparams;
         }
@@ -183,8 +204,10 @@ namespace MagicaCloth2
         {
             ClothProcess.ClothType clothType;
             List<Renderer> sourceRenderers;
+            ClothMeshWriteMode meshWriteMode;
             PaintMode paintMode;
             List<Texture2D> paintMaps;
+            int paintMapUvChannel;
             List<Transform> rootBones;
             RenderSetupData.BoneConnectionMode connectionMode;
             float rotationalInterpolation;
@@ -196,12 +219,13 @@ namespace MagicaCloth2
             NormalAlignmentSettings normalAlignmentSetting;
             ClothNormalAxis normalAxis;
             List<ColliderComponent> colliderList;
+            List<Transform> collisionBones;
             MagicaCloth synchronization;
             float stablizationTimeAfterReset;
             float blendWeight;
-            CullingSettings.CameraCullingMode cullingMode;
-            CullingSettings.CameraCullingMethod cullingMethod;
-            List<Renderer> cullingRenderers;
+            CullingSettings cullingSetting;
+            Transform anchor;
+            float anchorInertia;
 
             internal TempBuffer(ClothSerializeData sdata)
             {
@@ -212,8 +236,10 @@ namespace MagicaCloth2
             {
                 clothType = sdata.clothType;
                 sourceRenderers = new List<Renderer>(sdata.sourceRenderers);
+                meshWriteMode = sdata.meshWriteMode;
                 paintMode = sdata.paintMode;
                 paintMaps = new List<Texture2D>(sdata.paintMaps);
+                paintMapUvChannel = sdata.paintMapUvChannel;
                 rootBones = new List<Transform>(sdata.rootBones);
                 connectionMode = sdata.connectionMode;
                 rotationalInterpolation = sdata.rotationalInterpolation;
@@ -225,20 +251,23 @@ namespace MagicaCloth2
                 normalAlignmentSetting = sdata.normalAlignmentSetting.Clone();
                 normalAxis = sdata.normalAxis;
                 colliderList = new List<ColliderComponent>(sdata.colliderCollisionConstraint.colliderList);
+                collisionBones = new List<Transform>(sdata.colliderCollisionConstraint.collisionBones);
                 synchronization = sdata.selfCollisionConstraint.syncPartner;
                 stablizationTimeAfterReset = sdata.stablizationTimeAfterReset;
                 blendWeight = sdata.blendWeight;
-                cullingMode = sdata.cullingSettings.cameraCullingMode;
-                cullingMethod = sdata.cullingSettings.cameraCullingMethod;
-                cullingRenderers = new List<Renderer>(sdata.cullingSettings.cameraCullingRenderers);
+                cullingSetting = sdata.cullingSettings.Clone();
+                anchor = sdata.inertiaConstraint.anchor;
+                anchorInertia = sdata.inertiaConstraint.anchorInertia;
             }
 
             internal void Pop(ClothSerializeData sdata)
             {
                 sdata.clothType = clothType;
                 sdata.sourceRenderers = sourceRenderers;
+                sdata.meshWriteMode = meshWriteMode;
                 sdata.paintMode = paintMode;
                 sdata.paintMaps = paintMaps;
+                sdata.paintMapUvChannel = paintMapUvChannel;
                 sdata.rootBones = rootBones;
                 sdata.connectionMode = connectionMode;
                 sdata.rotationalInterpolation = rotationalInterpolation;
@@ -250,12 +279,13 @@ namespace MagicaCloth2
                 sdata.normalAlignmentSetting = normalAlignmentSetting;
                 sdata.normalAxis = normalAxis;
                 sdata.colliderCollisionConstraint.colliderList = colliderList;
+                sdata.colliderCollisionConstraint.collisionBones = collisionBones;
                 sdata.selfCollisionConstraint.syncPartner = synchronization;
                 sdata.stablizationTimeAfterReset = stablizationTimeAfterReset;
                 sdata.blendWeight = blendWeight;
-                sdata.cullingSettings.cameraCullingMode = cullingMode;
-                sdata.cullingSettings.cameraCullingMethod = cullingMethod;
-                sdata.cullingSettings.cameraCullingRenderers = cullingRenderers;
+                sdata.cullingSettings = cullingSetting;
+                sdata.inertiaConstraint.anchor = anchor;
+                sdata.inertiaConstraint.anchorInertia = anchorInertia;
             }
         }
 
@@ -318,6 +348,7 @@ namespace MagicaCloth2
                 sourceRenderers = new List<Renderer>(sdata.sourceRenderers);
                 paintMode = sdata.paintMode;
                 paintMaps = new List<Texture2D>(sdata.paintMaps);
+                paintMapUvChannel = sdata.paintMapUvChannel;
                 rootBones = new List<Transform>(sdata.rootBones);
                 connectionMode = sdata.connectionMode;
                 rotationalInterpolation = sdata.rotationalInterpolation;
@@ -374,6 +405,7 @@ namespace MagicaCloth2
             }
             customSkinningSetting.GetUsedTransform(transformSet);
             normalAlignmentSetting.GetUsedTransform(transformSet);
+            colliderCollisionConstraint.GetUsedTransform(transformSet);
         }
 
         public void ReplaceTransform(Dictionary<int, Transform> replaceDict)
@@ -386,9 +418,27 @@ namespace MagicaCloth2
                     rootBones[i] = replaceDict[t.GetInstanceID()];
                 }
             }
-
             customSkinningSetting.ReplaceTransform(replaceDict);
             normalAlignmentSetting.ReplaceTransform(replaceDict);
+            colliderCollisionConstraint.ReplaceTransform(replaceDict);
+        }
+
+        /// <summary>
+        /// BoneSpring判定
+        /// </summary>
+        /// <returns></returns>
+        public bool IsBoneSpring() => clothType == ClothProcess.ClothType.BoneSpring;
+
+        public int GetUvChannel()
+        {
+            switch (paintMode)
+            {
+                case PaintMode.Texture_Fixed_Move:
+                case PaintMode.Texture_Fixed_Move_Limit:
+                    return paintMapUvChannel;
+                default:
+                    return 0;
+            }
         }
     }
 }

@@ -224,6 +224,45 @@ namespace MagicaCloth2
         }
 
         /// <summary>
+        /// fromからtoへ回転させるクォータニオンを返します(単位化なし)
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="t">補間率(0.0-1.0)</param>
+        /// <returns></returns>
+        public static quaternion FromToRotationWithoutNormalize(in float3 v1, in float3 v2, float t = 1.0f)
+        {
+            //float3 v1 = math.normalize(from);
+            //float3 v2 = math.normalize(to);
+
+            float c = Clamp1(math.dot(v1, v2));
+            float angle = math.acos(c);
+            float3 axis = math.cross(v1, v2);
+
+            if (math.abs(1.0f + c) < 1e-06f)
+            {
+                angle = (float)math.PI;
+
+                if (v1.x > v1.y && v1.x > v1.z)
+                {
+                    axis = math.cross(v1, new float3(0, 1, 0));
+                }
+                else
+                {
+                    axis = math.cross(v1, new float3(1, 0, 0));
+                }
+            }
+            else if (math.abs(1.0f - c) < 1e-06f)
+            {
+                //angle = 0.0f;
+                //axis = new float3(1, 0, 0);
+                return quaternion.identity;
+            }
+
+            return quaternion.AxisAngle(math.normalize(axis), angle * t);
+        }
+
+        /// <summary>
         /// fromからtoへ回転させるクォータニオンを返します
         /// </summary>
         /// <param name="from"></param>
@@ -287,13 +326,15 @@ namespace MagicaCloth2
         public static quaternion ToRotation(in float3 nor, in float3 tan)
         {
 #if MC2_DEBUG
+            // 安全性確認
             float ln = math.length(nor);
             float lt = math.length(tan);
-            Develop.Assert(ln > 0.0f);
-            Develop.Assert(lt > 0.0f);
+            Develop.Assert(ln > 0.99f && ln < 1.01f);
+            Develop.Assert(lt > 0.99f && lt < 1.01f);
             float dot = math.dot(nor / ln, tan / lt);
             Develop.Assert(dot != 1.0f && dot != -1.0f);
 #endif
+            // 2 つの入力ベクトルは単位長であり、同一直線上にないことが前提となります。
             return quaternion.LookRotation(tan, nor);
         }
 
@@ -400,6 +441,45 @@ namespace MagicaCloth2
                 axis = 0; // Unity.Quaternion.ToAngleAxisでは(1, 0, 0)
             else
                 axis = q.value.xyz / s;
+        }
+
+        /// <summary>
+        /// クォータニオンからオイラー角度を計算して返す
+        /// </summary>
+        /// <param name="q"></param>
+        /// <returns>(Deg)角度</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float3 ToEuler(in quaternion q)
+        {
+            float3 angles = 0;
+
+            // クォータニオンの成分
+            float qx = q.value.x;
+            float qy = q.value.y;
+            float qz = q.value.z;
+            float qw = q.value.w;
+
+            // ピッチ (x軸回転)
+            float sinX = 2f * (qw * qx - qz * qy);
+            if (math.abs(sinX) >= 0.99999f) // ジンバルロックの検出
+            {
+                angles.x = math.sign(sinX) * 90f; // ±90度(deg)
+                angles.y = math.atan2(2f * (qw * qy + qx * qz), 1f - 2f * (qx * qx + qy * qy));
+                angles.y = math.degrees(angles.y);
+                angles.z = 0f; // ジンバルロックでロールは不定
+            }
+            else
+            {
+                angles.x = math.asin(sinX);
+                // ヨー (y軸回転)
+                angles.y = math.atan2(2f * (qw * qy + qx * qz), 1f - 2f * (qx * qx + qy * qy));
+                // ロール (z軸回転)
+                //angles.z = math.atan2(2f * (qw * qz + qx * qy), 1f - 2f * (qy * qy + qz * qz));
+                angles.z = math.atan2(2f * (qw * qz + qx * qy), 1f - 2f * (qx * qx + qz * qz)); // どうやらこれっぽい
+                angles = math.degrees(angles);
+            }
+
+            return angles;
         }
 
         /// <summary>
@@ -568,6 +648,82 @@ namespace MagicaCloth2
             c2 = p2 + d2 * t;
 
             return math.dot(c1 - c2, c1 - c2);
+        }
+
+        /// <summary>
+        /// ２つの線分(p1-q1)(p2-q2)の最近接点(s, t)を計算する
+        /// この関数ではs/tのみで接点と距離は計算しない
+        /// </summary>
+        /// <param name="p1">線分１の始点</param>
+        /// <param name="q1">線分１の終点</param>
+        /// <param name="p2">線分２の始点</param>
+        /// <param name="q2">線分２の終点</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void ClosestPtSegmentSegment2(in float3 p1, in float3 q1, in float3 p2, in float3 q2, out float s, out float t)
+        {
+            //s = 0.0f;
+            //t = 0.0f;
+            float3 d1 = q1 - p1; // 線分s1の方向ベクトル
+            float3 d2 = q2 - p2; // 線分s2の方向ベクトル
+            float3 r = p1 - p2;
+            float a = math.dot(d1, d1); // 線分s1の距離の平方、常に正
+            float e = math.dot(d2, d2); // 線分s2の距離の平方、常に正
+            float f = math.dot(d2, r);
+            // 片方あるいは両方の線分が点に縮退しているかどうかチェック
+            if (a <= 1e-8f && e <= 1e-8f)
+            {
+                // 両方の線分が点に縮退
+                s = t = 0.0f;
+            }
+            else if (a <= 1e-8f)
+            {
+                // 最初の線分が点に縮退
+                s = 0.0f;
+                t = math.saturate(f / e);
+            }
+            else
+            {
+                float c = math.dot(d1, r);
+                if (e <= 1e-8f)
+                {
+                    // 2番目の線分が点に縮退
+                    t = 0.0f;
+                    s = math.saturate(-c / a);
+                }
+                else
+                {
+                    // ここから一般的な縮退の場合を開始
+                    float b = math.dot(d1, d2);
+                    float denom = a * e - b * b; // 常に正
+                    // 線分が平行でない場合、L1上のL2に対する最近接点を計算、そして
+                    // 線分s1に対してクランプ。そうでない場合は任意s(ここでは0)を選択
+                    if (denom != 0.0f)
+                    {
+                        s = math.saturate((b * f - c * e) / denom);
+                    }
+                    else
+                    {
+                        s = 0.0f;
+                    }
+                    // L2上のs1(s)に対する最近接点を以下を用いて計算
+                    // t = dot((p1 + d1 * s) - p2, d2) / dot(d2, d2) = (b * s + f) / e
+                    t = (b * s + f) / e;
+                    // tが[0,1]の中にあれば終了。
+                    // そうでなければtをクランプ、sをtの新しい値に対して以下を用いて再計算
+                    // s = dot((p2 + d2 * t) - p1, d1) / dot(d1, d1) = (t * b - c) / a
+                    // そしてsを[0,1]にクランプ
+                    if (t < 0.0f)
+                    {
+                        t = 0.0f;
+                        s = math.saturate(-c / a);
+                    }
+                    else if (t > 1.0f)
+                    {
+                        t = 1.0f;
+                        s = math.saturate((b - c) / a);
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -780,6 +936,7 @@ namespace MagicaCloth2
             return tan;
         }
 
+#if false
         /// <summary>
         /// トライアングルの回転姿勢を返す
         /// 法線と(重心-p0)の軸からなるクォータニオン
@@ -815,6 +972,7 @@ namespace MagicaCloth2
             var tan = math.normalize(p3 - p2);
             return quaternion.LookRotation(tan, n);
         }
+#endif
 
         /// <summary>
         /// トライアングルペアのなす角を返す（ラジアン）
@@ -1064,30 +1222,52 @@ namespace MagicaCloth2
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float3 TransformPoint(in float3 pos, in float4x4 localToWorldMatrix)
+        public static float3 TransformPoint(in float3 pos, in float3 wpos, in quaternion wrot, in float3 wscl)
         {
-            return math.transform(localToWorldMatrix, pos);
+            return math.transform(Matrix4x4.TRS(wpos, wrot, wscl), pos);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float3 TransformVector(in float3 vec, in float4x4 localToWorldMatrix)
+        public static float3 TransformPoint(in float3 pos, in float4x4 m)
         {
-            return math.mul(localToWorldMatrix, new float4(vec, 0)).xyz;
+            return math.transform(m, pos);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float3 TransformDirection(in float3 dir, in float4x4 localToWorldMatrix)
+        public static float3 TransformVector(in float3 vec, in float4x4 m)
+        {
+            return math.mul(m, new float4(vec, 0)).xyz;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float3 TransformDirection(in float3 dir, in float4x4 m)
         {
             float len = math.length(dir);
             if (len > 0.0f)
-                return math.normalize(TransformVector(dir, localToWorldMatrix)) * len;
+                return math.normalize(TransformVector(dir, m)) * len;
             else
                 return dir;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float3 TransformNormal(in float3 dir, in float4x4 m, float3 errDir)
+        {
+            // 姿勢変換後に単位化する
+            return math.normalizesafe(TransformVector(dir, m), errDir);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static quaternion TransformRotation(in quaternion rot, in float4x4 m, in float3 normalTangentFlip)
+        {
+            ToNormalTangent(rot, out float3 nor, out float3 tan);
+            nor = math.mul(m, new float4(nor, 0)).xyz * normalTangentFlip.y;
+            tan = math.mul(m, new float4(tan, 0)).xyz * normalTangentFlip.z;
+            return quaternion.LookRotation(tan, nor);
+        }
+
         /// <summary>
         /// 距離を空間変換する
-        /// 不均等スケールを考慮して各軸の平均値を返す
+        /// 非一様スケールを考慮して各軸の平均値を返す
         /// </summary>
         /// <param name="dist"></param>
         /// <param name="localToWorldMatrix"></param>
@@ -1137,6 +1317,12 @@ namespace MagicaCloth2
         public static float3 InverseTransformPoint(in float3 pos, in float4x4 worldToLocalMatrix)
         {
             return math.transform(worldToLocalMatrix, pos);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float3 InverseTransformPoint(in float3 pos, in float3 wpos, in quaternion wrot, in float3 wscl)
+        {
+            return math.transform(math.inverse(Matrix4x4.TRS(wpos, wrot, wscl)), pos);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1364,6 +1550,7 @@ namespace MagicaCloth2
 
             if (math.dot(planeDir, v) < 0.0f)
             {
+                // 押し出し発生
                 // 押出し座標
                 outPos = pos - gv;
 
@@ -1373,9 +1560,10 @@ namespace MagicaCloth2
             }
             else
             {
+                // 押し出し不要。何もしない
                 outPos = pos;
 
-                // 面までの距離を返す
+                // 面までの距離を返す(+)
                 return len;
             }
         }
@@ -1531,9 +1719,12 @@ namespace MagicaCloth2
         /// <param name="friction"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float CalcInverseMass(float friction, float depth, bool fix)
+        public static float CalcInverseMass(float friction, float depth, bool fix, float fixMass)
         {
-            return fix ? (1.0f / 100.0f) : CalcInverseMass(friction, depth);
+            //return fix ? (1.0f / 100.0f) : CalcInverseMass(friction, depth);
+            //return fix ? (1.0f / 30.0f) : CalcInverseMass(friction, depth);
+
+            return fix ? (1.0f / fixMass) : CalcInverseMass(friction, depth);
         }
 
         /// <summary>
@@ -1550,6 +1741,58 @@ namespace MagicaCloth2
             mass += clothMass * Define.System.SelfCollisionClothMass;
             Develop.Assert(mass > 0.0f);
             return 1.0f / mass;
+        }
+
+        /// <summary>
+        /// 数をｎ分割して、指定インデックスの範囲を返します。
+        /// 数は整数のみ。
+        /// 例：100(dataLength)を5(divCount)分割した結果
+        /// divIndex(0):0~20
+        /// divIndex(1):20~40
+        /// divIndex(2):40~60
+        /// divIndex(3):60~80
+        /// divIndex(4):80~100
+        /// 
+        /// ただし、数が分割数を下回る場合は範囲外のインデックスは-1となる
+        /// 例：3(dataLength)を5(divCount)分割した結果
+        /// divIndex(0):0~1
+        /// divIndex(1):1~2
+        /// divIndex(2):2~3
+        /// divIndex(3):-1~-1
+        /// divIndex(4):-1~-1
+        /// </summary>
+        /// <param name="dataLength"></param>
+        /// <param name="divCount"></param>
+        /// <param name="divIndex"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int2 CalcSplitRange(int dataLength, int divCount, int divIndex)
+        {
+            if (dataLength <= 0)
+                return -1;
+
+            if (dataLength < divCount)
+            {
+                if (divIndex < dataLength)
+                    return new int2(divIndex, divIndex + 1);
+                else
+                    return -1;
+            }
+
+            float segment = (float)dataLength / divCount;
+            int start = (int)(segment * divIndex);
+            int end = (divIndex == divCount - 1) ? dataLength : (int)(segment * (divIndex + 1));
+            return new int2(start, end);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static DataChunk GetWorkerChunk(int dataLenght, int workerCount, int workerIndex)
+        {
+            int2 range = CalcSplitRange(dataLenght, workerCount, workerIndex);
+            if (range.x < 0)
+                return DataChunk.Empty;
+            else
+                return new DataChunk(range.x, range.y - range.x);
         }
     }
 }

@@ -15,8 +15,8 @@ namespace MagicaCloth2
         public enum RefreshMode
         {
             /// <summary>
-            /// コンポーネント生成時に１度だけ送信する
-            /// Send only once when the component is created.
+            /// コンポーネントのAwake()で１度だけ送信する
+            /// Send once at the component's Awake()
             /// </summary>
             OnAwake = 0,
 
@@ -25,6 +25,18 @@ namespace MagicaCloth2
             /// Send content every frame.
             /// </summary>
             EveryFrame = 1,
+
+            /// <summary>
+            /// コンポーネントのStart()で一度だけ送信する
+            /// Send once at the component's Start().
+            /// </summary>
+            OnStart = 2,
+
+            /// <summary>
+            /// コンポーネントは何もしません。送信には手動でRefresh()を呼ぶ必要があります
+            /// The component does nothing. You must manually call Refresh() to submit.
+            /// </summary>
+            Manual = 3,
         }
 
         /// <summary>
@@ -64,16 +76,66 @@ namespace MagicaCloth2
         [Range(Define.System.MaxSimulationCountPerFrame_Low, Define.System.MaxSimulationCountPerFrame_Hi)]
         public int maxSimulationCountPerFrame = Define.System.DefaultMaxSimulationCountPerFrame;
 
+        /// <summary>
+        /// MonoBehaviourでのMagicaClothの初期化場所。
+        /// MagicaCloth initialization location in MonoBehaviour.
+        /// </summary>
+        public MagicaManager.InitializationLocation initializationLocation = MagicaManager.InitializationLocation.Start;
+
+        /// <summary>
+        /// シミュレーションの更新場所
+        /// BeforeLateUpdate : LateUpdate()の前に実行します。これはUnity 2D Animationで利用する場合に必要です。
+        /// AfterLateUpdate  : LateUpdate()の後に実行します。初期設定。
+        /// 
+        /// Simulation update location.
+        /// BeforeLateUpdate : Executes before LateUpdate(). This is required when using Unity 2D Animation.
+        /// AfterLateUpdate  : Executes after LateUpdate(). Initial setting.
+        /// </summary>
+        public TimeManager.UpdateLocation updateLocation = TimeManager.UpdateLocation.AfterLateUpdate;
+
+        /// <summary>
+        /// PlayerLoopの監視
+        /// MagicaClothのシステムはUnityのPlayerLoopに登録することで動作します
+        /// この登録が他の外部アセットにより上書きされてしまうと、MagicaClothのシステムが停止してしまいます
+        /// このフラグを有効にすると、PlayerLoopを監視して、上書きされていた場合は再度システムを登録するようになります
+        /// 
+        /// PlayerLoop monitoring.
+        /// The MagicaCloth system works by registering it in Unity's PlayerLoop.
+        /// If this registration is overwritten by other external assets, the MagicaCloth system will stop working.
+        /// When this flag is enabled, the PlayerLoop will be monitored, and the system will be registered again if it has been overwritten.
+        /// </summary>
+        public bool monitorPlayerLoop = false;
+
+        /// <summary>
+        /// ジョブ分割を適用するプロキシメッシュの頂点数
+        /// 
+        /// The number of proxy mesh vertices to apply job splitting to.
+        /// </summary>
+        [Min(0)]
+        public int splitProxyMeshVertexCount = Define.System.SplitProxyMeshVertexCount;
+
         //=========================================================================================
-        public void Awake()
+        protected void Awake()
         {
             if (refreshMode == RefreshMode.OnAwake)
                 Refresh();
         }
 
-        public void Update()
+        protected void Start()
+        {
+            if (refreshMode == RefreshMode.OnStart)
+                Refresh();
+        }
+
+        protected void Update()
         {
             if (refreshMode == RefreshMode.EveryFrame)
+                Refresh();
+        }
+
+        protected void OnValidate()
+        {
+            if (Application.isPlaying)
                 Refresh();
         }
 
@@ -91,6 +153,16 @@ namespace MagicaCloth2
 
                 MagicaManager.SetSimulationFrequency(simulationFrequency);
                 MagicaManager.SetMaxSimulationCountPerFrame(maxSimulationCountPerFrame);
+                MagicaManager.SetInitializationLocation(initializationLocation);
+                MagicaManager.SetUpdateLocation(updateLocation);
+                MagicaManager.SetSplitProxyMeshVertexCount(splitProxyMeshVertexCount);
+
+                if (monitorPlayerLoop)
+                    MagicaManager.InitCustomGameLoop();
+            }
+            else
+            {
+                Develop.LogError("MagicaManager is not starting!");
             }
         }
     }

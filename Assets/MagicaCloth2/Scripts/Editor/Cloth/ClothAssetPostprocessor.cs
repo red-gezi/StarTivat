@@ -17,7 +17,7 @@ namespace MagicaCloth2
         /// <param name="deletedAssets"></param>
         /// <param name="movedAssets"></param>
         /// <param name="movedFromAssetPaths"></param>
-        static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
+        protected static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
         {
 #if false
             foreach (string str in importedAssets)

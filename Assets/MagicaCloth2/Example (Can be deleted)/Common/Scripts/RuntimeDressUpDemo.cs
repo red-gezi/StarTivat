@@ -46,17 +46,9 @@ namespace MagicaCloth2
         EquipInfo bodyEquipInfo = new EquipInfo();
 
         //=========================================================================================
-        private void Awake()
+        protected void Start()
         {
             Init();
-        }
-
-        void Start()
-        {
-        }
-
-        void Update()
-        {
         }
 
         //=========================================================================================
@@ -159,7 +151,7 @@ namespace MagicaCloth2
                 sren.bones = newBones;
 
                 // root bone
-                if (targetAvatarBoneMap.ContainsKey(sren.rootBone?.name))
+                if (targetAvatarBoneMap.ContainsKey(sren.rootBone != null ? sren.rootBone.name : null))
                 {
                     sren.rootBone = targetAvatarBoneMap[sren.rootBone.name];
                 }
@@ -181,11 +173,9 @@ namespace MagicaCloth2
                     Transform newParent = targetAvatarBoneMap[parent.name];
 
                     // After changing the parent, you need to write back the local posture and align it.
-                    var localPosition = collider.transform.localPosition;
-                    var localRotation = collider.transform.localRotation;
+                    collider.transform.GetLocalPositionAndRotation(out var localPosition, out var localRotation);
                     collider.transform.SetParent(newParent);
-                    collider.transform.localPosition = localPosition;
-                    collider.transform.localRotation = localRotation;
+                    collider.transform.SetLocalPositionAndRotation(localPosition, localRotation);
                 }
             }
 

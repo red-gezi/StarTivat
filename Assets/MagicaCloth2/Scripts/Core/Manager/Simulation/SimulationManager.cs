@@ -2,16 +2,14 @@
 // Copyright (c) 2023 MagicaSoft.
 // https://magicasoft.jp
 using System.Text;
-using Unity.Burst;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
 namespace MagicaCloth2
 {
-    public class SimulationManager : IManager, IValid
+    public partial class SimulationManager : IManager, IValid
     {
         /// <summary>
         /// チームID
@@ -90,13 +88,6 @@ namespace MagicaCloth2
         /// </summary>
         public ExNativeArray<float3> collisionNormalArray;
 
-        /// <summary>
-        /// 接触中コライダーID
-        /// 接触コライダーID+1が格納されているので注意！(0=なし)
-        /// todo:現在未使用!
-        /// </summary>
-        //public ExNativeArray<int> colliderIdArray;
-
         public int ParticleCount => nextPosArray?.Count ?? 0;
 
         //=========================================================================================
@@ -114,38 +105,6 @@ namespace MagicaCloth2
 
         //=========================================================================================
         /// <summary>
-        /// フレームもしくはステップごとに変動するリストを管理するための汎用バッファ。用途は様々
-        /// </summary>
-        internal ExProcessingList<int> processingStepParticle;
-        internal ExProcessingList<int> processingStepTriangleBending;
-        internal ExProcessingList<int> processingStepEdgeCollision;
-        internal ExProcessingList<int> processingStepCollider;
-        internal ExProcessingList<int> processingStepBaseLine;
-        //internal ExProcessingList<int> processingIntList5;
-        internal ExProcessingList<int> processingStepMotionParticle;
-
-        internal ExProcessingList<int> processingSelfParticle;
-        internal ExProcessingList<uint> processingSelfPointTriangle;
-        internal ExProcessingList<uint> processingSelfEdgeEdge;
-        internal ExProcessingList<uint> processingSelfTrianglePoint;
-
-        //---------------------------------------------------------------------
-        /// <summary>
-        /// 汎用float3作業バッファ
-        /// </summary>
-        internal NativeArray<float3> tempFloat3Buffer;
-
-        /// <summary>
-        /// パーティクルごとのfloat3集計カウンタ（排他制御用）
-        /// </summary>
-        internal NativeArray<int> countArray;
-
-        /// <summary>
-        /// パーティクルごとのfloat3蓄積リスト、内部は固定小数点。パーティクル数x3。（排他制御用）
-        /// </summary>
-        internal NativeArray<int> sumArray;
-
-        /// <summary>
         /// ステップごとのシミュレーションの基準となる姿勢座標
         /// 初期姿勢とアニメーション姿勢をAnimatinBlendRatioで補間したもの
         /// </summary>
@@ -158,6 +117,16 @@ namespace MagicaCloth2
         public NativeArray<quaternion> stepBasicRotationBuffer;
 
         /// <summary>
+        /// 作業用バッファ
+        /// </summary>
+        internal NativeArray<float3> tempVectorBufferA;
+        internal NativeArray<float3> tempVectorBufferB;
+        internal NativeArray<int> tempCountBuffer;
+        internal NativeArray<float> tempFloatBufferA;
+        internal NativeArray<quaternion> tempRotationBufferA;
+        internal NativeArray<quaternion> tempRotationBufferB;
+
+        /// <summary>
         /// ステップ実行カウンター
         /// </summary>
         internal int SimulationStepCount { get; private set; }
@@ -166,6 +135,11 @@ namespace MagicaCloth2
         /// 実行環境で利用できるワーカースレッド数
         /// </summary>
         internal int WorkerCount => Unity.Jobs.LowLevel.Unsafe.JobsUtility.JobWorkerCount;
+
+        /// <summary>
+        /// 分割ジョブを適用するプロキシメッシュの頂点数
+        /// </summary>
+        internal int splitProxyMeshVertexCount = Define.System.SplitProxyMeshVertexCount;
 
         bool isValid = false;
 
@@ -189,7 +163,6 @@ namespace MagicaCloth2
             frictionArray?.Dispose();
             staticFrictionArray?.Dispose();
             collisionNormalArray?.Dispose();
-            //colliderIdArray?.Dispose();
 
             teamIdArray = null;
             nextPosArray = null;
@@ -206,30 +179,23 @@ namespace MagicaCloth2
             frictionArray = null;
             staticFrictionArray = null;
             collisionNormalArray = null;
-            //colliderIdArray = null;
 
-            processingStepParticle?.Dispose();
-            processingStepTriangleBending?.Dispose();
-            processingStepEdgeCollision?.Dispose();
-            processingStepCollider?.Dispose();
-            processingStepBaseLine?.Dispose();
-            //processingIntList5?.Dispose();
-            processingStepMotionParticle?.Dispose();
-            processingSelfParticle?.Dispose();
-            processingSelfPointTriangle?.Dispose();
-            processingSelfEdgeEdge?.Dispose();
-            processingSelfTrianglePoint?.Dispose();
-
-            if (tempFloat3Buffer.IsCreated)
-                tempFloat3Buffer.Dispose();
-            if (countArray.IsCreated)
-                countArray.Dispose();
-            if (sumArray.IsCreated)
-                sumArray.Dispose();
             if (stepBasicPositionBuffer.IsCreated)
                 stepBasicPositionBuffer.Dispose();
             if (stepBasicRotationBuffer.IsCreated)
                 stepBasicRotationBuffer.Dispose();
+            if (tempVectorBufferA.IsCreated)
+                tempVectorBufferA.Dispose();
+            if (tempVectorBufferB.IsCreated)
+                tempVectorBufferB.Dispose();
+            if (tempCountBuffer.IsCreated)
+                tempCountBuffer.Dispose();
+            if (tempFloatBufferA.IsCreated)
+                tempFloatBufferA.Dispose();
+            if (tempRotationBufferA.IsCreated)
+                tempRotationBufferA.Dispose();
+            if (tempRotationBufferB.IsCreated)
+                tempRotationBufferB.Dispose();
 
             distanceConstraint?.Dispose();
             bendingConstraint?.Dispose();
@@ -274,21 +240,6 @@ namespace MagicaCloth2
             frictionArray = new ExNativeArray<float>(capacity);
             staticFrictionArray = new ExNativeArray<float>(capacity);
             collisionNormalArray = new ExNativeArray<float3>(capacity);
-            //colliderIdArray = new ExNativeArray<int>(capacity);
-
-            processingStepParticle = new ExProcessingList<int>();
-            processingStepTriangleBending = new ExProcessingList<int>();
-            processingStepEdgeCollision = new ExProcessingList<int>();
-            processingStepCollider = new ExProcessingList<int>();
-            processingStepBaseLine = new ExProcessingList<int>();
-            //processingIntList5 = new ExProcessingList<int>();
-            processingStepMotionParticle = new ExProcessingList<int>();
-            processingSelfParticle = new ExProcessingList<int>();
-            processingSelfPointTriangle = new ExProcessingList<uint>();
-            processingSelfEdgeEdge = new ExProcessingList<uint>();
-            processingSelfTrianglePoint = new ExProcessingList<uint>();
-
-            tempFloat3Buffer = new NativeArray<float3>(capacity, Allocator.Persistent);
 
             // 制約
             distanceConstraint = new DistanceConstraint();
@@ -323,7 +274,7 @@ namespace MagicaCloth2
                 return;
 
             int teamId = cprocess.TeamId;
-            var proxyMesh = cprocess.ProxyMesh;
+            var proxyMesh = cprocess.ProxyMeshContainer.shareVirtualMesh;
             ref var tdata = ref MagicaManager.Team.GetTeamDataRef(teamId);
 
             int pcnt = proxyMesh.VertexCount;
@@ -342,7 +293,6 @@ namespace MagicaCloth2
             frictionArray.AddRange(pcnt);
             staticFrictionArray.AddRange(pcnt);
             collisionNormalArray.AddRange(pcnt);
-            //colliderIdArray.AddRange(pcnt);
         }
 
         /// <summary>
@@ -395,7 +345,6 @@ namespace MagicaCloth2
             frictionArray.Remove(c);
             staticFrictionArray.Remove(c);
             collisionNormalArray.Remove(c);
-            //colliderIdArray.Remove(c);
 
             tdata.particleChunk.Clear();
 
@@ -413,1489 +362,1048 @@ namespace MagicaCloth2
         internal void WorkBufferUpdate()
         {
             int pcnt = ParticleCount;
-            //int ecnt = MagicaManager.VMesh.EdgeCount;
-            //int tcnt = MagicaManager.VMesh.TriangleCount;
-            int bcnt = MagicaManager.VMesh.BaseLineCount;
-            int ccnt = MagicaManager.Collider.DataCount;
-            int bendCnt = bendingConstraint.DataCount;
-
-            // ステップ処理パーティクル全般
-            processingStepParticle.UpdateBuffer(pcnt);
-
-            // ステップ処理トライアングルベンド
-            processingStepTriangleBending.UpdateBuffer(bendCnt);
-
-            // ステップ処理コリジョン用エッジ
-            int edgeColliderCount = MagicaManager.Team.edgeColliderCollisionCount;
-            processingStepEdgeCollision.UpdateBuffer(edgeColliderCount);
-
-            // 処理コライダー
-            processingStepCollider.UpdateBuffer(ccnt);
-
-            // ステップ処理ベースライン
-            processingStepBaseLine.UpdateBuffer(bcnt);
-
-            // ステップ処理セルフコリジョンパーティクル
-            //processingIntList5.UpdateBuffer(pcnt);
-
-            // ステップ実行モーション制約パーティクル
-            processingStepMotionParticle.UpdateBuffer(pcnt);
-
-            // セルフコリジョン
-            processingSelfParticle.UpdateBuffer(pcnt);
-            processingSelfPointTriangle.UpdateBuffer(selfCollisionConstraint.PointPrimitiveCount);
-            processingSelfEdgeEdge.UpdateBuffer(selfCollisionConstraint.EdgePrimitiveCount);
-            processingSelfTrianglePoint.UpdateBuffer(selfCollisionConstraint.TrianglePrimitiveCount);
 
             // 汎用作業バッファ
-            tempFloat3Buffer.Resize(pcnt);
-            stepBasicPositionBuffer.Resize(pcnt);
-            stepBasicRotationBuffer.Resize(pcnt);
+            // 拡張時には０クリアされる
+            stepBasicPositionBuffer.MC2Resize(pcnt);
+            stepBasicRotationBuffer.MC2Resize(pcnt);
 
-            // 加算バッファ
-            countArray.Resize(pcnt);
-            sumArray.Resize(pcnt * 3);
+            // 汎用バッファ
+            // 拡張時には０クリアされる
+            tempVectorBufferA.MC2Resize(pcnt);
+            tempVectorBufferB.MC2Resize(pcnt);
+            tempCountBuffer.MC2Resize(pcnt);
+            tempFloatBufferA.MC2Resize(pcnt);
+            tempRotationBufferA.MC2Resize(pcnt);
+            tempRotationBufferB.MC2Resize(pcnt);
 
             // 制約
-            angleConstraint.WorkBufferUpdate();
-            colliderCollisionConstraint.WorkBufferUpdate();
             selfCollisionConstraint.WorkBufferUpdate();
         }
 
         //=========================================================================================
-        /// <summary>
-        /// シミュレーション実行前処理
-        /// -リセット
-        /// -移動影響
-        /// </summary>
-        /// <param name="jobHandle"></param>
-        /// <returns></returns>
-        internal JobHandle PreSimulationUpdate(JobHandle jobHandle)
-        {
-            // パーティクルのリセットおよび慣性の適用
-            var job = new PreSimulationUpdateJob()
-            {
-                teamDataArray = MagicaManager.Team.teamDataArray.GetNativeArray(),
-                parameterArray = MagicaManager.Team.parameterArray.GetNativeArray(),
-                centerDataArray = MagicaManager.Team.centerDataArray.GetNativeArray(),
-
-                positions = MagicaManager.VMesh.positions.GetNativeArray(),
-                rotations = MagicaManager.VMesh.rotations.GetNativeArray(),
-                vertexDepths = MagicaManager.VMesh.vertexDepths.GetNativeArray(),
-
-                teamIdArray = teamIdArray.GetNativeArray(),
-                nextPosArray = nextPosArray.GetNativeArray(),
-                oldPosArray = oldPosArray.GetNativeArray(),
-                oldRotArray = oldRotArray.GetNativeArray(),
-                basePosArray = basePosArray.GetNativeArray(),
-                baseRotArray = baseRotArray.GetNativeArray(),
-                oldPositionArray = oldPositionArray.GetNativeArray(),
-                oldRotationArray = oldRotationArray.GetNativeArray(),
-                velocityPosArray = velocityPosArray.GetNativeArray(),
-                dispPosArray = dispPosArray.GetNativeArray(),
-                velocityArray = velocityArray.GetNativeArray(),
-                realVelocityArray = realVelocityArray.GetNativeArray(),
-                frictionArray = frictionArray.GetNativeArray(),
-                staticFrictionArray = staticFrictionArray.GetNativeArray(),
-                collisionNormalArray = collisionNormalArray.GetNativeArray(),
-                //colliderIdArray = colliderIdArray.GetNativeArray(),
-            };
-            jobHandle = job.Schedule(ParticleCount, 32, jobHandle);
-
-            return jobHandle;
-        }
-
-        [BurstCompile]
-        struct PreSimulationUpdateJob : IJobParallelFor
-        {
-            // team
-            [Unity.Collections.ReadOnly]
-            public NativeArray<TeamManager.TeamData> teamDataArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<ClothParameters> parameterArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<InertiaConstraint.CenterData> centerDataArray;
-
-            // vmesh
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float3> positions;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<quaternion> rotations;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float> vertexDepths;
-
-            // particle
-            [Unity.Collections.ReadOnly]
-            public NativeArray<short> teamIdArray;
-            [Unity.Collections.WriteOnly]
-            public NativeArray<float3> nextPosArray;
-            public NativeArray<float3> oldPosArray;
-            public NativeArray<quaternion> oldRotArray;
-            [Unity.Collections.WriteOnly]
-            public NativeArray<float3> basePosArray;
-            [Unity.Collections.WriteOnly]
-            public NativeArray<quaternion> baseRotArray;
-            public NativeArray<float3> oldPositionArray;
-            public NativeArray<quaternion> oldRotationArray;
-            [Unity.Collections.WriteOnly]
-            public NativeArray<float3> velocityPosArray;
-            public NativeArray<float3> dispPosArray;
-            [Unity.Collections.WriteOnly]
-            public NativeArray<float3> velocityArray;
-            public NativeArray<float3> realVelocityArray;
-            [Unity.Collections.WriteOnly]
-            public NativeArray<float> frictionArray;
-            [Unity.Collections.WriteOnly]
-            public NativeArray<float> staticFrictionArray;
-            [Unity.Collections.WriteOnly]
-            public NativeArray<float3> collisionNormalArray;
-            //[Unity.Collections.WriteOnly]
-            //public NativeArray<int> colliderIdArray;
-
-            // パーティクルごと
-            public void Execute(int pindex)
-            {
-                int teamId = teamIdArray[pindex];
-                if (teamId == 0)
-                    return;
-
-                var tdata = teamDataArray[teamId];
-                if (tdata.IsProcess == false)
-                    return;
-
-                int l_index = pindex - tdata.particleChunk.startIndex;
-                int vindex = tdata.proxyCommonChunk.startIndex + l_index;
-
-                if (tdata.IsReset)
-                {
-                    // リセット
-                    var pos = positions[vindex];
-                    var rot = rotations[vindex];
-
-                    nextPosArray[pindex] = pos;
-                    oldPosArray[pindex] = pos;
-                    oldRotArray[pindex] = rot;
-                    basePosArray[pindex] = pos;
-                    baseRotArray[pindex] = rot;
-                    oldPositionArray[pindex] = pos;
-                    oldRotationArray[pindex] = rot;
-                    velocityPosArray[pindex] = pos;
-                    dispPosArray[pindex] = pos;
-                    velocityArray[pindex] = 0;
-                    realVelocityArray[pindex] = 0;
-                    frictionArray[pindex] = 0;
-                    staticFrictionArray[pindex] = 0;
-                    collisionNormalArray[pindex] = 0;
-                    //colliderIdArray[pindex] = 0;
-                }
-                else if (tdata.IsInertiaShift)
-                {
-                    // 慣性全体シフト
-                    var cdata = centerDataArray[teamId];
-
-                    // cdata.frameComponentShiftVector : 全体シフトベクトル
-                    // cdata.frameComponentShiftRotation : 全体シフト回転
-                    // cdata.oldComponentWorldPosition : フレーム移動前のコンポーネント中心位置
-
-                    float3 prevFrameWorldPosition = cdata.oldComponentWorldPosition;
-
-                    oldPosArray[pindex] = MathUtility.ShiftPosition(oldPosArray[pindex], prevFrameWorldPosition, cdata.frameComponentShiftVector, cdata.frameComponentShiftRotation);
-                    oldRotArray[pindex] = math.mul(cdata.frameComponentShiftRotation, oldRotArray[pindex]);
-
-                    oldPositionArray[pindex] = MathUtility.ShiftPosition(oldPositionArray[pindex], prevFrameWorldPosition, cdata.frameComponentShiftVector, cdata.frameComponentShiftRotation);
-                    oldRotationArray[pindex] = math.mul(cdata.frameComponentShiftRotation, oldRotationArray[pindex]);
-
-                    dispPosArray[pindex] = MathUtility.ShiftPosition(dispPosArray[pindex], prevFrameWorldPosition, cdata.frameComponentShiftVector, cdata.frameComponentShiftRotation);
-
-                    realVelocityArray[pindex] = math.mul(cdata.frameComponentShiftRotation, realVelocityArray[pindex]);
-                }
-            }
-        }
-
+        // Simulation
         //=========================================================================================
         /// <summary>
-        /// クロスシミュレーションの１ステップ実行
+        /// シミュレーションメインスケジュール
         /// </summary>
-        /// <param name="updateCount"></param>
-        /// <param name="updateIndex"></param>
-        /// <param name="simulationDeltaTime"></param>
         /// <param name="jobHandle"></param>
         /// <returns></returns>
-        unsafe internal JobHandle SimulationStepUpdate(int updateCount, int updateIndex, JobHandle jobHandle)
+        internal JobHandle ClothSimulationSchedule(JobHandle jobHandle)
         {
-            //Debug.Log($"Step:{updateIndex}/{updateCount}");
-
             var tm = MagicaManager.Team;
+            var bm = MagicaManager.Bone;
             var vm = MagicaManager.VMesh;
             var wm = MagicaManager.Wind;
+            var cm = MagicaManager.Collider;
+            var tim = MagicaManager.Time;
 
-            // シミュレーションステップカウンター
-            SimulationStepCount++;
+            int normalClothTeamCount = tm.batchNormalClothTeamList.Length;
+            int splitClothTeamCount = tm.batchSplitClothTeamList.Length;
+            bool useNormalClothJob = normalClothTeamCount > 0;
+            bool useSplitClothJob = splitClothTeamCount > 0;
 
-            // ステップごとのチーム更新
-            jobHandle = tm.SimulationStepTeamUpdate(updateIndex, jobHandle);
+            if (useNormalClothJob == false && useSplitClothJob == false)
+                return jobHandle;
 
-            // 今回のステップで計算が必要な作業リストを作成する
-            var clearStepCounterJob = new ClearStepCounter()
+            // 最大更新回数
+            int maxUpdateCount = tm.TeamMaxUpdateCount;
+            //Debug.Log($"TeamMaxUpdateCount:{tm.TeamMaxUpdateCount}, UseSelfPointCollision:{tm.UseSelfPointCollision}, UseSelfEdgeCollision:{tm.UseSelfEdgeCollision}");
+
+            // 利用できるワーカースレッド数
+            int workerCount = math.max(WorkerCount, 1);
+            workerCount *= 5; // 更に分割：テスト結果より
+            //Debug.Log($"workerCount:{workerCount}");
+
+            // ジョブ連結用
+            JobHandle normalClothJobHandle = new JobHandle();
+            JobHandle splitClothJobHandle = new JobHandle();
+            JobHandle selfIntersectJobHandle = new JobHandle();
+            JobHandle solverIntersectJobHandle = new JobHandle();
+
+            // ■分割シミュレーションジョブ
+            // セルフコリジョンあり、もしくはプロキシメッシュの頂点数が一定値以上のジョブ
+            // オリジナルと同様にジョブを分割し同期しながら実行する
+            // ただし最適化を行いオリジナルより軽量化している
+            if (useSplitClothJob)
             {
-                processingStepParticle = processingStepParticle.Counter, // ステップ実行パーティクル
-                processingStepTriangleBending = processingStepTriangleBending.Counter, // ステップ実行トライアングルベンド
-                processingStepEdgeCollision = processingStepEdgeCollision.Counter, // ステップ実行エッジコリジョン
-                processingStepCollider = processingStepCollider.Counter, // ステップ実行コライダーリスト
-                processingStepBaseLine = processingStepBaseLine.Counter, // ステップ実行ベースライン
-                //processingCounter5 = processingIntList5.Counter, // (reserve)
-                processingStepMotionParticle = processingStepMotionParticle.Counter, // ステップ実行モーション制約パーティクル
+                // コンタクトキューとリスト
+                selfCollisionConstraint.contactQueue.Clear();
+                selfCollisionConstraint.contactList.Clear();
+                selfCollisionConstraint.intersectQueue.Clear();
+                selfCollisionConstraint.intersectList.Clear();
 
-                processingSelfParticle = processingSelfParticle.Counter,
-                processingSelfPointTriangle = processingSelfPointTriangle.Counter,
-                processingSelfEdgeEdge = processingSelfEdgeEdge.Counter,
-                processingSelfTrianglePoint = processingSelfTrianglePoint.Counter,
-            };
-            jobHandle = clearStepCounterJob.Schedule(jobHandle);
+                // 分割ジョブ内での各種コリジョンの有無
+                bool useEdgeCollision = tm.teamStatus.Value.z > 0;
+                bool useSelfCollision = tm.teamStatus.Value.w > 0;
 
-            var createUpdateParticleJob = new CreateUpdateParticleList()
-            {
-                teamDataArray = tm.teamDataArray.GetNativeArray(),
-                parameterArray = tm.parameterArray.GetNativeArray(),
+                // セルフコリジョンのインターセクト解決
+                bool useIntersect = selfCollisionConstraint.IntersectCount > 0;
 
-                stepParticleIndexCounter = processingStepParticle.Counter,
-                stepParticleIndexArray = processingStepParticle.Buffer,
-
-                stepBaseLineIndexCounter = processingStepBaseLine.Counter,
-                stepBaseLineIndexArray = processingStepBaseLine.Buffer,
-
-                stepTriangleBendIndexCounter = processingStepTriangleBending.Counter,
-                stepTriangleBendIndexArray = processingStepTriangleBending.Buffer,
-
-                stepEdgeCollisionIndexCounter = processingStepEdgeCollision.Counter,
-                stepEdgeCollisionIndexArray = processingStepEdgeCollision.Buffer,
-
-                motionParticleIndexCounter = processingStepMotionParticle.Counter,
-                motionParticleIndexArray = processingStepMotionParticle.Buffer,
-
-                selfParticleCounter = processingSelfParticle.Counter,
-                selfParticleIndexArray = processingSelfParticle.Buffer,
-                selfPointTriangleCounter = processingSelfPointTriangle.Counter,
-                selfPointTriangleIndexArray = processingSelfPointTriangle.Buffer,
-                selfEdgeEdgeCounter = processingSelfEdgeEdge.Counter,
-                selfEdgeEdgeIndexArray = processingSelfEdgeEdge.Buffer,
-                selfTrianglePointCounter = processingSelfTrianglePoint.Counter,
-                selfTrianglePointIndexArray = processingSelfTrianglePoint.Buffer,
-            };
-            jobHandle = createUpdateParticleJob.Schedule(tm.TeamCount, 1, jobHandle);
-
-            // 今回のステップで計算が必要なコライダーリストを作成する
-            jobHandle = MagicaManager.Collider.CreateUpdateColliderList(updateIndex, jobHandle);
-
-            // コライダーの更新
-            jobHandle = MagicaManager.Collider.StartSimulationStep(jobHandle);
-
-            // 速度更新、外力の影響、慣性シフト
-            var startStepJob = new StartSimulationStepJob()
-            {
-                simulationPower = MagicaManager.Time.SimulationPower,
-                simulationDeltaTime = MagicaManager.Time.SimulationDeltaTime,
-
-                stepParticleIndexArray = processingStepParticle.Buffer,
-
-                attributes = vm.attributes.GetNativeArray(),
-                depthArray = vm.vertexDepths.GetNativeArray(),
-                positions = vm.positions.GetNativeArray(),
-                rotations = vm.rotations.GetNativeArray(),
-                vertexRootIndices = vm.vertexRootIndices.GetNativeArray(),
-
-                teamDataArray = tm.teamDataArray.GetNativeArray(),
-                parameterArray = tm.parameterArray.GetNativeArray(),
-                centerDataArray = tm.centerDataArray.GetNativeArray(),
-                teamWindArray = tm.teamWindArray.GetNativeArray(),
-
-                windDataArray = wm.windDataArray.GetNativeArray(),
-
-                teamIdArray = teamIdArray.GetNativeArray(),
-                oldPosArray = oldPosArray.GetNativeArray(),
-                velocityArray = velocityArray.GetNativeArray(),
-                nextPosArray = nextPosArray.GetNativeArray(),
-                basePosArray = basePosArray.GetNativeArray(),
-                baseRotArray = baseRotArray.GetNativeArray(),
-                oldPositionArray = oldPositionArray.GetNativeArray(),
-                oldRotationArray = oldRotationArray.GetNativeArray(),
-                velocityPosArray = velocityPosArray.GetNativeArray(),
-                frictionArray = frictionArray.GetNativeArray(),
-
-                stepBasicPositionArray = stepBasicPositionBuffer,
-                stepBasicRotationArray = stepBasicRotationBuffer,
-            };
-            jobHandle = startStepJob.Schedule(processingStepParticle.GetJobSchedulePtr(), 32, jobHandle);
-
-            // 制約解決のためのステップごとの基準姿勢を計算（ベースラインから）
-            var updateStepBasicPotureJob = new UpdateStepBasicPotureJob()
-            {
-                stepBaseLineIndexArray = processingStepBaseLine.Buffer,
-
-                teamDataArray = tm.teamDataArray.GetNativeArray(),
-
-                attributes = MagicaManager.VMesh.attributes.GetNativeArray(),
-                vertexParentIndices = vm.vertexParentIndices.GetNativeArray(),
-                vertexLocalPositions = vm.vertexLocalPositions.GetNativeArray(),
-                vertexLocalRotations = vm.vertexLocalRotations.GetNativeArray(),
-                baseLineStartDataIndices = vm.baseLineStartDataIndices.GetNativeArray(),
-                baseLineDataCounts = vm.baseLineDataCounts.GetNativeArray(),
-                baseLineData = vm.baseLineData.GetNativeArray(),
-                //vertexToTransformRotations = vm.vertexToTransformRotations.GetNativeArray(),
-
-                basePosArray = basePosArray.GetNativeArray(),
-                baseRotArray = baseRotArray.GetNativeArray(),
-
-                stepBasicPositionArray = stepBasicPositionBuffer,
-                stepBasicRotationArray = stepBasicRotationBuffer,
-            };
-            jobHandle = updateStepBasicPotureJob.Schedule(processingStepBaseLine.GetJobSchedulePtr(), 2, jobHandle);
-
-            // 制約の解決
-            //for (int i = 0; i < 2; i++)
-            {
-                // 一般制約
-                jobHandle = tetherConstraint.SolverConstraint(jobHandle);
-                jobHandle = distanceConstraint.SolverConstraint(jobHandle);
-                jobHandle = angleConstraint.SolverConstraint(jobHandle);
-                jobHandle = bendingConstraint.SolverConstraint(jobHandle);
-                // コライダーコリジョン
-                jobHandle = colliderCollisionConstraint.SolverConstraint(jobHandle);
-                // コライダー衝突後はパーティクルが乱れる可能性があるためもう一度距離制約で整える。
-                // これは裏返り防止などに効果大。
-                jobHandle = distanceConstraint.SolverConstraint(jobHandle);
-                // モーション制約はコライダーより優先
-                jobHandle = motionConstraint.SolverConstraint(jobHandle);
-                // セルフコリジョンは最後
-                jobHandle = selfCollisionConstraint.SolverConstraint(updateIndex, jobHandle);
-            }
-
-            // 座標確定
-            var endStepJob = new EndSimulationStepJob()
-            {
-                simulationDeltaTime = MagicaManager.Time.SimulationDeltaTime,
-
-                stepParticleIndexArray = processingStepParticle.Buffer,
-
-                teamDataArray = tm.teamDataArray.GetNativeArray(),
-                parameterArray = tm.parameterArray.GetNativeArray(),
-                centerDataArray = tm.centerDataArray.GetNativeArray(),
-
-                attributes = vm.attributes.GetNativeArray(),
-                vertexDepths = vm.vertexDepths.GetNativeArray(),
-
-                teamIdArray = teamIdArray.GetNativeArray(),
-                nextPosArray = nextPosArray.GetNativeArray(),
-                oldPosArray = oldPosArray.GetNativeArray(),
-                velocityArray = velocityArray.GetNativeArray(),
-                realVelocityArray = realVelocityArray.GetNativeArray(),
-                velocityPosArray = velocityPosArray.GetNativeArray(),
-                frictionArray = frictionArray.GetNativeArray(),
-                staticFrictionArray = staticFrictionArray.GetNativeArray(),
-                collisionNormalArray = collisionNormalArray.GetNativeArray(),
-            };
-            jobHandle = endStepJob.Schedule(processingStepParticle.GetJobSchedulePtr(), 32, jobHandle);
-
-            // コライダーの後更新
-            jobHandle = MagicaManager.Collider.EndSimulationStep(jobHandle);
-
-            return jobHandle;
-        }
-
-        [BurstCompile]
-        struct ClearStepCounter : IJob
-        {
-            [Unity.Collections.WriteOnly]
-            public NativeReference<int> processingStepParticle;
-            [Unity.Collections.WriteOnly]
-            public NativeReference<int> processingStepTriangleBending;
-            [Unity.Collections.WriteOnly]
-            public NativeReference<int> processingStepEdgeCollision;
-            [Unity.Collections.WriteOnly]
-            public NativeReference<int> processingStepCollider;
-            [Unity.Collections.WriteOnly]
-            public NativeReference<int> processingStepBaseLine;
-            //[Unity.Collections.WriteOnly]
-            //public NativeReference<int> processingCounter5;
-            [Unity.Collections.WriteOnly]
-            public NativeReference<int> processingStepMotionParticle;
-
-            [Unity.Collections.WriteOnly]
-            public NativeReference<int> processingSelfParticle;
-            [Unity.Collections.WriteOnly]
-            public NativeReference<int> processingSelfPointTriangle;
-            [Unity.Collections.WriteOnly]
-            public NativeReference<int> processingSelfEdgeEdge;
-            [Unity.Collections.WriteOnly]
-            public NativeReference<int> processingSelfTrianglePoint;
-
-            public void Execute()
-            {
-                processingStepParticle.Value = 0;
-                processingStepTriangleBending.Value = 0;
-                processingStepEdgeCollision.Value = 0;
-                processingStepCollider.Value = 0;
-                processingStepBaseLine.Value = 0;
-                //processingCounter5.Value = 0;
-                processingStepMotionParticle.Value = 0;
-
-                processingSelfParticle.Value = 0;
-                processingSelfPointTriangle.Value = 0;
-                processingSelfEdgeEdge.Value = 0;
-                processingSelfTrianglePoint.Value = 0;
-            }
-        }
-
-        [BurstCompile]
-        struct CreateUpdateParticleList : IJobParallelFor
-        {
-            // team
-            [Unity.Collections.ReadOnly]
-            public NativeArray<TeamManager.TeamData> teamDataArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<ClothParameters> parameterArray;
-
-            // buffer
-            [NativeDisableParallelForRestriction]
-            [Unity.Collections.WriteOnly]
-            public NativeReference<int> stepParticleIndexCounter;
-            [NativeDisableParallelForRestriction]
-            [Unity.Collections.WriteOnly]
-            public NativeArray<int> stepParticleIndexArray;
-
-            [NativeDisableParallelForRestriction]
-            [Unity.Collections.WriteOnly]
-            public NativeReference<int> stepBaseLineIndexCounter;
-            [NativeDisableParallelForRestriction]
-            [Unity.Collections.WriteOnly]
-            public NativeArray<int> stepBaseLineIndexArray;
-
-            [NativeDisableParallelForRestriction]
-            [Unity.Collections.WriteOnly]
-            public NativeReference<int> stepTriangleBendIndexCounter;
-            [NativeDisableParallelForRestriction]
-            [Unity.Collections.WriteOnly]
-            public NativeArray<int> stepTriangleBendIndexArray;
-
-            [NativeDisableParallelForRestriction]
-            [Unity.Collections.WriteOnly]
-            public NativeReference<int> stepEdgeCollisionIndexCounter;
-            [NativeDisableParallelForRestriction]
-            [Unity.Collections.WriteOnly]
-            public NativeArray<int> stepEdgeCollisionIndexArray;
-
-            [NativeDisableParallelForRestriction]
-            [Unity.Collections.WriteOnly]
-            public NativeReference<int> motionParticleIndexCounter;
-            [NativeDisableParallelForRestriction]
-            [Unity.Collections.WriteOnly]
-            public NativeArray<int> motionParticleIndexArray;
-
-            [NativeDisableParallelForRestriction]
-            [Unity.Collections.WriteOnly]
-            public NativeReference<int> selfParticleCounter;
-            [NativeDisableParallelForRestriction]
-            [Unity.Collections.WriteOnly]
-            public NativeArray<int> selfParticleIndexArray;
-
-            [NativeDisableParallelForRestriction]
-            [Unity.Collections.WriteOnly]
-            public NativeReference<int> selfPointTriangleCounter;
-            [NativeDisableParallelForRestriction]
-            [Unity.Collections.WriteOnly]
-            public NativeArray<uint> selfPointTriangleIndexArray;
-
-            [NativeDisableParallelForRestriction]
-            [Unity.Collections.WriteOnly]
-            public NativeReference<int> selfEdgeEdgeCounter;
-            [NativeDisableParallelForRestriction]
-            [Unity.Collections.WriteOnly]
-            public NativeArray<uint> selfEdgeEdgeIndexArray;
-
-            [NativeDisableParallelForRestriction]
-            [Unity.Collections.WriteOnly]
-            public NativeReference<int> selfTrianglePointCounter;
-            [NativeDisableParallelForRestriction]
-            [Unity.Collections.WriteOnly]
-            public NativeArray<uint> selfTrianglePointIndexArray;
-
-            // チームごと
-            public void Execute(int teamId)
-            {
-                if (teamId == 0)
-                    return;
-
-                var tdata = teamDataArray[teamId];
-                if (tdata.IsProcess == false || tdata.IsRunning == false)
-                    return;
-
-                // このステップでの更新があるか判定する
-                if (tdata.IsStepRunning == false)
-                    return;
-
-                var parameter = parameterArray[teamId];
-
-                // パーティクルリスト
-                int pcnt = tdata.particleChunk.dataLength;
-                int pstart = tdata.particleChunk.startIndex;
-                int start = stepParticleIndexCounter.InterlockedStartIndex(pcnt);
-                for (int i = 0; i < pcnt; i++)
+                // プロキシメッシュをスキニングし基本姿勢を求める
+                var splitPre_A_Job = new SplitPre_A_Job()
                 {
-                    stepParticleIndexArray[start + i] = pstart + i;
-                }
+                    workerCount = workerCount,
 
-                // ベースライン
-                int bcnt = tdata.BaseLineCount;
-                int bstart = tdata.baseLineChunk.startIndex;
-                start = stepBaseLineIndexCounter.InterlockedStartIndex(bcnt);
-                for (int i = 0; i < bcnt; i++)
-                {
-                    // 上位16bit:チームID, 下位16bit:ベースラインインデックス
-                    uint pack = DataUtility.Pack32(teamId, bstart + i);
-                    stepBaseLineIndexArray[start + i] = (int)pack;
-                }
+                    // team
+                    batchSelfTeamList = tm.batchSplitClothTeamList,
+                    teamDataArray = tm.teamDataArray.GetNativeArray(),
 
-                // トライアングルベンド
-                if (parameter.triangleBendingConstraint.method != TriangleBendingConstraint.Method.None)
+                    // transform
+                    transformLocalToWorldMatrixArray = bm.localToWorldMatrixArray.GetNativeArray(),
+
+                    // vmesh
+                    attributes = vm.attributes.GetNativeArray(),
+                    localPositions = vm.localPositions.GetNativeArray(),
+                    localNormals = vm.localNormals.GetNativeArray(),
+                    localTangents = vm.localTangents.GetNativeArray(),
+                    boneWeights = vm.boneWeights.GetNativeArray(),
+                    skinBoneTransformIndices = vm.skinBoneTransformIndices.GetNativeArray(),
+                    skinBoneBindPoses = vm.skinBoneBindPoses.GetNativeArray(),
+                    positions = vm.positions.GetNativeArray(),
+                    rotations = vm.rotations.GetNativeArray(),
+                };
+                splitClothJobHandle = splitPre_A_Job.Schedule(splitClothTeamCount * workerCount, 1, jobHandle);
+
+                // チームのセンター姿勢の決定と慣性用の移動量計算
+                var splitPre_B_Job = new SplitPre_B_Job()
                 {
-                    int bendCnt = tdata.bendingPairChunk.dataLength;
-                    int bendIndex = tdata.bendingPairChunk.startIndex;
-                    start = stepTriangleBendIndexCounter.InterlockedStartIndex(bendCnt);
-                    for (int i = 0; i < bendCnt; i++, bendIndex++)
+                    simulationDeltaTime = MagicaManager.Time.SimulationDeltaTime,
+
+                    // team
+                    batchSelfTeamList = tm.batchSplitClothTeamList,
+                    teamDataArray = tm.teamDataArray.GetNativeArray(),
+                    centerDataArray = tm.centerDataArray.GetNativeArray(),
+                    teamWindArray = tm.teamWindArray.GetNativeArray(),
+                    parameterArray = tm.parameterArray.GetNativeArray(),
+
+                    // wind
+                    windZoneCount = wm.WindCount,
+                    windDataArray = wm.windDataArray.GetNativeArray(),
+
+                    // transform
+                    transformPositionArray = bm.positionArray.GetNativeArray(),
+                    transformRotationArray = bm.rotationArray.GetNativeArray(),
+                    transformScaleArray = bm.scaleArray.GetNativeArray(),
+
+                    // vmesh
+                    positions = vm.positions.GetNativeArray(),
+                    rotations = vm.rotations.GetNativeArray(),
+                    vertexBindPoseRotations = vm.vertexBindPoseRotations.GetNativeArray(),
+
+                    // inertia
+                    fixedArray = inertiaConstraint.fixedArray.GetNativeArray(),
+                };
+                splitClothJobHandle = splitPre_B_Job.Schedule(splitClothTeamCount, 1, splitClothJobHandle);
+
+                // パーティクルの全体慣性およびリセットの適用
+                // コライダーのローカル姿勢を求める、および全体慣性とリセットの適用
+                var splitPre_C_Job = new SplitPre_C_Job()
+                {
+                    workerCount = workerCount,
+
+                    // team
+                    batchSelfTeamList = tm.batchSplitClothTeamList,
+                    teamDataArray = tm.teamDataArray.GetNativeArray(),
+                    centerDataArray = tm.centerDataArray.GetNativeArray(),
+                    parameterArray = tm.parameterArray.GetNativeArray(),
+
+                    // transform
+                    transformPositionArray = bm.positionArray.GetNativeArray(),
+                    transformRotationArray = bm.rotationArray.GetNativeArray(),
+                    transformScaleArray = bm.scaleArray.GetNativeArray(),
+                    transformLocalPositionArray = bm.localPositionArray.GetNativeArray(),
+                    transformLocalRotationArray = bm.localRotationArray.GetNativeArray(),
+                    transformLocalScaleArray = bm.localScaleArray.GetNativeArray(),
+
+                    // vmesh
+                    positions = vm.positions.GetNativeArray(),
+                    rotations = vm.rotations.GetNativeArray(),
+                    vertexDepths = vm.vertexDepths.GetNativeArray(),
+
+                    // particle
+                    nextPosArray = nextPosArray.GetNativeArray(),
+                    oldPosArray = oldPosArray.GetNativeArray(),
+                    oldRotArray = oldRotArray.GetNativeArray(),
+                    basePosArray = basePosArray.GetNativeArray(),
+                    baseRotArray = baseRotArray.GetNativeArray(),
+                    oldPositionArray = oldPositionArray.GetNativeArray(),
+                    oldRotationArray = oldRotationArray.GetNativeArray(),
+                    velocityPosArray = velocityPosArray.GetNativeArray(),
+                    dispPosArray = dispPosArray.GetNativeArray(),
+                    velocityArray = velocityArray.GetNativeArray(),
+                    realVelocityArray = realVelocityArray.GetNativeArray(),
+                    frictionArray = frictionArray.GetNativeArray(),
+                    staticFrictionArray = staticFrictionArray.GetNativeArray(),
+                    collisionNormalArray = collisionNormalArray.GetNativeArray(),
+
+                    // collider
+                    colliderFlagArray = cm.flagArray.GetNativeArray(),
+                    colliderCenterArray = cm.centerArray.GetNativeArray(),
+                    colliderFramePositions = cm.framePositions.GetNativeArray(),
+                    colliderFrameRotations = cm.frameRotations.GetNativeArray(),
+                    colliderFrameScales = cm.frameScales.GetNativeArray(),
+                    colliderOldFramePositions = cm.oldFramePositions.GetNativeArray(),
+                    colliderOldFrameRotations = cm.oldFrameRotations.GetNativeArray(),
+                    colliderNowPositions = cm.nowPositions.GetNativeArray(),
+                    colliderNowRotations = cm.nowRotations.GetNativeArray(),
+                    colliderOldPositions = cm.oldPositions.GetNativeArray(),
+                    colliderOldRotations = cm.oldRotations.GetNativeArray(),
+                    colliderMainColliderIndices = cm.mainColliderIndices.GetNativeArray(),
+                };
+                splitClothJobHandle = splitPre_C_Job.Schedule(splitClothTeamCount * workerCount, 1, splitClothJobHandle);
+
+                // セルフコリジョンのインターセクトバッファの生成（開始)
+                bool useIntersectJob = false;
+                if (useSelfCollision && maxUpdateCount > 0 && useIntersect)
+                {
+                    // インターセクトバッファの生成
+                    // インターセクトパーティクルフラグクリア
+                    var selfDetectionIntersect_job = new SelfCollisionConstraint.SelfDetectionIntersectJob()
                     {
-                        uint pack = DataUtility.Pack12_20(teamId, bendIndex);
-                        stepTriangleBendIndexArray[start + i] = (int)pack;
-                    }
-                }
+                        workerCount = workerCount,
+                        // div
+                        frameIndex = Time.frameCount % Define.System.SelfCollisionIntersectDiv,
+                        // team
+                        batchSelfTeamList = tm.batchSplitClothTeamList,
+                        teamDataArray = tm.teamDataArray.GetNativeArray(),
+                        // self collision
+                        primitiveArrayB = selfCollisionConstraint.primitiveArrayB.GetNativeArray(),
+                        uniformGridStartCountBuffer = selfCollisionConstraint.uniformGridStartCountBuffer.GetNativeArray(),
+                        // buffer
+                        intersectQueue = selfCollisionConstraint.intersectQueue.AsParallelWriter(),
+                    };
+                    selfIntersectJobHandle = selfDetectionIntersect_job.Schedule(splitClothTeamCount * workerCount, 1, jobHandle);
 
-                // エッジコライダーコリジョン
-                int colliderCount = tdata.ColliderCount;
-                if (parameter.colliderCollisionConstraint.mode == ColliderCollisionConstraint.Mode.Edge && tdata.proxyEdgeChunk.IsValid && colliderCount > 0)
-                {
-                    int ecnt = tdata.proxyEdgeChunk.dataLength;
-                    int estart = tdata.proxyEdgeChunk.startIndex;
-                    start = stepEdgeCollisionIndexCounter.InterlockedStartIndex(ecnt);
-                    for (int i = 0; i < ecnt; i++)
+                    // インターセクトバッファをリストに変換
+                    var selfConvertIntersectList_job = new SelfCollisionConstraint.SelfConvertIntersectListJob()
                     {
-                        stepEdgeCollisionIndexArray[start + i] = estart + i;
-                    }
+                        intersectQueue = selfCollisionConstraint.intersectQueue,
+                        intersectList = selfCollisionConstraint.intersectList,
+                    };
+                    selfIntersectJobHandle = selfConvertIntersectList_job.Schedule(selfIntersectJobHandle);
+                    useIntersectJob = true;
                 }
 
-                // モーション制約パーティクル
-                if (parameter.motionConstraint.useMaxDistance || parameter.motionConstraint.useBackstop)
+                // ■ステップループ
+                for (int updateIndex = 0; updateIndex < maxUpdateCount; updateIndex++)
                 {
-                    start = motionParticleIndexCounter.InterlockedStartIndex(pcnt);
-                    for (int i = 0; i < pcnt; i++)
+                    bool isFirstStep = updateIndex == 0;
+
+                    // チーム更新
+                    // コライダーの更新
+                    var splitStep_A_job = new SplitStep_A_Job()
                     {
-                        motionParticleIndexArray[start + i] = pstart + i;
-                    }
-                }
+                        updateIndex = updateIndex,
+                        simulationPower = tim.SimulationPower,
+                        simulationDeltaTime = tim.SimulationDeltaTime,
+                        // team
+                        batchSelfTeamList = tm.batchSplitClothTeamList,
+                        teamDataArray = tm.teamDataArray.GetNativeArray(),
+                        centerDataArray = tm.centerDataArray.GetNativeArray(),
+                        teamWindArray = tm.teamWindArray.GetNativeArray(),
+                        parameterArray = tm.parameterArray.GetNativeArray(),
+                        // collider
+                        colliderFlagArray = cm.flagArray.GetNativeArray(),
+                        colliderSizeArray = cm.sizeArray.GetNativeArray(),
+                        colliderFramePositions = cm.framePositions.GetNativeArray(),
+                        colliderFrameRotations = cm.frameRotations.GetNativeArray(),
+                        colliderFrameScales = cm.frameScales.GetNativeArray(),
+                        colliderOldFramePositions = cm.oldFramePositions.GetNativeArray(),
+                        colliderOldFrameRotations = cm.oldFrameRotations.GetNativeArray(),
+                        colliderNowPositions = cm.nowPositions.GetNativeArray(),
+                        colliderNowRotations = cm.nowRotations.GetNativeArray(),
+                        colliderOldPositions = cm.oldPositions.GetNativeArray(),
+                        colliderOldRotations = cm.oldRotations.GetNativeArray(),
+                        colliderWorkDataArray = cm.workDataArray.GetNativeArray(),
+                    };
+                    splitClothJobHandle = splitStep_A_job.Schedule(splitClothTeamCount, 1, splitClothJobHandle);
 
-                // セルフコリジョン
-                bool useSelfEdgeEdge = tdata.flag.TestAny(TeamManager.Flag_Self_EdgeEdge, 3);
-                bool useSelfPointTriangle = tdata.flag.TestAny(TeamManager.Flag_Self_PointTriangle, 3);
-                bool useSelfTrianglePoint = tdata.flag.TestAny(TeamManager.Flag_Self_TrianglePoint, 3);
-                if (useSelfEdgeEdge)
-                {
-                    int ecnt = tdata.EdgeCount;
-                    start = selfEdgeEdgeCounter.InterlockedStartIndex(ecnt);
-                    for (int i = 0; i < ecnt; i++)
+                    // 速度更新、外力の影響、慣性シフト
+                    var splitStep_B_job = new SplitStep_B_Job()
                     {
-                        // 上位16bit:チームID, 下位16bit:Edgeインデックス
-                        uint pack = DataUtility.Pack32(teamId, i);
-                        selfEdgeEdgeIndexArray[start + i] = pack;
-                    }
-                }
-                if (useSelfPointTriangle)
-                {
-                    start = selfPointTriangleCounter.InterlockedStartIndex(pcnt);
-                    for (int i = 0; i < pcnt; i++)
+                        workerCount = workerCount,
+                        updateIndex = updateIndex,
+                        simulationPower = tim.SimulationPower,
+                        simulationDeltaTime = tim.SimulationDeltaTime,
+                        // team
+                        batchSelfTeamList = tm.batchSplitClothTeamList,
+                        teamDataArray = tm.teamDataArray.GetNativeArray(),
+                        centerDataArray = tm.centerDataArray.GetNativeArray(),
+                        teamWindArray = tm.teamWindArray.GetNativeArray(),
+                        parameterArray = tm.parameterArray.GetNativeArray(),
+                        // wind
+                        windZoneCount = wm.WindCount,
+                        windDataArray = wm.windDataArray.GetNativeArray(),
+                        // vmesh
+                        attributes = vm.attributes.GetNativeArray(),
+                        depthArray = vm.vertexDepths.GetNativeArray(),
+                        positions = vm.positions.GetNativeArray(),
+                        rotations = vm.rotations.GetNativeArray(),
+                        vertexRootIndices = vm.vertexRootIndices.GetNativeArray(),
+                        // particle
+                        nextPosArray = nextPosArray.GetNativeArray(),
+                        oldPosArray = oldPosArray.GetNativeArray(),
+                        basePosArray = basePosArray.GetNativeArray(),
+                        baseRotArray = baseRotArray.GetNativeArray(),
+                        oldPositionArray = oldPositionArray.GetNativeArray(),
+                        oldRotationArray = oldRotationArray.GetNativeArray(),
+                        velocityPosArray = velocityPosArray.GetNativeArray(),
+                        velocityArray = velocityArray.GetNativeArray(),
+                        frictionArray = frictionArray.GetNativeArray(),
+                        // buffer
+                        stepBasicPositionBuffer = stepBasicPositionBuffer,
+                        stepBasicRotationBuffer = stepBasicRotationBuffer,
+                    };
+                    splitClothJobHandle = splitStep_B_job.Schedule(splitClothTeamCount * workerCount, 1, splitClothJobHandle);
+
+                    // ベースラインの基準姿勢を計算
+                    var splitStep_C_job = new SplitStep_C_Job()
                     {
-                        // 上位16bit:チームID, 下位16bit:Pointインデックス
-                        uint pack = DataUtility.Pack32(teamId, i);
-                        selfPointTriangleIndexArray[start + i] = pack;
-                    }
-                }
-                if (useSelfTrianglePoint)
-                {
-                    int tcnt = tdata.TriangleCount;
-                    start = selfTrianglePointCounter.InterlockedStartIndex(tcnt);
-                    for (int i = 0; i < tcnt; i++)
+                        workerCount = workerCount,
+                        updateIndex = updateIndex,
+                        // team
+                        batchSelfTeamList = tm.batchSplitClothTeamList,
+                        teamDataArray = tm.teamDataArray.GetNativeArray(),
+                        // vmesh
+                        attributes = vm.attributes.GetNativeArray(),
+                        vertexRootIndices = vm.vertexRootIndices.GetNativeArray(),
+                        vertexParentIndices = vm.vertexParentIndices.GetNativeArray(),
+                        baseLineStartDataIndices = vm.baseLineStartDataIndices.GetNativeArray(),
+                        baseLineDataCounts = vm.baseLineDataCounts.GetNativeArray(),
+                        baseLineData = vm.baseLineData.GetNativeArray(),
+                        vertexLocalPositions = vm.vertexLocalPositions.GetNativeArray(),
+                        vertexLocalRotations = vm.vertexLocalRotations.GetNativeArray(),
+                        // particle
+                        basePosArray = basePosArray.GetNativeArray(),
+                        baseRotArray = baseRotArray.GetNativeArray(),
+                        // buffer
+                        stepBasicPositionBuffer = stepBasicPositionBuffer,
+                        stepBasicRotationBuffer = stepBasicRotationBuffer,
+                    };
+                    splitClothJobHandle = splitStep_C_job.Schedule(splitClothTeamCount * workerCount, 1, splitClothJobHandle);
+
+                    // テザー
+                    // 距離
+                    var splitStep_D_job = new SplitStep_D_Job()
                     {
-                        // 上位16bit:チームID, 下位16bit:Triangleインデックス
-                        uint pack = DataUtility.Pack32(teamId, i);
-                        selfTrianglePointIndexArray[start + i] = pack;
-                    }
-                }
-                if (useSelfEdgeEdge || useSelfPointTriangle || useSelfTrianglePoint)
-                {
-                    start = selfParticleCounter.InterlockedStartIndex(pcnt);
-                    for (int i = 0; i < pcnt; i++)
+                        workerCount = workerCount,
+                        updateIndex = updateIndex,
+                        simulationPower = tim.SimulationPower,
+                        // team
+                        batchSelfTeamList = tm.batchSplitClothTeamList,
+                        teamDataArray = tm.teamDataArray.GetNativeArray(),
+                        centerDataArray = tm.centerDataArray.GetNativeArray(),
+                        parameterArray = tm.parameterArray.GetNativeArray(),
+                        // vmesh
+                        attributes = vm.attributes.GetNativeArray(),
+                        depthArray = vm.vertexDepths.GetNativeArray(),
+                        vertexRootIndices = vm.vertexRootIndices.GetNativeArray(),
+                        // particle
+                        nextPosArray = nextPosArray.GetNativeArray(),
+                        basePosArray = basePosArray.GetNativeArray(),
+                        velocityPosArray = velocityPosArray.GetNativeArray(),
+                        frictionArray = frictionArray.GetNativeArray(),
+                        // distance
+                        distanceIndexArray = distanceConstraint.indexArray.GetNativeArray(),
+                        distanceDataArray = distanceConstraint.dataArray.GetNativeArray(),
+                        distanceDistanceArray = distanceConstraint.distanceArray.GetNativeArray(),
+                        // buffer
+                        stepBasicPositionBuffer = stepBasicPositionBuffer,
+                    };
+                    splitClothJobHandle = splitStep_D_job.Schedule(splitClothTeamCount * workerCount, 1, splitClothJobHandle);
+
+                    // アングル
+                    var splitStep_Angle_job = new SplitStep_Angle_Job()
                     {
-                        selfParticleIndexArray[start + i] = pstart + i;
-                    }
-                }
+                        workerCount = workerCount,
+                        updateIndex = updateIndex,
+                        simulationPower = tim.SimulationPower,
+                        // team
+                        batchSelfTeamList = tm.batchSplitClothTeamList,
+                        teamDataArray = tm.teamDataArray.GetNativeArray(),
+                        parameterArray = tm.parameterArray.GetNativeArray(),
+                        // vmesh
+                        attributes = vm.attributes.GetNativeArray(),
+                        depthArray = vm.vertexDepths.GetNativeArray(),
+                        vertexRootIndices = vm.vertexRootIndices.GetNativeArray(),
+                        vertexParentIndices = vm.vertexParentIndices.GetNativeArray(),
+                        baseLineStartDataIndices = vm.baseLineStartDataIndices.GetNativeArray(),
+                        baseLineDataCounts = vm.baseLineDataCounts.GetNativeArray(),
+                        baseLineData = vm.baseLineData.GetNativeArray(),
+                        // particle
+                        nextPosArray = nextPosArray.GetNativeArray(),
+                        //basePosArray = basePosArray.GetNativeArray(),
+                        velocityPosArray = velocityPosArray.GetNativeArray(),
+                        frictionArray = frictionArray.GetNativeArray(),
+                        // distance
+                        distanceIndexArray = distanceConstraint.indexArray.GetNativeArray(),
+                        distanceDataArray = distanceConstraint.dataArray.GetNativeArray(),
+                        distanceDistanceArray = distanceConstraint.distanceArray.GetNativeArray(),
+                        // buffer
+                        stepBasicPositionBuffer = stepBasicPositionBuffer,
+                        stepBasicRotationBuffer = stepBasicRotationBuffer,
+                        // buffer2
+                        tempVectorBufferA = tempVectorBufferA,
+                        tempVectorBufferB = tempVectorBufferB,
+                        tempFloatBufferA = tempFloatBufferA,
+                        tempRotationBufferA = tempRotationBufferA,
+                        tempRotationBufferB = tempRotationBufferB,
+                    };
+                    splitClothJobHandle = splitStep_Angle_job.Schedule(splitClothTeamCount * workerCount, 1, splitClothJobHandle);
 
-                //Debug.Log($"Step:{updateIndex}, updateParticleCount:{jobParticleIndexList.Length}");
-            }
-        }
-
-        [BurstCompile]
-        struct StartSimulationStepJob : IJobParallelForDefer
-        {
-            public float4 simulationPower;
-            public float simulationDeltaTime;
-
-            [Unity.Collections.ReadOnly]
-            public NativeArray<int> stepParticleIndexArray;
-
-            // vmesh
-            [Unity.Collections.ReadOnly]
-            public NativeArray<VertexAttribute> attributes;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float> depthArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float3> positions;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<quaternion> rotations;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<int> vertexRootIndices;
-
-            // team
-            [Unity.Collections.ReadOnly]
-            public NativeArray<TeamManager.TeamData> teamDataArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<ClothParameters> parameterArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<InertiaConstraint.CenterData> centerDataArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<TeamWindData> teamWindArray;
-
-            // wind
-            [Unity.Collections.ReadOnly]
-            public NativeArray<WindManager.WindData> windDataArray;
-
-            // particle
-            [Unity.Collections.ReadOnly]
-            public NativeArray<short> teamIdArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float3> oldPosArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float3> velocityArray;
-            [NativeDisableParallelForRestriction]
-            [Unity.Collections.WriteOnly]
-            public NativeArray<float3> nextPosArray;
-            [NativeDisableParallelForRestriction]
-            [Unity.Collections.WriteOnly]
-            public NativeArray<float3> basePosArray;
-            [NativeDisableParallelForRestriction]
-            [Unity.Collections.WriteOnly]
-            public NativeArray<quaternion> baseRotArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float3> oldPositionArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<quaternion> oldRotationArray;
-            [NativeDisableParallelForRestriction]
-            [Unity.Collections.WriteOnly]
-            public NativeArray<float3> velocityPosArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float> frictionArray;
-
-            // buffer
-            [NativeDisableParallelForRestriction]
-            [Unity.Collections.WriteOnly]
-            public NativeArray<float3> stepBasicPositionArray;
-            [NativeDisableParallelForRestriction]
-            [Unity.Collections.WriteOnly]
-            public NativeArray<quaternion> stepBasicRotationArray;
-
-
-            // ステップパーティクルごと
-            public void Execute(int index)
-            {
-                int pindex = stepParticleIndexArray[index];
-                int teamId = teamIdArray[pindex];
-                var tdata = teamDataArray[teamId];
-                int l_index = pindex - tdata.particleChunk.startIndex;
-
-                // 各カテゴリのデータインデックス
-                int vindex = tdata.proxyCommonChunk.startIndex + l_index;
-
-                // パラメータ
-                var param = parameterArray[teamId];
-
-                // nextPosSwap
-                var attr = attributes[vindex];
-                float depth = depthArray[vindex];
-                var oldPos = oldPosArray[pindex];
-
-                var nextPos = oldPos;
-                var velocityPos = oldPos;
-
-                // 基準姿勢のステップ補間
-                var oldPosition = oldPositionArray[pindex];
-                var oldRotation = oldRotationArray[pindex];
-                var position = positions[vindex];
-                var rotation = rotations[vindex];
-
-                // ベース位置補間
-                float3 basePos = math.lerp(oldPosition, position, tdata.frameInterpolation);
-                quaternion baseRot = math.slerp(oldRotation, rotation, tdata.frameInterpolation);
-                baseRot = math.normalize(baseRot); // 必要
-                basePosArray[pindex] = basePos;
-                baseRotArray[pindex] = baseRot;
-
-                // ステップ基本位置
-                stepBasicPositionArray[pindex] = basePos;
-                stepBasicRotationArray[pindex] = baseRot;
-
-                // 移動パーティクル
-                if (attr.IsMove())
-                {
-                    var cdata = centerDataArray[teamId];
-
-                    // 重量
-                    //float mass = MathUtility.CalcMass(depth);
-
-                    // 速度
-                    var velocity = velocityArray[pindex];
-
-#if true
-                    // ■ローカル慣性シフト
-                    // シフト量
-                    float3 inertiaVector = cdata.inertiaVector;
-                    quaternion inertiaRotation = cdata.inertiaRotation;
-
-                    // 慣性の深さ影響
-                    float inertiaDepth = param.inertiaConstraint.depthInertia * (1.0f - depth * depth); // 二次曲線
-                    inertiaVector = math.lerp(inertiaVector, cdata.stepVector, inertiaDepth);
-                    inertiaRotation = math.slerp(inertiaRotation, cdata.stepRotation, inertiaDepth);
-
-                    // たぶんこっちが正しい
-                    float3 lpos = oldPos - cdata.oldWorldPosition;
-                    lpos = math.mul(inertiaRotation, lpos);
-                    lpos += inertiaVector;
-                    float3 wpos = cdata.oldWorldPosition + lpos;
-                    var inertiaOffset = wpos - nextPos;
-
-                    // nextPos
-                    nextPos = wpos;
-
-                    // 速度位置も調整
-                    velocityPos += inertiaOffset;
-
-                    // 速度に慣性回転を加える
-                    velocity = math.mul(inertiaRotation, velocity);
-#endif
-
-                    // 安定化用の速度割合
-                    velocity *= tdata.velocityWeight;
-
-                    // 抵抗
-                    // 重力に影響させたくないので先に計算する（※通常はforce適用後に行うのが一般的）
-                    float damping = param.dampingCurveData.EvaluateCurveClamp01(depth);
-                    velocity *= math.saturate(1.0f - damping * simulationPower.z);
-
-                    // 外力
-                    float3 force = 0;
-
-                    // 重力
-                    float3 gforce = param.gravityDirection * (param.gravity * tdata.gravityRatio);
-                    force += gforce;
-
-                    // 外力
-                    float3 exForce = 0;
-                    float mass = MathUtility.CalcMass(depth);
-                    switch (tdata.forceMode)
+                    // トライアングルベンド
+                    var splitStep_Triangle_job = new SplitStep_Triangle_Job()
                     {
-                        case ClothForceMode.VelocityAdd:
-                            exForce = tdata.impactForce / mass;
-                            break;
-                        case ClothForceMode.VelocityAddWithoutDepth:
-                            exForce = tdata.impactForce;
-                            break;
-                        case ClothForceMode.VelocityChange:
-                            exForce = tdata.impactForce / mass;
-                            velocity = 0;
-                            break;
-                        case ClothForceMode.VelocityChangeWithoutDepth:
-                            exForce = tdata.impactForce;
-                            velocity = 0;
-                            break;
-                    }
-                    force += exForce;
+                        workerCount = workerCount,
+                        updateIndex = updateIndex,
+                        simulationPower = tim.SimulationPower,
+                        // team
+                        batchSelfTeamList = tm.batchSplitClothTeamList,
+                        teamDataArray = tm.teamDataArray.GetNativeArray(),
+                        parameterArray = tm.parameterArray.GetNativeArray(),
+                        // vmesh
+                        attributes = vm.attributes.GetNativeArray(),
+                        depthArray = vm.vertexDepths.GetNativeArray(),
+                        // particle
+                        nextPosArray = nextPosArray.GetNativeArray(),
+                        frictionArray = frictionArray.GetNativeArray(),
+                        // triangle bending
+                        bendingTrianglePairArray = bendingConstraint.trianglePairArray.GetNativeArray(),
+                        bendingRestAngleOrVolumeArray = bendingConstraint.restAngleOrVolumeArray.GetNativeArray(),
+                        bendingSignOrVolumeArray = bendingConstraint.signOrVolumeArray.GetNativeArray(),
+                        // buffer2
+                        tempVectorBufferA = tempVectorBufferA,
+                        tempCountBuffer = tempCountBuffer,
+                    };
+                    splitClothJobHandle = splitStep_Triangle_job.Schedule(splitClothTeamCount * workerCount, 1, splitClothJobHandle);
 
-                    // 風力
-                    force += Wind(teamId, tdata, param.wind, cdata, vindex, pindex, depth);
-
-                    // 外力チームスケール倍率
-                    force *= tdata.scaleRatio;
-
-                    // 速度更新
-                    velocity += force * simulationDeltaTime;
-
-                    // 予測位置更新
-                    nextPos += velocity * simulationDeltaTime;
-                }
-                else
-                {
-                    // 固定パーティクル
-                    nextPos = basePos;
-                    velocityPos = basePos;
-                }
-
-                // 速度計算用の移動前の位置
-                velocityPosArray[pindex] = velocityPos;
-
-                // 予測位置格納
-                nextPosArray[pindex] = nextPos;
-            }
-
-            float3 Wind(int teamId, in TeamManager.TeamData tdata, in WindParams windParams, in InertiaConstraint.CenterData cdata, int vindex, int pindex, float depth)
-            {
-                float3 windForce = 0;
-
-                // 基準ルート座標
-                // (1)チームごとにずらす
-                // (2)同期率によりルートラインごとにずらす
-                // (3)チームの座標やパーティクルの座標は計算に入れない
-                int rootIndex = vertexRootIndices[vindex];
-                float3 windPos = (teamId + 1) * 4.19230645f + (rootIndex * 0.0023963f * (1.0f - windParams.synchronization) * 100);
-
-                // ゾーンごとの風影響計算
-                var teamWindData = teamWindArray[teamId];
-                int cnt = teamWindData.ZoneCount;
-                for (int i = 0; i < cnt; i++)
-                {
-                    var windInfo = teamWindData.windZoneList[i];
-                    var windData = windDataArray[windInfo.windId];
-                    windForce += WindForceBlend(windInfo, windParams, windPos, windData.turbulence);
-                }
-
-#if true
-                // 移動風影響計算
-                if (windParams.movingWind > 0.01f)
-                {
-                    windForce += WindForceBlend(teamWindData.movingWind, windParams, windPos, 1.0f);
-                }
-#endif
-
-                //Debug.Log($"windForce:{windForce}");
-
-                // その他影響
-                // チーム風影響
-                float influence = windParams.influence; // 0.0 ~ 2.0
-
-                // 摩擦による影響
-                float friction = frictionArray[pindex];
-                influence *= (1.0f - friction);
-
-                // 深さ影響
-                float depthScale = depth * depth;
-                influence *= math.lerp(1.0f, depthScale, windParams.depthWeight);
-
-                // 最終影響
-                windForce *= influence;
-
-                //Debug.Log($"windForce:{windForce}");
-
-                return windForce;
-            }
-
-            float3 WindForceBlend(in TeamWindInfo windInfo, in WindParams windParams, in float3 windPos, float windTurbulence)
-            {
-                float windMain = windInfo.main;
-                if (windMain < 0.01f)
-                    return 0;
-
-                // 風速係数
-                float mainRatio = windMain / Define.System.WindBaseSpeed; // 0.0 ~ 
-
-                // Sin波形
-                var sinPos = windPos + windInfo.time * 10.0f;
-                float2 sinXY = math.sin(sinPos.xy);
-
-                // Noise波形
-                var noisePos = windPos + windInfo.time * 2.3132f; // Sin波形との調整用
-                float2 noiseXY = new float2(noise.cnoise(noisePos.xy), noise.cnoise(noisePos.yx));
-                noiseXY *= 2.3f; // cnoiseは弱いので補強 2.0?
-
-                // 波形ブレンド
-                float2 waveXY = math.lerp(sinXY, noiseXY, windParams.blend);
-
-                // 基本乱流率
-                windTurbulence *= windParams.turbulence; // 0.0 ~ 2.0
-
-                // 風向き
-                const float rangAng = 45.0f; // 乱流角度
-                var ang = math.radians(waveXY * rangAng);
-                ang.y *= math.lerp(0.1f, 0.5f, windParams.blend); // 横方向は抑える。そうしないと円運動になってしまうため。0.3 - 0.5?
-                ang *= windTurbulence; // 乱流率
-                var rq = quaternion.Euler(ang.x, ang.y, 0.0f); // XY
-                var dirq = MathUtility.AxisQuaternion(windInfo.direction);
-                float3 wdir = math.forward(math.mul(dirq, rq));
-
-                // 風速
-                // 風速が低いと大きくなり、風速が高いと0.0になる
-                float mainScale = math.saturate(1.0f - mainRatio * 1.0f);
-                float mainWave = math.unlerp(-1.0f, 1.0f, waveXY.x); // 0.0 ~ 1.0
-                mainWave *= mainScale * windTurbulence;
-                windMain -= windMain * mainWave;
-
-                // 合成
-                float3 windForce = wdir * windMain;
-
-                return windForce;
-            }
-        }
-
-        /// <summary>
-        /// ベースラインごとに初期姿勢を求める
-        /// これは制約の解決で利用される
-        /// AnimationPoseRatioが1.0ならば不要なのでスキップされる
-        /// </summary>
-        [BurstCompile]
-        struct UpdateStepBasicPotureJob : IJobParallelForDefer
-        {
-            [Unity.Collections.ReadOnly]
-            public NativeArray<int> stepBaseLineIndexArray;
-
-            // team
-            [Unity.Collections.ReadOnly]
-            public NativeArray<TeamManager.TeamData> teamDataArray;
-
-            // vmesh
-            [Unity.Collections.ReadOnly]
-            public NativeArray<VertexAttribute> attributes;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<int> vertexParentIndices;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float3> vertexLocalPositions;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<quaternion> vertexLocalRotations;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<ushort> baseLineStartDataIndices;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<ushort> baseLineDataCounts;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<ushort> baseLineData;
-            //[Unity.Collections.ReadOnly]
-            //public NativeArray<quaternion> vertexToTransformRotations;
-
-            // particle
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float3> basePosArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<quaternion> baseRotArray;
-
-            // buffer
-            [NativeDisableParallelForRestriction]
-            public NativeArray<float3> stepBasicPositionArray;
-            [NativeDisableParallelForRestriction]
-            public NativeArray<quaternion> stepBasicRotationArray;
-
-            // ステップ実行ベースラインごと
-            public void Execute(int index)
-            {
-                // チームは有効であることが保証されている
-                uint pack = (uint)stepBaseLineIndexArray[index];
-                int teamId = DataUtility.Unpack32Hi(pack);
-                int bindex = DataUtility.Unpack32Low(pack);
-
-                var tdata = teamDataArray[teamId];
-
-                // アニメーションポーズ使用の有無
-                // 初期姿勢の計算が不要なら抜ける
-                float blendRatio = tdata.animationPoseRatio;
-                //bool isBasePose = blendRatio > 0.99f;
-                if (blendRatio > 0.99f)
-                    return;
-
-                int b_datastart = tdata.baseLineDataChunk.startIndex;
-                int p_start = tdata.particleChunk.startIndex;
-                int v_start = tdata.proxyCommonChunk.startIndex;
-                //int vt_start = tdata.proxyBoneChunk.startIndex;
-
-                // チームスケール
-                float3 scl = tdata.initScale * tdata.scaleRatio;
-
-                int b_start = baseLineStartDataIndices[bindex];
-                int b_cnt = baseLineDataCounts[bindex];
-                int b_dataindex = b_start + b_datastart;
-                //if (isBasePose == false)
-                {
-                    for (int i = 0; i < b_cnt; i++, b_dataindex++)
+                    // トライアングルベンド集計
+                    // コライダーコリジョンPoint
+                    var splitStep_E_job = new SplitStep_E_Job()
                     {
-                        int l_index = baseLineData[b_dataindex];
-                        int pindex = p_start + l_index;
-                        int vindex = v_start + l_index;
+                        workerCount = workerCount,
+                        updateIndex = updateIndex,
+                        simulationPower = tim.SimulationPower,
+                        // team
+                        batchSelfTeamList = tm.batchSplitClothTeamList,
+                        teamDataArray = tm.teamDataArray.GetNativeArray(),
+                        parameterArray = tm.parameterArray.GetNativeArray(),
+                        // vmesh
+                        attributes = vm.attributes.GetNativeArray(),
+                        depthArray = vm.vertexDepths.GetNativeArray(),
+                        // particle
+                        nextPosArray = nextPosArray.GetNativeArray(),
+                        basePosArray = basePosArray.GetNativeArray(),
+                        velocityPosArray = velocityPosArray.GetNativeArray(),
+                        frictionArray = frictionArray.GetNativeArray(),
+                        collisionNormalArray = collisionNormalArray.GetNativeArray(),
+                        // collider
+                        colliderFlagArray = cm.flagArray.GetNativeArray(),
+                        colliderWorkDataArray = cm.workDataArray.GetNativeArray(),
+                        // buffer2
+                        tempVectorBufferA = tempVectorBufferA,
+                        tempCountBuffer = tempCountBuffer,
+                    };
+                    splitClothJobHandle = splitStep_E_job.Schedule(splitClothTeamCount * workerCount, 1, splitClothJobHandle);
 
-                        // 親
-                        int p_index = vertexParentIndices[vindex];
-                        int p_pindex = p_index + p_start;
-
-                        var attr = attributes[vindex];
-                        //if (attr.IsMove() == false || p_index < 0)
-                        //{
-                        //    // 固定もしくはアニメーションポーズを使用
-                        //    // basePos/baseRotをそのままコピーする
-                        //    var bpos = basePosArray[pindex];
-                        //    var brot = baseRotArray[pindex];
-
-                        //    stepBasicPositionArray[pindex] = bpos;
-                        //    stepBasicRotationArray[pindex] = brot;
-                        //}
-                        //else
-                        if (attr.IsMove() && p_index >= 0)
+                    // コライダーコリジョンEdge
+                    if (useEdgeCollision)
+                    {
+                        var splitStep_Edge_job = new SplitStep_Edge_Job()
                         {
-                            // 移動
-                            // 親から姿勢を算出する
-                            var lpos = vertexLocalPositions[vindex];
-                            var lrot = vertexLocalRotations[vindex];
-                            var ppos = stepBasicPositionArray[p_pindex];
-                            var prot = stepBasicRotationArray[p_pindex];
-                            stepBasicPositionArray[pindex] = math.mul(prot, lpos * scl) + ppos;
-                            stepBasicRotationArray[pindex] = math.mul(prot, lrot);
+                            workerCount = workerCount,
+                            updateIndex = updateIndex,
+                            simulationPower = tim.SimulationPower,
+                            // team
+                            batchSelfTeamList = tm.batchSplitClothTeamList,
+                            teamDataArray = tm.teamDataArray.GetNativeArray(),
+                            parameterArray = tm.parameterArray.GetNativeArray(),
+                            // vmesh
+                            attributes = vm.attributes.GetNativeArray(),
+                            depthArray = vm.vertexDepths.GetNativeArray(),
+                            edges = vm.edges.GetNativeArray(),
+                            // particle
+                            nextPosArray = nextPosArray.GetNativeArray(),
+                            // collider
+                            colliderFlagArray = cm.flagArray.GetNativeArray(),
+                            colliderWorkDataArray = cm.workDataArray.GetNativeArray(),
+                            // buffer2
+                            tempVectorBufferA = tempVectorBufferA,
+                            tempVectorBufferB = tempVectorBufferB,
+                            tempCountBuffer = tempCountBuffer,
+                            tempFloatBufferA = tempFloatBufferA,
+                        };
+                        splitClothJobHandle = splitStep_Edge_job.Schedule(splitClothTeamCount * workerCount, 1, splitClothJobHandle);
+                    }
+
+                    if (useSelfCollision)
+                    {
+                        // ■セルフコリジョンあり
+                        // コライダーコリジョンEdge集計
+                        // 距離
+                        // モーション
+                        var splitStep_F_Self_job = new SplitStep_F_Self_Job()
+                        {
+                            workerCount = workerCount,
+                            updateIndex = updateIndex,
+                            simulationPower = tim.SimulationPower,
+                            // team
+                            batchSelfTeamList = tm.batchSplitClothTeamList,
+                            teamDataArray = tm.teamDataArray.GetNativeArray(),
+                            parameterArray = tm.parameterArray.GetNativeArray(),
+                            // vmesh
+                            attributes = vm.attributes.GetNativeArray(),
+                            depthArray = vm.vertexDepths.GetNativeArray(),
+                            // particle
+                            nextPosArray = nextPosArray.GetNativeArray(),
+                            basePosArray = basePosArray.GetNativeArray(),
+                            baseRotArray = baseRotArray.GetNativeArray(),
+                            velocityPosArray = velocityPosArray.GetNativeArray(),
+                            frictionArray = frictionArray.GetNativeArray(),
+                            collisionNormalArray = collisionNormalArray.GetNativeArray(),
+                            // distance
+                            distanceIndexArray = distanceConstraint.indexArray.GetNativeArray(),
+                            distanceDataArray = distanceConstraint.dataArray.GetNativeArray(),
+                            distanceDistanceArray = distanceConstraint.distanceArray.GetNativeArray(),
+                            // buffer2
+                            tempVectorBufferA = tempVectorBufferA,
+                            tempVectorBufferB = tempVectorBufferB,
+                            tempCountBuffer = tempCountBuffer,
+                            tempFloatBufferA = tempFloatBufferA,
+                        };
+                        splitClothJobHandle = splitStep_F_Self_job.Schedule(splitClothTeamCount * workerCount, 1, splitClothJobHandle);
+
+                        // セルフコリジョンのインターセクトバッファ更新ジョブを合流させる
+                        if (isFirstStep && useIntersectJob)
+                        {
+                            splitClothJobHandle = JobHandle.CombineDependencies(selfIntersectJobHandle, splitClothJobHandle);
                         }
-                    }
-                }
 
-                // アニメーション姿勢とブレンド
-                if (blendRatio > Define.System.Epsilon)
-                {
-                    b_dataindex = b_start + b_datastart;
-                    for (int i = 0; i < b_cnt; i++, b_dataindex++)
-                    {
-                        int l_index = baseLineData[b_dataindex];
-                        int pindex = p_start + l_index;
-
-                        var bpos = basePosArray[pindex];
-                        var brot = baseRotArray[pindex];
-
-                        stepBasicPositionArray[pindex] = math.lerp(stepBasicPositionArray[pindex], bpos, blendRatio);
-                        stepBasicRotationArray[pindex] = math.slerp(stepBasicRotationArray[pindex], brot, blendRatio);
-                        //stepBasicPositionArray[pindex] = isBasePose ? bpos : math.lerp(stepBasicPositionArray[pindex], bpos, blendRatio);
-                        //stepBasicRotationArray[pindex] = isBasePose ? brot : math.slerp(stepBasicRotationArray[pindex], brot, blendRatio);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// ステップ終了後の座標確定処理
-        /// </summary>
-        [BurstCompile]
-        struct EndSimulationStepJob : IJobParallelForDefer
-        {
-            public float simulationDeltaTime;
-
-            [Unity.Collections.ReadOnly]
-            public NativeArray<int> stepParticleIndexArray;
-
-            // team
-            [Unity.Collections.ReadOnly]
-            public NativeArray<TeamManager.TeamData> teamDataArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<ClothParameters> parameterArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<InertiaConstraint.CenterData> centerDataArray;
-
-            // vmesh
-            [Unity.Collections.ReadOnly]
-            public NativeArray<VertexAttribute> attributes;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float> vertexDepths;
-
-            // particle
-            [Unity.Collections.ReadOnly]
-            public NativeArray<short> teamIdArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float3> nextPosArray;
-            [NativeDisableParallelForRestriction]
-            public NativeArray<float3> oldPosArray;
-            [NativeDisableParallelForRestriction]
-            [Unity.Collections.WriteOnly]
-            public NativeArray<float3> velocityArray;
-            [NativeDisableParallelForRestriction]
-            [Unity.Collections.WriteOnly]
-            public NativeArray<float3> realVelocityArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float3> velocityPosArray;
-            [NativeDisableParallelForRestriction]
-            public NativeArray<float> frictionArray;
-            [NativeDisableParallelForRestriction]
-            public NativeArray<float> staticFrictionArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float3> collisionNormalArray;
-
-            // ステップ有効パーティクルごと
-            public void Execute(int index)
-            {
-                // パーティクルは有効であることが保証されている
-                int pindex = stepParticleIndexArray[index];
-                int teamId = teamIdArray[pindex];
-                var tdata = teamDataArray[teamId];
-                var cdata = centerDataArray[teamId];
-                var param = parameterArray[teamId];
-
-                int pstart = tdata.particleChunk.startIndex;
-                int l_index = pindex - pstart;
-
-                // 各カテゴリのデータインデックス
-                int vindex = tdata.proxyCommonChunk.startIndex + l_index;
-
-                var attr = attributes[vindex];
-                var depth = vertexDepths[vindex];
-                var nextPos = nextPosArray[pindex];
-                var oldPos = oldPosArray[pindex];
-
-                if (attr.IsMove())
-                {
-                    // 移動パーティクル
-                    var velocityOldPos = velocityPosArray[pindex];
-
-#if true
-                    // ■摩擦
-                    float friction = frictionArray[pindex];
-                    float3 cn = collisionNormalArray[pindex];
-                    bool isCollision = math.lengthsq(cn) > Define.System.Epsilon; // 接触の有無
-                    float staticFrictionParam = param.colliderCollisionConstraint.staticFriction * tdata.scaleRatio;
-                    float dynamicFrictionParam = param.colliderCollisionConstraint.dynamicFriction;
-#endif
-
-#if true
-                    // ■静止摩擦
-                    float staticFriction = staticFrictionArray[pindex];
-                    if (isCollision && friction > 0.0f && staticFrictionParam > 0.0f)
-                    {
-                        // 接線方向の移動速度から計算する
-                        var v = nextPos - oldPos;
-                        var tanv = v - MathUtility.Project(v, cn); // 接線方向の移動ベクトル
-                        float tangentVelocity = math.length(tanv) / simulationDeltaTime; // 接線方向の移動速度
-
-                        // 静止速度以下ならば係数を上げる
-                        if (tangentVelocity < staticFrictionParam)
+                        // セルフコリジョン
+                        if (isFirstStep)
                         {
-                            staticFriction = math.saturate(staticFriction + 0.04f); // 係数増加(0.02?)
+                            // ■初回ステップ
+                            // （チームごとPoint/Edge/Triangle３分割）
+                            // プリミティブ情報更新(nextPos/oldPos,invMass,thickness,aabb)
+                            // 最大プリミティブサイズ算出、グリッドサイズ算出
+                            // プリミティブ用のインターセクトフラグ更新
+                            var selfStep_UpdatePrimitive_job = new SelfCollisionConstraint.SelfStep_UpdatePrimitiveJob()
+                            {
+                                workerCount = 3,
+                                updateIndex = updateIndex,
+                                simulationPower = tim.SimulationPower,
+                                // team
+                                batchSelfTeamList = tm.batchSplitClothTeamList,
+                                teamDataArray = tm.teamDataArray.GetNativeArray(),
+                                parameterArray = tm.parameterArray.GetNativeArray(),
+                                // particle
+                                nextPosArray = nextPosArray.GetNativeArray(),
+                                oldPosArray = oldPosArray.GetNativeArray(),
+                                frictionArray = frictionArray.GetNativeArray(),
+                                // self collision
+                                useIntersect = useIntersect,
+                                primitiveArrayB = selfCollisionConstraint.primitiveArrayB.GetNativeArray(),
+                                intersectFlagArray = selfCollisionConstraint.intersectFlagArray,
+                            };
+                            splitClothJobHandle = selfStep_UpdatePrimitive_job.Schedule(splitClothTeamCount * 3, 1, splitClothJobHandle);
+
+                            // （チームごとPoint/Edge/Triangle３分割）
+                            // プリミティブのグリッド座標算出
+                            // プリミティブをグリッド座標でソート
+                            // グリッド情報の作成
+                            var selfStep_UpdateGrid_job = new SelfCollisionConstraint.SelfStep_UpdateGridJob()
+                            {
+                                kindCount = 3,
+                                updateIndex = updateIndex,
+                                simulationPower = tim.SimulationPower,
+                                // team
+                                batchSelfTeamList = tm.batchSplitClothTeamList,
+                                teamDataArray = tm.teamDataArray.GetNativeArray(),
+                                // self collision
+                                primitiveArrayB = selfCollisionConstraint.primitiveArrayB.GetNativeArray(),
+                                uniformGridStartCountBuffer = selfCollisionConstraint.uniformGridStartCountBuffer.GetNativeArray(),
+                            };
+                            splitClothJobHandle = selfStep_UpdateGrid_job.Schedule(splitClothTeamCount * 3, 1, splitClothJobHandle);
+
+                            // コンタクトバッファの生成(EdgeEdge/PointTriangle)
+                            // チームごと＋特殊分散
+                            var selfStep_DetectionContact_job = new SelfCollisionConstraint.SelfStep_DetectionContactJob()
+                            {
+                                updateIndex = updateIndex,
+                                workerCount = workerCount,
+                                teamCount = splitClothTeamCount,
+                                // team
+                                batchSelfTeamList = tm.batchSplitClothTeamList,
+                                teamDataArray = tm.teamDataArray.GetNativeArray(),
+                                // particle
+                                nextPosArray = nextPosArray.GetNativeArray(),
+                                oldPosArray = oldPosArray.GetNativeArray(),
+                                // self collision
+                                primitiveArrayB = selfCollisionConstraint.primitiveArrayB.GetNativeArray(),
+                                uniformGridStartCountBuffer = selfCollisionConstraint.uniformGridStartCountBuffer.GetNativeArray(),
+                                // buffer
+                                contactQueue = selfCollisionConstraint.contactQueue.AsParallelWriter(),
+                            };
+                            // Self:(EdgeEdge/PointTriangle/TrianglePoint), Sync:(EdgeEdge/PointTriangle/TrianglePoint) = 6
+                            splitClothJobHandle = selfStep_DetectionContact_job.Schedule(splitClothTeamCount * 6 * workerCount, 1, splitClothJobHandle);
+
+                            // コンタクトバッファをリストに変換
+                            // ここは並列化できない
+                            var selfStep_ConvertContactList_job = new SelfCollisionConstraint.SelfStep_ConvertContactListJob()
+                            {
+                                contactQueue = selfCollisionConstraint.contactQueue,
+                                contactList = selfCollisionConstraint.contactList,
+                            };
+                            splitClothJobHandle = selfStep_ConvertContactList_job.Schedule(splitClothJobHandle);
                         }
                         else
                         {
-                            // 接線速度に応じて係数を減少
-                            var vel = tangentVelocity - staticFrictionParam;
-                            var value = math.max(vel / 0.2f, 0.05f);
-                            staticFriction = math.saturate(staticFriction - value);
+                            // ■２ステップ以降
+                            // コンタクトバッファごと
+                            // 現在のnextPos/oldPosから変位を求め衝突の有無とs/t/nなどを求める
+                            // aabbは更新なし
+                            var selfStep_UpdateContact_job = new SelfCollisionConstraint.SelfStep_UpdateContactJob()
+                            {
+                                first = updateIndex == 0,
+                                //first = true,
+                                contactList = selfCollisionConstraint.contactList,
+                                // particle
+                                nextPosArray = nextPosArray.GetNativeArray(),
+                                oldPosArray = oldPosArray.GetNativeArray(),
+                                // self collision
+                                primitiveArrayB = selfCollisionConstraint.primitiveArrayB.GetNativeArray(),
+                            };
+                            splitClothJobHandle = selfStep_UpdateContact_job.Schedule(selfCollisionConstraint.contactList, 256, splitClothJobHandle);
                         }
 
-                        // 接線方向に位置を巻き戻す
-                        tanv *= staticFriction;
-                        nextPos -= tanv;
-                        velocityOldPos -= tanv;
+                        // セルフコリジョン
+                        // コンタクトバッファ解決（反復）
+                        for (int i = 0; i < Define.System.SelfCollisionSolverIteration; i++)
+                        {
+                            // コンタクトバッファ解決
+                            // コンタクトバッファごと
+                            var selfStep_SolverContact_job = new SelfCollisionConstraint.SelfStep_SolverContactJob()
+                            {
+                                // particle
+                                nextPosArray = nextPosArray.GetNativeArray(),
+                                // self collision
+                                primitiveArrayB = selfCollisionConstraint.primitiveArrayB.GetNativeArray(),
+                                contactList = selfCollisionConstraint.contactList,
+                                // buffer2
+                                tempVectorBufferA = tempVectorBufferA,
+                                tempCountBuffer = tempCountBuffer,
+                            };
+                            splitClothJobHandle = selfStep_SolverContact_job.Schedule(selfCollisionConstraint.contactList, 128, splitClothJobHandle);
+
+                            // 集計
+                            // チームごと
+                            var selfStep_SumContact_job = new SelfCollisionConstraint.SelfStep_SumContactJob()
+                            {
+                                updateIndex = updateIndex,
+                                // team
+                                batchSelfTeamList = tm.batchSplitClothTeamList,
+                                teamDataArray = tm.teamDataArray.GetNativeArray(),
+                                // particle
+                                nextPosArray = nextPosArray.GetNativeArray(),
+                                // buffer2
+                                tempVectorBufferA = tempVectorBufferA,
+                                tempCountBuffer = tempCountBuffer,
+                            };
+                            splitClothJobHandle = selfStep_SumContact_job.Schedule(splitClothTeamCount, 1, splitClothJobHandle);
+                        }
+
+                        // 座標確定
+                        // コライダーの後更新
+                        var splitStep_G_Self_job = new SplitStep_G_Self_Job()
+                        {
+                            workerCount = workerCount,
+                            updateIndex = updateIndex,
+                            simulationDeltaTime = tim.SimulationDeltaTime,
+                            // team
+                            batchSelfTeamList = tm.batchSplitClothTeamList,
+                            teamDataArray = tm.teamDataArray.GetNativeArray(),
+                            centerDataArray = tm.centerDataArray.GetNativeArray(),
+                            parameterArray = tm.parameterArray.GetNativeArray(),
+                            // vmesh
+                            attributes = vm.attributes.GetNativeArray(),
+                            depthArray = vm.vertexDepths.GetNativeArray(),
+                            // particle
+                            nextPosArray = nextPosArray.GetNativeArray(),
+                            oldPosArray = oldPosArray.GetNativeArray(),
+                            velocityPosArray = velocityPosArray.GetNativeArray(),
+                            velocityArray = velocityArray.GetNativeArray(),
+                            realVelocityArray = realVelocityArray.GetNativeArray(),
+                            frictionArray = frictionArray.GetNativeArray(),
+                            staticFrictionArray = staticFrictionArray.GetNativeArray(),
+                            collisionNormalArray = collisionNormalArray.GetNativeArray(),
+                            // collider
+                            colliderNowPositions = cm.nowPositions.GetNativeArray(),
+                            colliderNowRotations = cm.nowRotations.GetNativeArray(),
+                            colliderOldPositions = cm.oldPositions.GetNativeArray(),
+                            colliderOldRotations = cm.oldRotations.GetNativeArray(),
+                        };
+                        splitClothJobHandle = splitStep_G_Self_job.Schedule(splitClothTeamCount * workerCount, 1, splitClothJobHandle);
                     }
                     else
                     {
-                        // 減衰
-                        staticFriction = math.saturate(staticFriction - 0.05f);
-                    }
-                    staticFrictionArray[pindex] = staticFriction;
-#endif
-
-                    // ■速度更新(m/s) ------------------------------------------
-                    // 速度計算用の位置から割り出す（制約ごとの速度調整用）
-                    float3 velocity = (nextPos - velocityOldPos) / simulationDeltaTime;
-                    float sqVel = math.lengthsq(velocity);
-                    float3 normalVelocity = sqVel > Define.System.Epsilon ? math.normalize(velocity) : 0;
-
-#if true
-                    // ■動摩擦
-                    // 衝突面との角度が大きいほど減衰が強くなる(MC1)
-                    if (friction > Define.System.Epsilon && isCollision && dynamicFrictionParam > 0.0f && sqVel >= Define.System.Epsilon)
-                    {
-                        //float dot = math.dot(cn, math.normalize(velocity));
-                        float dot = math.dot(cn, normalVelocity);
-                        dot = 0.5f + 0.5f * dot; // 1.0(front) - 0.5(side) - 0.0(back)
-                        dot *= dot; // サイドを強めに
-                        dot = 1.0f - dot; // 0.0(front) - 0.75(side) - 1.0(back)
-                        velocity -= velocity * (dot * math.saturate(friction * dynamicFrictionParam));
-                    }
-
-                    // 摩擦減衰
-                    friction *= Define.System.FrictionDampingRate;
-                    frictionArray[pindex] = friction;
-#endif
-
-#if true
-                    // 最大速度
-                    // 最大速度はある程度制限したほうが動きが良くなるので入れるべき。
-                    // 特に回転時の髪などの動きが柔らかくなる。
-                    // しかし制限しすぎるとコライダーの押し出し制度がさがるので注意。
-                    if (param.inertiaConstraint.particleSpeedLimit >= 0.0f)
-                    {
-                        velocity = MathUtility.ClampVector(velocity, param.inertiaConstraint.particleSpeedLimit * tdata.scaleRatio);
-                    }
-#endif
-#if true
-                    // ■遠心力加速 ---------------------------------------------
-                    if (cdata.angularVelocity > Define.System.Epsilon && param.inertiaConstraint.centrifualAcceleration > Define.System.Epsilon && sqVel >= Define.System.Epsilon)
-                    {
-                        // 回転中心のローカル座標
-                        var lpos = nextPos - cdata.nowWorldPosition;
-
-                        // 回転軸平面に投影
-                        var v = MathUtility.ProjectOnPlane(lpos, cdata.rotationAxis);
-                        var r = math.length(v);
-                        if (r > Define.System.Epsilon)
+                        // ■セルフコリジョンなし
+                        // コライダーコリジョンEdge集計
+                        // 距離
+                        // モーション
+                        // 座標確定
+                        // コライダーの後更新
+                        var splitStep_FG_NoSelf_job = new SplitStep_FG_NoSelf_Job()
                         {
-                            float3 n = v / r;
-
-                            // 角速度(rad/s)
-                            float w = cdata.angularVelocity;
-
-                            // 重量（重いほど遠心力は強くなる）
-                            // ここでは末端に行くほど軽くする
-                            //float m = (1.0f - depth) * 3.0f;
-                            //float m = 1.0f + (1.0f - depth) * 2.0f;
-                            float m = 1.0f + (1.0f - depth); // fix
-                            //float m = 1.0f + depth * 3.0f;
-                            //const float m = 1;
-
-                            // 遠心力
-                            var f = m * w * w * r;
-
-                            // 回転方向uと速度方向が同じ場合のみ力を加える（内積による乗算）
-                            // 実際の物理では遠心力は紐が張った状態でなければ発生しないがこの状態を判別する方法は簡単ではない
-                            // そのためこのような近似で代用する
-                            // 回転と速度が逆方向の場合は紐が緩んでいると判断し遠心力の増強を適用しない
-                            float3 u = math.normalize(math.cross(cdata.rotationAxis, n));
-                            f *= math.saturate(math.dot(normalVelocity, u));
-
-                            // 遠心力を速度に加算する
-                            velocity += n * (f * param.inertiaConstraint.centrifualAcceleration * 0.02f);
-                        }
+                            workerCount = workerCount,
+                            updateIndex = updateIndex,
+                            simulationPower = tim.SimulationPower,
+                            simulationDeltaTime = tim.SimulationDeltaTime,
+                            // team
+                            batchSelfTeamList = tm.batchSplitClothTeamList,
+                            teamDataArray = tm.teamDataArray.GetNativeArray(),
+                            centerDataArray = tm.centerDataArray.GetNativeArray(),
+                            parameterArray = tm.parameterArray.GetNativeArray(),
+                            // vmesh
+                            attributes = vm.attributes.GetNativeArray(),
+                            depthArray = vm.vertexDepths.GetNativeArray(),
+                            // particle
+                            nextPosArray = nextPosArray.GetNativeArray(),
+                            oldPosArray = oldPosArray.GetNativeArray(),
+                            basePosArray = basePosArray.GetNativeArray(),
+                            baseRotArray = baseRotArray.GetNativeArray(),
+                            velocityPosArray = velocityPosArray.GetNativeArray(),
+                            velocityArray = velocityArray.GetNativeArray(),
+                            realVelocityArray = realVelocityArray.GetNativeArray(),
+                            frictionArray = frictionArray.GetNativeArray(),
+                            staticFrictionArray = staticFrictionArray.GetNativeArray(),
+                            collisionNormalArray = collisionNormalArray.GetNativeArray(),
+                            // collider
+                            colliderNowPositions = cm.nowPositions.GetNativeArray(),
+                            colliderNowRotations = cm.nowRotations.GetNativeArray(),
+                            colliderOldPositions = cm.oldPositions.GetNativeArray(),
+                            colliderOldRotations = cm.oldRotations.GetNativeArray(),
+                            // distance
+                            distanceIndexArray = distanceConstraint.indexArray.GetNativeArray(),
+                            distanceDataArray = distanceConstraint.dataArray.GetNativeArray(),
+                            distanceDistanceArray = distanceConstraint.distanceArray.GetNativeArray(),
+                            // buffer2
+                            tempVectorBufferA = tempVectorBufferA,
+                            tempVectorBufferB = tempVectorBufferB,
+                            tempCountBuffer = tempCountBuffer,
+                            tempFloatBufferA = tempFloatBufferA,
+                        };
+                        splitClothJobHandle = splitStep_FG_NoSelf_job.Schedule(splitClothTeamCount * workerCount, 1, splitClothJobHandle);
                     }
-#endif
-                    // 安定化用の速度割合
-                    velocity *= tdata.velocityWeight;
-
-                    // 書き戻し
-                    velocityArray[pindex] = velocity;
                 }
 
-                // 実速度
-                float3 realVelocity = (nextPos - oldPos) / simulationDeltaTime;
-                realVelocityArray[pindex] = realVelocity;
-                //Debug.Log($"[{pindex}] realVelocity:{realVelocity}");
+                // シミュレーション後処理
+                // 表示位置の計算
+                var splitPost_DisplayPos_job = new SplitPost_DisplayPos_Job()
+                {
+                    workerCount = workerCount,
+                    simulationDeltaTime = MagicaManager.Time.SimulationDeltaTime,
 
-                // 今回の予測位置を記録
-                oldPosArray[pindex] = nextPos;
+                    // team
+                    batchSelfTeamList = tm.batchSplitClothTeamList,
+                    teamDataArray = tm.teamDataArray.GetNativeArray(),
+
+                    // vmesh
+                    attributes = vm.attributes.GetNativeArray(),
+                    positions = vm.positions.GetNativeArray(),
+                    rotations = vm.rotations.GetNativeArray(),
+                    vertexRootIndices = vm.vertexRootIndices.GetNativeArray(),
+
+                    // particle
+                    oldPosArray = oldPosArray.GetNativeArray(),
+                    oldPositionArray = oldPositionArray.GetNativeArray(),
+                    oldRotationArray = oldRotationArray.GetNativeArray(),
+                    dispPosArray = dispPosArray.GetNativeArray(),
+                    realVelocityArray = realVelocityArray.GetNativeArray(),
+                };
+                splitClothJobHandle = splitPost_DisplayPos_job.Schedule(splitClothTeamCount * workerCount, 1, splitClothJobHandle);
+
+                // 並行でインターセクトの解決を行う
+                // インターセクトの結果は次のフレームで利用される
+                if (useIntersectJob)
+                {
+                    // インターセクトバッファクリア
+                    var self_ClearIntersect_job = new SelfCollisionConstraint.SelfClearIntersectJob()
+                    {
+                        // team
+                        batchSelfTeamList = tm.batchSplitClothTeamList,
+                        teamDataArray = tm.teamDataArray.GetNativeArray(),
+                        // self collision
+                        intersectFlagArray = selfCollisionConstraint.intersectFlagArray,
+                    };
+                    solverIntersectJobHandle = self_ClearIntersect_job.Schedule(splitClothTeamCount, 1, splitClothJobHandle);
+
+                    // インターセクトバッファ解決
+                    var self_SolverIntersect_job = new SelfCollisionConstraint.SelfSolverIntersectJob()
+                    {
+                        // particle
+                        nextPosArray = nextPosArray.GetNativeArray(),
+                        // self collision
+                        intersectList = selfCollisionConstraint.intersectList,
+                        // buffer
+                        intersectFlagArray = selfCollisionConstraint.intersectFlagArray,
+                    };
+                    solverIntersectJobHandle = self_SolverIntersect_job.Schedule(selfCollisionConstraint.intersectList, 128, solverIntersectJobHandle);
+                }
+
+                // クロスシミュレーションの結果をProxyMeshへ反映させる
+                // ラインがある場合はベースラインごとに姿勢を整える
+                var splitPost_CalcProxy_job = new SplitPost_CalcProxy_Job()
+                {
+                    workerCount = workerCount,
+
+                    // team
+                    batchSelfTeamList = tm.batchSplitClothTeamList,
+                    teamDataArray = tm.teamDataArray.GetNativeArray(),
+                    parameterArray = tm.parameterArray.GetNativeArray(),
+
+                    // vmesh
+                    attributes = vm.attributes.GetNativeArray(),
+                    positions = vm.positions.GetNativeArray(),
+                    rotations = vm.rotations.GetNativeArray(),
+                    baseLineStartDataIndices = vm.baseLineStartDataIndices.GetNativeArray(),
+                    baseLineDataCounts = vm.baseLineDataCounts.GetNativeArray(),
+                    baseLineData = vm.baseLineData.GetNativeArray(),
+                    vertexLocalPositions = vm.vertexLocalPositions.GetNativeArray(),
+                    vertexLocalRotations = vm.vertexLocalRotations.GetNativeArray(),
+                    vertexChildIndexArray = vm.vertexChildIndexArray.GetNativeArray(),
+                    vertexChildDataArray = vm.vertexChildDataArray.GetNativeArray(),
+                    baseLineFlags = vm.baseLineFlags.GetNativeArray(),
+                };
+                splitClothJobHandle = splitPost_CalcProxy_job.Schedule(splitClothTeamCount * workerCount, 1, splitClothJobHandle);
+
+                // トライアングルの法線接線を求める
+                var splitPost_CalcProxyTriangle_job = new SplitPost_CalcProxyTriangle_Job()
+                {
+                    workerCount = workerCount,
+
+                    // team
+                    batchSelfTeamList = tm.batchSplitClothTeamList,
+                    teamDataArray = tm.teamDataArray.GetNativeArray(),
+
+                    // vmesh
+                    positions = vm.positions.GetNativeArray(),
+                    triangles = vm.triangles.GetNativeArray(),
+                    triangleNormals = vm.triangleNormals.GetNativeArray(),
+                    triangleTangents = vm.triangleTangents.GetNativeArray(),
+                    uvs = vm.uv.GetNativeArray(),
+                };
+                splitClothJobHandle = splitPost_CalcProxyTriangle_job.Schedule(splitClothTeamCount * workerCount, 1, splitClothJobHandle);
+
+                // トライアングルの法線接線から頂点の姿勢を求める
+                // BoneClothの場合は頂点姿勢から連動するトランスフォームのワールド姿勢を計算する
+                var splitPost_SumProxyTriangleAndTransform_job = new SplitPost_SumProxyTriangleAndTransform_Job()
+                {
+                    workerCount = workerCount,
+
+                    // team
+                    batchSelfTeamList = tm.batchSplitClothTeamList,
+                    teamDataArray = tm.teamDataArray.GetNativeArray(),
+
+                    // transform
+                    transformPositionArray = bm.positionArray.GetNativeArray(),
+                    transformRotationArray = bm.rotationArray.GetNativeArray(),
+
+                    // vmesh
+                    positions = vm.positions.GetNativeArray(),
+                    rotations = vm.rotations.GetNativeArray(),
+                    triangleNormals = vm.triangleNormals.GetNativeArray(),
+                    triangleTangents = vm.triangleTangents.GetNativeArray(),
+                    vertexToTriangles = vm.vertexToTriangles.GetNativeArray(),
+                    normalAdjustmentRotations = vm.normalAdjustmentRotations.GetNativeArray(),
+                    vertexToTransformRotations = vm.vertexToTransformRotations.GetNativeArray(),
+                };
+                splitClothJobHandle = splitPost_SumProxyTriangleAndTransform_job.Schedule(splitClothTeamCount * workerCount, 1, splitClothJobHandle);
+
+                // チーム更新後処理
+                // BoneClothの場合はTransformのローカル姿勢を計算する
+                // コライダー更新後処理
+                var splitPost_TeamCollider_job = new SplitPost_TeamCollider_Job()
+                {
+                    simulationDeltaTime = MagicaManager.Time.SimulationDeltaTime,
+
+                    // team
+                    batchSelfTeamList = tm.batchSplitClothTeamList,
+                    teamDataArray = tm.teamDataArray.GetNativeArray(),
+                    centerDataArray = tm.centerDataArray.GetNativeArray(),
+
+                    // collider
+                    colliderFramePositions = cm.framePositions.GetNativeArray(),
+                    colliderFrameRotations = cm.frameRotations.GetNativeArray(),
+                    colliderOldFramePositions = cm.oldFramePositions.GetNativeArray(),
+                    colliderOldFrameRotations = cm.oldFrameRotations.GetNativeArray(),
+
+                    // transform
+                    transformPositionArray = bm.positionArray.GetNativeArray(),
+                    transformRotationArray = bm.rotationArray.GetNativeArray(),
+                    transformScaleArray = bm.scaleArray.GetNativeArray(),
+                    transformLocalPositionArray = bm.localPositionArray.GetNativeArray(),
+                    transformLocalRotationArray = bm.localRotationArray.GetNativeArray(),
+
+                    // vmesh
+                    attributes = vm.attributes.GetNativeArray(),
+                    vertexParentIndices = vm.vertexParentIndices.GetNativeArray(),
+                };
+                splitClothJobHandle = splitPost_TeamCollider_job.Schedule(splitClothTeamCount, 1, splitClothJobHandle);
+
+                // 最後にインターセクトの解決ジョブを合流
+                if (useIntersectJob)
+                {
+                    splitClothJobHandle = JobHandle.CombineDependencies(splitClothJobHandle, solverIntersectJobHandle);
+                }
             }
-        }
 
-        //=========================================================================================
-        /// <summary>
-        /// シミュレーション完了後の表示位置の計算
-        /// - 未来予測
-        /// </summary>
-        /// <param name="jobHandle"></param>
-        /// <returns></returns>
-        internal JobHandle CalcDisplayPosition(JobHandle jobHandle)
-        {
-            // ここではproxyMeshのpositionsのみを更新する
-            // rotationsは自動で計算されるため
-            var job = new CalcDisplayPositionJob()
+            // ■一括シミュレーションジョブ
+            // セルフコリジョンなし、かつプロキシメッシュの頂点数が一定値未満のジョブ
+            // １つの巨大なジョブ内ですべてを完結させる
+            if (useNormalClothJob)
             {
-                simulationDeltaTime = MagicaManager.Time.SimulationDeltaTime,
+                var normalJob = new SimulationNormalJob()
+                {
+                    batchNormalTeamList = tm.batchNormalClothTeamList,
+                    simulationPower = tim.SimulationPower,
+                    simulationDeltaTime = tim.SimulationDeltaTime,
+                    mappingCount = tm.MappingCount,
 
-                teamDataArray = MagicaManager.Team.teamDataArray.GetNativeArray(),
+                    // team
+                    teamDataArray = tm.teamDataArray.GetNativeArray(),
+                    centerDataArray = tm.centerDataArray.GetNativeArray(),
+                    teamWindArray = tm.teamWindArray.GetNativeArray(),
+                    parameterArray = tm.parameterArray.GetNativeArray(),
 
-                teamIdArray = teamIdArray.GetNativeArray(),
-                oldPosArray = oldPosArray.GetNativeArray(),
-                realVelocityArray = realVelocityArray.GetNativeArray(),
-                oldPositionArray = oldPositionArray.GetNativeArray(),
-                oldRotationArray = oldRotationArray.GetNativeArray(),
-                dispPosArray = dispPosArray.GetNativeArray(),
+                    // wind
+                    windZoneCount = wm.WindCount,
+                    windDataArray = wm.windDataArray.GetNativeArray(),
 
-                attributes = MagicaManager.VMesh.attributes.GetNativeArray(),
-                positions = MagicaManager.VMesh.positions.GetNativeArray(),
-                rotations = MagicaManager.VMesh.rotations.GetNativeArray(),
-            };
-            jobHandle = job.Schedule(ParticleCount, 32, jobHandle);
+                    // transform
+                    transformPositionArray = bm.positionArray.GetNativeArray(),
+                    transformRotationArray = bm.rotationArray.GetNativeArray(),
+                    transformScaleArray = bm.scaleArray.GetNativeArray(),
+                    transformLocalToWorldMatrixArray = bm.localToWorldMatrixArray.GetNativeArray(),
+                    transformLocalPositionArray = bm.localPositionArray.GetNativeArray(),
+                    transformLocalRotationArray = bm.localRotationArray.GetNativeArray(),
+                    transformLocalScaleArray = bm.localScaleArray.GetNativeArray(),
+
+                    // vmesh
+                    attributes = vm.attributes.GetNativeArray(),
+                    depthArray = vm.vertexDepths.GetNativeArray(),
+                    localPositions = vm.localPositions.GetNativeArray(),
+                    localNormals = vm.localNormals.GetNativeArray(),
+                    localTangents = vm.localTangents.GetNativeArray(),
+                    boneWeights = vm.boneWeights.GetNativeArray(),
+                    skinBoneTransformIndices = vm.skinBoneTransformIndices.GetNativeArray(),
+                    skinBoneBindPoses = vm.skinBoneBindPoses.GetNativeArray(),
+                    positions = vm.positions.GetNativeArray(),
+                    rotations = vm.rotations.GetNativeArray(),
+                    vertexBindPoseRotations = vm.vertexBindPoseRotations.GetNativeArray(),
+                    vertexDepths = vm.vertexDepths.GetNativeArray(),
+                    vertexRootIndices = vm.vertexRootIndices.GetNativeArray(),
+                    vertexParentIndices = vm.vertexParentIndices.GetNativeArray(),
+                    baseLineStartDataIndices = vm.baseLineStartDataIndices.GetNativeArray(),
+                    baseLineDataCounts = vm.baseLineDataCounts.GetNativeArray(),
+                    baseLineData = vm.baseLineData.GetNativeArray(),
+                    vertexLocalPositions = vm.vertexLocalPositions.GetNativeArray(),
+                    vertexLocalRotations = vm.vertexLocalRotations.GetNativeArray(),
+                    vertexChildIndexArray = vm.vertexChildIndexArray.GetNativeArray(),
+                    vertexChildDataArray = vm.vertexChildDataArray.GetNativeArray(),
+                    baseLineFlags = vm.baseLineFlags.GetNativeArray(),
+                    triangles = vm.triangles.GetNativeArray(),
+                    triangleNormals = vm.triangleNormals.GetNativeArray(),
+                    triangleTangents = vm.triangleTangents.GetNativeArray(),
+                    uvs = vm.uv.GetNativeArray(),
+                    vertexToTriangles = vm.vertexToTriangles.GetNativeArray(),
+                    normalAdjustmentRotations = vm.normalAdjustmentRotations.GetNativeArray(),
+                    vertexToTransformRotations = vm.vertexToTransformRotations.GetNativeArray(),
+                    edges = vm.edges.GetNativeArray(),
+
+                    // particle
+                    nextPosArray = nextPosArray.GetNativeArray(),
+                    oldPosArray = oldPosArray.GetNativeArray(),
+                    oldRotArray = oldRotArray.GetNativeArray(),
+                    basePosArray = basePosArray.GetNativeArray(),
+                    baseRotArray = baseRotArray.GetNativeArray(),
+                    oldPositionArray = oldPositionArray.GetNativeArray(),
+                    oldRotationArray = oldRotationArray.GetNativeArray(),
+                    velocityPosArray = velocityPosArray.GetNativeArray(),
+                    dispPosArray = dispPosArray.GetNativeArray(),
+                    velocityArray = velocityArray.GetNativeArray(),
+                    realVelocityArray = realVelocityArray.GetNativeArray(),
+                    frictionArray = frictionArray.GetNativeArray(),
+                    staticFrictionArray = staticFrictionArray.GetNativeArray(),
+                    collisionNormalArray = collisionNormalArray.GetNativeArray(),
+
+                    // collider
+                    colliderFlagArray = cm.flagArray.GetNativeArray(),
+                    colliderCenterArray = cm.centerArray.GetNativeArray(),
+                    colliderSizeArray = cm.sizeArray.GetNativeArray(),
+                    colliderFramePositions = cm.framePositions.GetNativeArray(),
+                    colliderFrameRotations = cm.frameRotations.GetNativeArray(),
+                    colliderFrameScales = cm.frameScales.GetNativeArray(),
+                    colliderOldFramePositions = cm.oldFramePositions.GetNativeArray(),
+                    colliderOldFrameRotations = cm.oldFrameRotations.GetNativeArray(),
+                    colliderNowPositions = cm.nowPositions.GetNativeArray(),
+                    colliderNowRotations = cm.nowRotations.GetNativeArray(),
+                    colliderOldPositions = cm.oldPositions.GetNativeArray(),
+                    colliderOldRotations = cm.oldRotations.GetNativeArray(),
+                    colliderWorkDataArray = cm.workDataArray.GetNativeArray(),
+                    colliderMainColliderIndices = cm.mainColliderIndices.GetNativeArray(),
+
+                    // inertia
+                    fixedArray = inertiaConstraint.fixedArray.GetNativeArray(),
+
+                    // distance
+                    distanceIndexArray = distanceConstraint.indexArray.GetNativeArray(),
+                    distanceDataArray = distanceConstraint.dataArray.GetNativeArray(),
+                    distanceDistanceArray = distanceConstraint.distanceArray.GetNativeArray(),
+
+                    // triangleBending
+                    bendingTrianglePairArray = bendingConstraint.trianglePairArray.GetNativeArray(),
+                    bendingRestAngleOrVolumeArray = bendingConstraint.restAngleOrVolumeArray.GetNativeArray(),
+                    bendingSignOrVolumeArray = bendingConstraint.signOrVolumeArray.GetNativeArray(),
+
+                    // buffer
+                    stepBasicPositionBuffer = stepBasicPositionBuffer,
+                    stepBasicRotationBuffer = stepBasicRotationBuffer,
+
+                    // buffer2
+                    tempVectorBufferA = tempVectorBufferA,
+                    tempVectorBufferB = tempVectorBufferB,
+                    tempCountBuffer = tempCountBuffer,
+                    tempFloatBufferA = tempFloatBufferA,
+                    tempRotationBufferA = tempRotationBufferA,
+                    tempRotationBufferB = tempRotationBufferB,
+                };
+                normalClothJobHandle = normalJob.Schedule(normalClothTeamCount, 1, jobHandle);
+            }
+
+            // ■ジョブ連結
+            // !一括ジョブと分割ジョブを並行動作させる
+            jobHandle = JobHandle.CombineDependencies(splitClothJobHandle, normalClothJobHandle);
+
+            // マッピングメッシュの有無で分岐
+            if (MagicaManager.Team.MappingCount > 0)
+            {
+                // この２つのジョブは並列動作可能
+                // ■マッピングメッシュの頂点姿勢を連動するプロキシメッシュからスキニングして求める
+                var job1 = vm.PostMappingMeshUpdateBatchSchedule(jobHandle, workerCount);
+
+                // ■BoneClothのTransformへの書き込み
+                var job2 = bm.WriteTransformSchedule(jobHandle);
+
+                jobHandle = JobHandle.CombineDependencies(job1, job2);
+            }
+            else
+            {
+                // ■BoneClothのTransformへの書き込み
+                jobHandle = bm.WriteTransformSchedule(jobHandle);
+            }
 
             return jobHandle;
-        }
-
-        [BurstCompile]
-        struct CalcDisplayPositionJob : IJobParallelFor
-        {
-            public float simulationDeltaTime;
-
-            // team
-            [Unity.Collections.ReadOnly]
-            public NativeArray<TeamManager.TeamData> teamDataArray;
-
-            // particle
-            [Unity.Collections.ReadOnly]
-            public NativeArray<short> teamIdArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float3> oldPosArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float3> realVelocityArray;
-            [Unity.Collections.WriteOnly]
-            public NativeArray<float3> oldPositionArray;
-            [Unity.Collections.WriteOnly]
-            public NativeArray<quaternion> oldRotationArray;
-            public NativeArray<float3> dispPosArray;
-
-            // vmesh
-            [Unity.Collections.ReadOnly]
-            public NativeArray<VertexAttribute> attributes;
-            [NativeDisableParallelForRestriction]
-            public NativeArray<float3> positions;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<quaternion> rotations;
-
-            // すべてのパーティクルごと
-            public void Execute(int pindex)
-            {
-                int teamId = teamIdArray[pindex];
-                if (teamId == 0)
-                    return;
-
-                var tdata = teamDataArray[teamId];
-                if (tdata.IsProcess == false)
-                    return;
-
-                // ■この処理は更新に関係なく実行する
-
-                int l_index = pindex - tdata.particleChunk.startIndex;
-                int vindex = tdata.proxyCommonChunk.startIndex + l_index;
-
-                var attr = attributes[vindex];
-                //if (attr.IsInvalid())
-                //    return;
-
-                var pos = positions[vindex];
-                var rot = rotations[vindex];
-
-                if (attr.IsMove())
-                {
-                    // 移動パーティクル
-                    var dpos = oldPosArray[pindex];
-
-#if true
-                    // 未来予測
-                    // 最終計算位置と実速度から次のステップ位置を予測し、その間のフレーム時間位置を表示位置とする
-                    float3 velocity = realVelocityArray[pindex] * simulationDeltaTime;
-                    float3 fpos = dpos + velocity;
-                    float interval = (tdata.nowUpdateTime + simulationDeltaTime) - tdata.oldTime;
-                    //float t = (tdata.time - tdata.oldTime) / interval;
-                    float t = interval > 0.0f ? (tdata.time - tdata.oldTime) / interval : 0.0f;
-                    fpos = math.lerp(dispPosArray[pindex], fpos, t);
-                    dpos = fpos;
-#endif
-
-                    // 表示位置
-                    var dispPos = dpos;
-
-                    // 表示位置を記録
-                    dispPosArray[pindex] = dispPos;
-
-                    // ブレンドウエイト
-                    var vpos = math.lerp(positions[vindex], dispPos, tdata.blendWeight);
-
-                    // vmeshに反映
-                    positions[vindex] = vpos;
-                }
-                else
-                {
-                    // 固定パーティクル
-                    // 表示位置は常にオリジナル位置
-                    var dispPos = positions[vindex];
-                    dispPosArray[pindex] = dispPos;
-                }
-
-                // １つ前の原点位置を記録
-                if (tdata.IsRunning)
-                {
-                    oldPositionArray[pindex] = pos;
-                    oldRotationArray[pindex] = rot;
-                }
-            }
-        }
-
-        //=========================================================================================
-        /// <summary>
-        /// tempFloat3Bufferの内容をnextPosArrayに書き戻す
-        /// </summary>
-        /// <param name="particleList"></param>
-        /// <param name="jobHandle"></param>
-        /// <returns></returns>
-        internal JobHandle FeedbackTempFloat3Buffer(in NativeList<int> particleList, JobHandle jobHandle)
-        {
-            var job = new FeedbackTempPosJob()
-            {
-                jobParticleIndexList = particleList,
-                tempFloat3Buffer = tempFloat3Buffer,
-                nextPosArray = nextPosArray.GetNativeArray(),
-            };
-            jobHandle = job.Schedule(particleList, 32, jobHandle);
-
-            return jobHandle;
-        }
-
-        [BurstCompile]
-        struct FeedbackTempPosJob : IJobParallelForDefer
-        {
-            [Unity.Collections.ReadOnly]
-            public NativeList<int> jobParticleIndexList;
-
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float3> tempFloat3Buffer;
-
-            [NativeDisableParallelForRestriction]
-            public NativeArray<float3> nextPosArray;
-
-            public void Execute(int index)
-            {
-                int pindex = jobParticleIndexList[index];
-                nextPosArray[pindex] = tempFloat3Buffer[pindex];
-            }
-        }
-
-        internal JobHandle FeedbackTempFloat3Buffer(in ExProcessingList<int> processingList, JobHandle jobHandle)
-        {
-            return FeedbackTempFloat3Buffer(processingList.Buffer, processingList.Counter, jobHandle);
-        }
-
-        unsafe internal JobHandle FeedbackTempFloat3Buffer(in NativeArray<int> particleArray, in NativeReference<int> counter, JobHandle jobHandle)
-        {
-            var job = new FeedbackTempPosJob2()
-            {
-                particleIndexArray = particleArray,
-                tempFloat3Buffer = tempFloat3Buffer,
-                nextPosArray = nextPosArray.GetNativeArray(),
-            };
-            jobHandle = job.Schedule((int*)counter.GetUnsafePtrWithoutChecks(), 32, jobHandle);
-
-            return jobHandle;
-        }
-
-        [BurstCompile]
-        struct FeedbackTempPosJob2 : IJobParallelForDefer
-        {
-            [Unity.Collections.ReadOnly]
-            public NativeArray<int> particleIndexArray;
-
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float3> tempFloat3Buffer;
-
-            [NativeDisableParallelForRestriction]
-            public NativeArray<float3> nextPosArray;
-
-            public void Execute(int index)
-            {
-                int pindex = particleIndexArray[index];
-                nextPosArray[pindex] = tempFloat3Buffer[pindex];
-            }
         }
 
         //=========================================================================================
@@ -1935,23 +1443,15 @@ namespace MagicaCloth2
                 sb.Append(selfCollisionConstraint.ToString());
 
                 // 汎用バッファ
-                sb.AppendLine($"[Step Buffer]");
-                sb.AppendLine($"  -processingStepParticle:{processingStepParticle}");
-                sb.AppendLine($"  -processingStepTriangleBending:{processingStepTriangleBending}");
-                sb.AppendLine($"  -processingStepEdgeCollision:{processingStepEdgeCollision}");
-                sb.AppendLine($"  -processingStepCollider:{processingStepCollider}");
-                sb.AppendLine($"  -processingStepBaseLine:{processingStepBaseLine}");
-                sb.AppendLine($"  -processingStepMotionParticle:{processingStepMotionParticle}");
-                sb.AppendLine($"  -processingSelfParticle:{processingSelfParticle}");
-                sb.AppendLine($"  -processingSelfPointTriangle:{processingSelfPointTriangle}");
-                sb.AppendLine($"  -processingSelfEdgeEdge:{processingSelfEdgeEdge}");
-                sb.AppendLine($"  -processingSelfTrianglePoint:{processingSelfTrianglePoint}");
                 sb.AppendLine($"[Buffer]");
-                sb.AppendLine($"  -tempFloat3Buffer:{(tempFloat3Buffer.IsCreated ? tempFloat3Buffer.Length : 0)}");
-                sb.AppendLine($"  -countArray:{(countArray.IsCreated ? countArray.Length : 0)}");
-                sb.AppendLine($"  -sumArray:{(sumArray.IsCreated ? sumArray.Length : 0)}");
                 sb.AppendLine($"  -stepBasicPositionBuffer:{(stepBasicPositionBuffer.IsCreated ? stepBasicPositionBuffer.Length : 0)}");
                 sb.AppendLine($"  -stepBasicRotationBuffer:{(stepBasicRotationBuffer.IsCreated ? stepBasicRotationBuffer.Length : 0)}");
+                sb.AppendLine($"  -tempVectorBufferA:{(tempVectorBufferA.IsCreated ? tempVectorBufferA.Length : 0)}");
+                sb.AppendLine($"  -tempVectorBufferB:{(tempVectorBufferB.IsCreated ? tempVectorBufferB.Length : 0)}");
+                sb.AppendLine($"  -tempCountBuffer:{(tempCountBuffer.IsCreated ? tempCountBuffer.Length : 0)}");
+                sb.AppendLine($"  -tempFloatBufferA:{(tempFloatBufferA.IsCreated ? tempFloatBufferA.Length : 0)}");
+                sb.AppendLine($"  -tempRotationBufferA:{(tempRotationBufferA.IsCreated ? tempRotationBufferA.Length : 0)}");
+                sb.AppendLine($"  -tempRotationBufferB:{(tempRotationBufferB.IsCreated ? tempRotationBufferB.Length : 0)}");
 
                 sb.AppendLine();
             }

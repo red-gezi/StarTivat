@@ -3,7 +3,11 @@ using UnityEngine;
 
 public static class Extension
 {
-    public static string ToJson(this object DataObject) => JsonConvert.SerializeObject(DataObject, Formatting.Indented);
+    public static string ToJson(this object DataObject) => JsonConvert.SerializeObject(DataObject, Formatting.Indented, new JsonSerializerSettings
+    {
+        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+        PreserveReferencesHandling = PreserveReferencesHandling.None
+    });
     public static T ToObject<T>(this string target) => JsonConvert.DeserializeObject<T>(target);
     public static T To<T>(this object target) => target.ToJson().ToObject<T>();
     public static T Return<T>(this object _, T result) => result;

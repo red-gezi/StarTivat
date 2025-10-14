@@ -2,9 +2,7 @@
 // Copyright (c) 2023 MagicaSoft.
 // https://magicasoft.jp
 using System;
-using Unity.Burst;
 using Unity.Collections;
-using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -115,13 +113,13 @@ namespace MagicaCloth2
             // stiffness
             public float stiffness;
 
-            public void Convert(SerializeData sdata)
+            public void Convert(SerializeData sdata, ClothProcess.ClothType clothType)
             {
-                useMaxDistance = sdata.useMaxDistance;
+                useMaxDistance = clothType == ClothProcess.ClothType.BoneSpring ? false : sdata.useMaxDistance;
                 maxDistanceCurveData = sdata.maxDistance.ConvertFloatArray();
                 //maxDistanceOffset = sdata.maxDistanceOffset;
 
-                useBackstop = sdata.useBackstop;
+                useBackstop = clothType == ClothProcess.ClothType.BoneSpring ? false : sdata.useBackstop;
                 backstopRadius = sdata.backstopRadius;
                 backstopDistanceCurveData = sdata.backstopDistance.ConvertFloatArray();
 
@@ -134,97 +132,45 @@ namespace MagicaCloth2
         }
 
         //=========================================================================================
-        /// <summary>
-        /// 制約の解決
-        /// </summary>
-        /// <param name="jobHandle"></param>
-        /// <returns></returns>
-        unsafe internal JobHandle SolverConstraint(JobHandle jobHandle)
-        {
-            var tm = MagicaManager.Team;
-            var sm = MagicaManager.Simulation;
-            var vm = MagicaManager.VMesh;
-
-            var job = new MotionConstraintJob()
-            {
-                stepParticleIndexArray = sm.processingStepMotionParticle.Buffer,
-
-                teamDataArray = tm.teamDataArray.GetNativeArray(),
-                parameterArray = tm.parameterArray.GetNativeArray(),
-
-                attributes = vm.attributes.GetNativeArray(),
-                vertexDepths = vm.vertexDepths.GetNativeArray(),
-
-                teamIdArray = sm.teamIdArray.GetNativeArray(),
-                basePosArray = sm.basePosArray.GetNativeArray(),
-                baseRotArray = sm.baseRotArray.GetNativeArray(),
-                nextPosArray = sm.nextPosArray.GetNativeArray(),
-                velocityPosArray = sm.velocityPosArray.GetNativeArray(),
-                frictionArray = sm.frictionArray.GetNativeArray(),
-                collisionNormalArray = sm.collisionNormalArray.GetNativeArray(),
-            };
-            jobHandle = job.Schedule(sm.processingStepMotionParticle.GetJobSchedulePtr(), 32, jobHandle);
-
-            return jobHandle;
-        }
-
-        [BurstCompile]
-        struct MotionConstraintJob : IJobParallelForDefer
-        {
-            [Unity.Collections.ReadOnly]
-            public NativeArray<int> stepParticleIndexArray;
-
+        // Solver
+        //=========================================================================================
+        internal static void SolverConstraint(
+            DataChunk chunk,
             // team
-            [Unity.Collections.ReadOnly]
-            public NativeArray<TeamManager.TeamData> teamDataArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<ClothParameters> parameterArray;
-
+            ref TeamManager.TeamData tdata,
+            ref ClothParameters param,
             // vmesh
-            [Unity.Collections.ReadOnly]
-            public NativeArray<VertexAttribute> attributes;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float> vertexDepths;
-
+            ref NativeArray<VertexAttribute> attributes,
+            ref NativeArray<float> vertexDepths,
             // particle
-            [Unity.Collections.ReadOnly]
-            public NativeArray<short> teamIdArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float3> basePosArray;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<quaternion> baseRotArray;
-            [NativeDisableParallelForRestriction]
-            public NativeArray<float3> nextPosArray;
-            [NativeDisableParallelForRestriction]
-            public NativeArray<float3> velocityPosArray;
-            [NativeDisableParallelForRestriction]
-            public NativeArray<float> frictionArray;
-            [NativeDisableParallelForRestriction]
-            public NativeArray<float3> collisionNormalArray;
+            ref NativeArray<float3> basePosArray,
+            ref NativeArray<quaternion> baseRotArray,
+            ref NativeArray<float3> nextPosArray,
+            ref NativeArray<float3> velocityPosArray,
+            ref NativeArray<float> frictionArray,
+            ref NativeArray<float3> collisionNormalArray
+        )
+        {
+            if (param.motionConstraint.useMaxDistance == false && param.motionConstraint.useBackstop == false)
+                return;
 
+            // stiffness
+            float stiffness = param.motionConstraint.stiffness;
 
-            public void Execute(int index)
+            float backstopRadius = param.motionConstraint.backstopRadius;
+
+            // パーティクルごと
+            //int pindex = tdata.particleChunk.startIndex;
+            //int vindex = tdata.proxyCommonChunk.startIndex;
+            int pindex = tdata.particleChunk.startIndex + chunk.startIndex;
+            int vindex = tdata.proxyCommonChunk.startIndex + chunk.startIndex;
+            //for (int k = 0; k < tdata.particleChunk.dataLength; k++, pindex++, vindex++)
+            for (int k = 0; k < chunk.dataLength; k++, pindex++, vindex++)
             {
-                // pindexのチームは有効であることが保証されている
-                int pindex = stepParticleIndexArray[index];
-
-                int teamId = teamIdArray[pindex];
-                var tdata = teamDataArray[teamId];
-                var param = parameterArray[teamId];
-                var motionParam = param.motionConstraint;
-                var normalAxis = param.normalAxis;
-                if (motionParam.useMaxDistance == false && motionParam.useBackstop == false)
-                    return;
-
-                int p_start = tdata.particleChunk.startIndex;
-                int l_index = pindex - p_start;
-                int v_start = tdata.proxyCommonChunk.startIndex;
-                int vindex = v_start + l_index;
-
                 // 移動パーティクルのみ
                 var attr = attributes[vindex];
                 if (attr.IsMove() == false)
-                    return;
+                    continue;
 
                 var nextPos = nextPosArray[pindex];
                 var basePos = basePosArray[pindex];
@@ -233,17 +179,13 @@ namespace MagicaCloth2
                 // !MaxDistanceとBackstop制約は常にアニメーション姿勢(basePose)から計算されるので注意！
                 // !そのためAnimationBlendRatioは影響しない。
 
-                // stiffness
-                float stiffness = motionParam.stiffness;
-
                 // 適用頂点属性チェック
                 if (attr.IsMotion())
                 {
                     var opos = nextPos;
 
                     // パーティクル半径
-                    float radius = math.max(param.radiusCurveData.EvaluateCurve(depth), 0.0001f); // safe
-                    //radius *= tdata.scaleRatio;
+                    float radius = math.max(param.radiusCurveData.MC2EvaluateCurve(depth), 0.0001f); // safe
 
                     // 摩擦影響距離
                     float cfr = radius * 1.0f;
@@ -256,7 +198,7 @@ namespace MagicaCloth2
                     //=========================================================
                     var baseRot = baseRotArray[pindex];
                     float3 dir = math.up();
-                    switch (normalAxis)
+                    switch (param.normalAxis)
                     {
                         case ClothNormalAxis.Right:
                             dir = math.right();
@@ -282,9 +224,9 @@ namespace MagicaCloth2
                     //=========================================================
                     // Max Distance
                     //=========================================================
-                    if (motionParam.useMaxDistance)
+                    if (param.motionConstraint.useMaxDistance)
                     {
-                        float maxDistance = motionParam.maxDistanceCurveData.EvaluateCurve(depth);
+                        float maxDistance = param.motionConstraint.maxDistanceCurveData.MC2EvaluateCurve(depth);
                         //var cen = basePos + dir * (motionParam.maxDistanceOffset * maxDistance);
                         var cen = basePos;
                         var v = MathUtility.ClampVector(nextPos - cen, maxDistance);
@@ -294,10 +236,9 @@ namespace MagicaCloth2
                     //=========================================================
                     // Backstop
                     //=========================================================
-                    if (motionParam.useBackstop)
+                    if (param.motionConstraint.useBackstop)
                     {
-                        float backstopRadius = motionParam.backstopRadius;
-                        float backstopDistance = motionParam.backstopDistanceCurveData.EvaluateCurve(depth);
+                        float backstopDistance = param.motionConstraint.backstopDistanceCurveData.MC2EvaluateCurve(depth);
                         if (backstopRadius > 0.0f)
                         {
                             // バックストップは法線逆方向

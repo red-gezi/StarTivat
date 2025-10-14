@@ -13,7 +13,7 @@ namespace MagicaCloth2
         string name = string.Empty;
         DateTime stime;
         DateTime etime;
-        //bool isFinish;
+        bool isFinish;
 
         public TimeSpan() { }
 
@@ -21,21 +21,23 @@ namespace MagicaCloth2
         {
             this.name = name;
             stime = DateTime.Now;
+            isFinish = false;
         }
 
         public void Start()
         {
             stime = DateTime.Now;
+            isFinish = false;
         }
 
         public void Finish()
         {
-            etime = DateTime.Now;
-            //if (isFinish == false)
-            //{
-            //    etime = DateTime.Now;
-            //    isFinish = true;
-            //}
+            //etime = DateTime.Now;
+            if (isFinish == false)
+            {
+                etime = DateTime.Now;
+                isFinish = true;
+            }
         }
 
         public double TotalSeconds()
@@ -59,6 +61,11 @@ namespace MagicaCloth2
         public void DebugLog()
         {
             Develop.DebugLog(this);
+        }
+
+        public void Log()
+        {
+            Develop.Log(this);
         }
     }
 }

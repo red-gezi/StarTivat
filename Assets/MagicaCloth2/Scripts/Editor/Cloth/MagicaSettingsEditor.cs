@@ -7,7 +7,7 @@ namespace MagicaCloth2
 {
     [CustomEditor(typeof(MagicaSettings))]
     [CanEditMultipleObjects]
-    public class MagicaSettingsEditor : Editor
+    public class MagicaSettingsEditor : MagicaEditorBase
     {
         //=========================================================================================
         /// <summary>
@@ -28,6 +28,10 @@ namespace MagicaCloth2
             EditorGUILayout.PropertyField(serializedObject.FindProperty("refreshMode"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("simulationFrequency"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("maxSimulationCountPerFrame"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("initializationLocation"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("updateLocation"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("monitorPlayerLoop"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("splitProxyMeshVertexCount"));
         }
     }
 }

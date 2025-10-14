@@ -19,5 +19,11 @@ namespace MagicaCloth2
         {
             return 0;
         }
+
+        /// <summary>
+        /// Gizmo display state.
+        /// </summary>
+        public bool IsGizmoVisible { get; set; }
+        protected virtual void OnDrawGizmos() => IsGizmoVisible = true;
     }
 }

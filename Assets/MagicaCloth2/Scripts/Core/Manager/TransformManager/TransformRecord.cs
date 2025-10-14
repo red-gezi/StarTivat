@@ -22,19 +22,23 @@ namespace MagicaCloth2
         public Matrix4x4 worldToLocalMatrix;
         public int pid;
 
-        public TransformRecord(Transform t)
+        public TransformRecord(Transform t, bool read)
         {
             if (t)
             {
                 transform = t;
                 id = t.GetInstanceID();
-                localPosition = t.localPosition;
-                localRotation = t.localRotation;
-                position = t.position;
-                rotation = t.rotation;
-                scale = t.lossyScale;
-                localToWorldMatrix = t.localToWorldMatrix;
-                worldToLocalMatrix = t.worldToLocalMatrix;
+
+                if (read)
+                {
+                    localPosition = t.localPosition;
+                    localRotation = t.localRotation;
+                    position = t.position;
+                    rotation = t.rotation;
+                    scale = t.lossyScale;
+                    localToWorldMatrix = t.localToWorldMatrix;
+                    worldToLocalMatrix = t.worldToLocalMatrix;
+                }
 
                 if (t.parent)
                     pid = t.parent.GetInstanceID();

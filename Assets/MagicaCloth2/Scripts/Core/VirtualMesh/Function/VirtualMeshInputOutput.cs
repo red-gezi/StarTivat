@@ -19,7 +19,7 @@ namespace MagicaCloth2
         /// <param name="rsetup"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        public void ImportFrom(RenderSetupData rsetup)
+        public void ImportFrom(RenderSetupData rsetup, int uvChannel)
         {
             try
             {
@@ -44,7 +44,7 @@ namespace MagicaCloth2
                     rsetup.transformIdList,
                     rsetup.transformParentIdList,
                     rsetup.rootTransformIdList,
-                    rsetup.transformLocalPositins,
+                    rsetup.transformLocalPositions,
                     rsetup.transformLocalRotations,
                     rsetup.transformPositions,
                     rsetup.transformRotations,
@@ -63,12 +63,12 @@ namespace MagicaCloth2
                 initScale = rsetup.initRenderScale;
 
                 // ========== ここからMesh/Boneで分岐 ==========
-                if (rsetup.setupType == RenderSetupData.SetupType.Mesh)
+                if (rsetup.setupType == RenderSetupData.SetupType.MeshCloth)
                 {
                     // メッシュタイプ
                     meshType = MeshType.NormalMesh;
                     isBoneCloth = false;
-                    ImportMeshType(rsetup, indices);
+                    ImportMeshType(rsetup, indices, uvChannel);
 
                     // スキニングメッシュでは１回スキニングを行いクロスローカル空間に姿勢を変換する
                     if (rsetup.hasBoneWeight)
@@ -76,7 +76,7 @@ namespace MagicaCloth2
                         ImportMeshSkinning();
                     }
                 }
-                else if (rsetup.setupType == RenderSetupData.SetupType.Bone)
+                else if (rsetup.setupType == RenderSetupData.SetupType.BoneCloth || rsetup.setupType == RenderSetupData.SetupType.BoneSpring)
                 {
                     // ボーンタイプ
                     meshType = MeshType.NormalBoneMesh;
@@ -94,15 +94,21 @@ namespace MagicaCloth2
                 JobUtility.CalcAABBRun(localPositions.GetNativeArray(), VertexCount, boundingBox);
 
                 // UV
-                if (rsetup.setupType == RenderSetupData.SetupType.Bone && TriangleCount > 0)
+                switch (rsetup.setupType)
                 {
-                    // ボーンタイプでトライアングルを含む場合
-                    JobUtility.CalcUVWithSphereMappingRun(
-                        localPositions.GetNativeArray(),
-                        VertexCount,
-                        boundingBox,
-                        uv.GetNativeArray()
-                        );
+                    case RenderSetupData.SetupType.BoneCloth:
+                    case RenderSetupData.SetupType.BoneSpring:
+                        if (TriangleCount > 0)
+                        {
+                            // ボーンタイプでトライアングルを含む場合
+                            JobUtility.CalcUVWithSphereMappingRun(
+                                localPositions.GetNativeArray(),
+                                VertexCount,
+                                boundingBox,
+                                uv.GetNativeArray()
+                                );
+                        }
+                        break;
                 }
 
                 // 頂点平均接続距離算出
@@ -123,7 +129,7 @@ namespace MagicaCloth2
         /// </summary>
         /// <param name="rsetup"></param>
         /// <param name="transformIndices"></param>
-        void ImportMeshType(RenderSetupData rsetup, int[] transformIndices)
+        void ImportMeshType(RenderSetupData rsetup, int[] transformIndices, int uvChannel)
         {
             // root bone
             skinRootIndex = transformIndices[rsetup.skinRootBoneIndex];
@@ -149,6 +155,7 @@ namespace MagicaCloth2
             meshData.GetNormals(localNormals.GetNativeArray<Vector3>());
             if (meshData.HasVertexAttribute(UnityEngine.Rendering.VertexAttribute.Tangent))
             {
+                // 接線情報がメッシュに存在する
                 using var tangents = new NativeArray<Vector4>(vcnt, Allocator.TempJob);
                 meshData.GetTangents(tangents);
                 // tangent変換(Vector4->float3)
@@ -156,6 +163,7 @@ namespace MagicaCloth2
             }
             else
             {
+                // 接線情報がメッシュに存在しない
                 Develop.DebugLogWarning($"[{name}] Tangents not found!");
                 // tangentを生成する
                 // このtangentは描画用では無く姿勢制御用なのである意味適当でも大丈夫
@@ -168,11 +176,19 @@ namespace MagicaCloth2
             }
             if (meshData.HasVertexAttribute(UnityEngine.Rendering.VertexAttribute.TexCoord0))
             {
-                meshData.GetUVs(0, uv.GetNativeArray<Vector2>());
+                uvChannel = Mathf.Clamp(uvChannel, 0, 7);
+                UnityEngine.Rendering.VertexAttribute useTexCoord = UnityEngine.Rendering.VertexAttribute.TexCoord0 + uvChannel;
+                if (meshData.HasVertexAttribute(useTexCoord) == false)
+                {
+                    Develop.LogWarning($"[{name}] UV{uvChannel} not found! => Use UV0.");
+                    uvChannel = 0;
+                }
+                //Debug.Log($"Fetch UV:{uvChannel}");
+                meshData.GetUVs(uvChannel, uv.GetNativeArray<Vector2>());
             }
             else
             {
-                Debug.LogWarning($"[{name}] UV not found!");
+                Develop.LogWarning($"[{name}] UV0 not found!");
             }
 
             // 属性
@@ -341,8 +357,10 @@ namespace MagicaCloth2
 
                 // 再びローカル空間に変換する
                 localPositions[vindex] = MathUtility.TransformPoint(wpos, toM);
-                localNormals[vindex] = MathUtility.TransformDirection(wnor, toM);
-                localTangents[vindex] = MathUtility.TransformDirection(wtan, toM);
+                //localNormals[vindex] = MathUtility.TransformDirection(wnor, toM);
+                //localTangents[vindex] = MathUtility.TransformDirection(wtan, toM);
+                localNormals[vindex] = MathUtility.TransformNormal(wnor, toM, math.up());
+                localTangents[vindex] = MathUtility.TransformNormal(wtan, toM, math.right());
             }
         }
 
@@ -433,7 +451,7 @@ namespace MagicaCloth2
             skinBoneTransformIndices.AddRange(transformIndices, rsetup.skinBoneCount);
             skinBoneBindPoses.AddRange(vcnt);
 
-            // Transformの情報をローカル空間に変換し頂点情報に割り当てる
+            // Transformの情報をクロスローカル空間に変換し頂点情報に割り当てる
             // およびバインドポーズの算出
             var WtoL = rsetup.initRenderWorldtoLocal;
             var LtoW = rsetup.initRenderLocalToWorld;
@@ -473,6 +491,26 @@ namespace MagicaCloth2
                         lineList.Add(line);
                     }
                 }
+
+                // BoneSpringでの設定
+                if (rsetup.setupType == RenderSetupData.SetupType.BoneSpring)
+                {
+                    // スプリングではコリジョン無効で初期化
+                    attributes.Fill(0, vcnt, VertexAttribute.DisableCollision);
+
+                    // コリジョンとして指定されたボーンのみ衝突判定を有効化する
+                    if (rsetup.collisionBoneIndexList != null)
+                    {
+                        foreach (int index in rsetup.collisionBoneIndexList)
+                        {
+                            if (index >= 0)
+                            {
+                                attributes[index] = VertexAttribute.Invalid;
+                            }
+                        }
+                    }
+                }
+
                 if (lineList.Count > 0)
                     lines = new ExSimpleNativeArray<int2>(lineList.ToArray());
             }
@@ -873,13 +911,17 @@ namespace MagicaCloth2
                 quaternion rot = transformRotations[vindex];
                 float3 scl = transformScales[vindex];
 
-                // トランスフォーム姿勢をローカル空間に変換する
+                // トランスフォーム姿勢をクロスローカル空間に変換する
+                // オリジナル
+#if true
                 float3 lpos = MathUtility.InverseTransformPoint(pos, WtoL);
                 float3 lnor, ltan;
                 lnor = math.mul(rot, math.up());
                 ltan = math.mul(rot, math.forward());
                 lnor = MathUtility.InverseTransformDirection(lnor, WtoL);
                 ltan = MathUtility.InverseTransformDirection(ltan, WtoL);
+#endif
+                //Debug.Log($"Import [{vindex}] lpos:{lpos}, lnor:{lnor}, ltan:{ltan}");
 
                 localPositions[vindex] = lpos;
                 localNormals[vindex] = lnor;
@@ -902,7 +944,7 @@ namespace MagicaCloth2
         /// レンダーデータからインポートする
         /// </summary>
         /// <param name="renderData"></param>
-        public void ImportFrom(RenderData renderData)
+        public void ImportFrom(RenderData renderData, int uvChannel)
         {
             try
             {
@@ -912,7 +954,7 @@ namespace MagicaCloth2
                     throw new MagicaClothProcessingException();
                 }
 
-                ImportFrom(renderData.setupData);
+                ImportFrom(renderData.setupData, uvChannel);
             }
             catch (MagicaClothProcessingException)
             {
@@ -1738,16 +1780,6 @@ namespace MagicaCloth2
             return transformData.GetTransformFromIndex(centerTransformIndex);
         }
 
-        public float4x4 GetCenterLocalToWorldMatrix()
-        {
-            return transformData.GetLocalToWorldMatrix(centerTransformIndex);
-        }
-
-        public float4x4 GetCenterWorldToLocalMatrix()
-        {
-            return transformData.GetWorldToLocalMatrix(centerTransformIndex);
-        }
-
         /// <summary>
         /// カスタムスキニング用ボーンを登録する
         /// </summary>
@@ -1802,6 +1834,7 @@ namespace MagicaCloth2
         }
 
         //=========================================================================================
+#if false
         /// <summary>
         /// UnityMeshに出力する（メインスレッドのみ）
         /// ※ほぼデバッグ用
@@ -1867,93 +1900,6 @@ namespace MagicaCloth2
 
             return mesh;
         }
-
-        /// <summary>
-        /// メッシュの基準トランスフォームを返す
-        /// 通常はレンダラーのtransform
-        /// </summary>
-        /// <returns></returns>
-        public Transform ExportCenterTransform()
-        {
-            return transformData.GetTransformFromIndex(centerTransformIndex);
-        }
-
-        public Transform ExportSkinRootBone()
-        {
-            return transformData.GetTransformFromIndex(skinRootIndex);
-        }
-
-        /// <summary>
-        /// メッシュのスキニング用ボーンリストを返す
-        /// </summary>
-        /// <returns></returns>
-        public List<Transform> ExportSkinningBones()
-        {
-            var sbones = new List<Transform>(SkinBoneCount);
-            for (int i = 0; i < SkinBoneCount; i++)
-            {
-                sbones.Add(transformData.GetTransformFromIndex(skinBoneTransformIndices[i]));
-            }
-            return sbones;
-        }
-
-        /// <summary>
-        /// メッシュのバウンディングボックスを返す
-        /// スキニングの場合はスキニングルートボーンからのバウンディングボックスとなる
-        /// それ以外はセンターボーンからのバウンディングボックスとなる
-        /// </summary>
-        /// <returns></returns>
-        /*public Bounds ExportBounds()
-        {
-            float3 offset = 0;
-            if (skinRootIndex >= 0 && centerTransformIndex != skinRootIndex)
-            {
-                // スキニングのルートボーンが別の場合
-                // ちょっと面倒
-                float3 wmin = transformData.TransformPoint(centerTransformIndex, boundingBox.Value.Min);
-                float3 wmax = transformData.TransformPoint(centerTransformIndex, boundingBox.Value.Max);
-                float3 lmin = transformData.InverseTransformPoint(skinRootIndex, wmin);
-                float3 lmax = transformData.InverseTransformPoint(skinRootIndex, wmax);
-                float3 cen = (lmax + lmin) * 0.5f;
-                float3 size = math.abs(lmax - lmin);
-                return new Bounds(cen, size);
-            }
-            else
-            {
-                return new Bounds(boundingBox.Value.Center, boundingBox.Value.Extents);
-            }
-        }*/
-
-        /// <summary>
-        /// 現在のメッシュをレンダラーに反映させる（主にデバッグ用）
-        /// </summary>
-        /// <param name="ren"></param>
-        public Mesh ToRenderer(Renderer ren)
-        {
-            Mesh mesh = null;
-            if (IsSuccess == false)
-                return mesh;
-
-            if (ren is MeshRenderer)
-            {
-                mesh = ExportToMesh();
-                var filter = ren.GetComponent<MeshFilter>();
-                filter.mesh = mesh;
-            }
-            else if (ren is SkinnedMeshRenderer)
-            {
-                var sren = ren as SkinnedMeshRenderer;
-                mesh = ExportToMesh(true);
-                var rootBone = ExportSkinRootBone();
-                var skinBones = ExportSkinningBones().ToArray();
-
-                sren.rootBone = rootBone;
-                sren.bones = skinBones;
-                sren.sharedMesh = mesh;
-            }
-
-            return mesh;
-        }
-
+#endif
     }
 }

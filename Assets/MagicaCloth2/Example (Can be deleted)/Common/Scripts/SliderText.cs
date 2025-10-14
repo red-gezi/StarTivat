@@ -19,7 +19,7 @@ namespace MagicaCloth2
 
         private string formatString;
 
-        void Start()
+        protected void Start()
         {
             formatString = "{0} ({1:" + format + "})";
 

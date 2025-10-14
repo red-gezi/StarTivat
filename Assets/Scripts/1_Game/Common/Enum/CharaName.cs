@@ -58,13 +58,13 @@ public enum CharaName
     Kirara = 4307,      // 绮良良
     Dori = 4308,        // 多莉
     Sethos = 4309,      // 赛索斯
-    Ororon = 5405,      // 欧洛伦
+    Cyno = 5304,        // 赛诺
+    Ororon = 5305,      // 欧洛伦
     // 草元素
     Yaoyao = 4401,      // 瑶瑶
     Collei = 4402,      // 柯莱
     Kaveh = 4403,       // 卡维
     Tighnari = 5402,    // 提纳里
-    Cyno = 5304,        // 赛诺
     Nahida = 5403,      // 纳西妲
     Alhaitham = 5404,   // 艾尔海森
     // 冰元素
@@ -80,6 +80,7 @@ public enum CharaName
     Ganyu = 5504,       // 甘雨
     Shenhe = 5505,      // 申鹤
     Wriothesley = 5507, // 莱欧斯利
+    Citlali=5508,
     // 岩元素
     Noelle = 4601,      // 诺艾尔
     Ningguang = 4602,   // 凝光

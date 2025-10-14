@@ -24,14 +24,10 @@ namespace MagicaCloth2
         GameObject character;
         GameObjectContainer gameObjectContainer;
 
-        void Start()
+        protected void Start()
         {
-
-        }
-
-        void Update()
-        {
-
+            character = null;
+            gameObjectContainer = null;
         }
 
         public void OnCreateButton()
@@ -195,8 +191,7 @@ namespace MagicaCloth2
             var sobj = gameObjectContainer.GetGameObject(skirtName);
             if (sobj == null)
                 return;
-            Renderer skirtRenderer = sobj.GetComponent<Renderer>();
-            if (skirtRenderer == null)
+            if (!sobj.TryGetComponent<Renderer>(out var skirtRenderer))
                 return;
 
             // add Magica Cloth
@@ -233,6 +228,7 @@ namespace MagicaCloth2
             sdata.colliderCollisionConstraint.mode = ColliderCollisionConstraint.Mode.Point;
 
             // setup collider
+            // UpperLeg L
             var lobj = new GameObject("CapsuleCollider_L");
             lobj.transform.SetParent(gameObjectContainer.GetGameObject("Character1_LeftUpLeg").transform);
             lobj.transform.localPosition = new Vector3(0.0049f, 0.0f, -0.0832f);
@@ -240,17 +236,10 @@ namespace MagicaCloth2
             var colliderL = lobj.AddComponent<MagicaCapsuleCollider>();
             colliderL.direction = MagicaCapsuleCollider.Direction.Z;
             colliderL.SetSize(0.082f, 0.094f, 0.3f);
-
-            var robj = new GameObject("CapsuleCollider_R");
-            robj.transform.SetParent(gameObjectContainer.GetGameObject("Character1_RightUpLeg").transform);
-            robj.transform.localPosition = new Vector3(-0.0049f, 0.0f, -0.0832f);
-            robj.transform.localEulerAngles = new Vector3(0.23f, -16.376f, -0.028f);
-            var colliderR = robj.AddComponent<MagicaCapsuleCollider>();
-            colliderR.direction = MagicaCapsuleCollider.Direction.Z;
-            colliderR.SetSize(0.082f, 0.094f, 0.3f);
-
+            // UpperLeg R (Symmetry)
+            colliderL.symmetryMode = ColliderSymmetryMode.AutomaticHumanBody;
+            colliderL.UpdateParameters(); // Required when changing parameters.
             sdata.colliderCollisionConstraint.colliderList.Add(colliderL);
-            sdata.colliderCollisionConstraint.colliderList.Add(colliderR);
 
             // start build
             cloth.BuildAndRun();
