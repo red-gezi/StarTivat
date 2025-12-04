@@ -6,33 +6,278 @@
   "CurrentRoomDatas": [
     {
       "Layer": 0,
-      "BaseRoomConfigData": {
-        "CurrentRoomType": 0,
-        "SelectableSceneModel": [
-          8
-        ],
-        "SelectableRoomTag": [
-          [
+      "IsFinish": false,
+      "CurrentSceneModel": 8,
+      "CurrentRoomType": 0,
+      "CurrentRoomTag": 2,
+      "TargetDoorCount": 2,
+      "DoorTypeWeight": {
+        "InitRoom": 0.0,
+        "StartRoom": 0.0,
+        "BossRoom": 0.0,
+        "BattleRoom": 1.0,
+        "EncounterRoom": 1.0,
+        "EliteRoom": 0.2,
+        "EventRoom": 1.0,
+        "RewardRoom": 0.5,
+        "ShopRoom": 0.2,
+        "GameRoom": 0.2,
+        "MiracleRoom": 0.2
+      },
+      "RoomConfigDataFromDoor": [
+        {
+          "CurrentRoomType": 3,
+          "SelectableSceneModel": [
+            7,
+            0
+          ],
+          "SelectableEnemyTag": [
+            4,
+            3
+          ],
+          "SelectableSignTag": [],
+          "DoorCount": [
+            2,
+            3
+          ],
+          "OccurrenceCount": [],
+          "MonstertCount": [],
+          "outOfBattleEnemyDatas": [],
+          "ChestCount": [],
+          "SceneObjectCount": [],
+          "NPC": []
+        },
+        {
+          "CurrentRoomType": 6,
+          "SelectableSceneModel": [
+            7,
+            0,
+            1
+          ],
+          "SelectableEnemyTag": [
             0,
             2,
             3,
             7
-          ]
-        ],
-        "DoorCount": [
-          0
-        ],
-        "OccurrenceCount": [],
-        "MonstertCount": [],
-        "MonstertType": [],
-        "ChestCount": [],
-        "SceneObjectCount": [],
-        "NPC": []
+          ],
+          "SelectableSignTag": [],
+          "DoorCount": [
+            2,
+            3
+          ],
+          "OccurrenceCount": [],
+          "MonstertCount": [
+            1
+          ],
+          "outOfBattleEnemyDatas": [],
+          "ChestCount": [],
+          "SceneObjectCount": [],
+          "NPC": []
+        }
+      ],
+      "Enemies": [],
+      "sceneObjects": {},
+      "Sender": null,
+      "Receiver": null,
+      "TargetBuffs": null,
+      "exceBuff": {
+        "id": 0,
+        "timer": 0,
+        "layers": 0,
+        "rank": 0,
+        "element": 0,
+        "curio": 0,
+        "tags": [],
+        "buffName": null,
+        "buffAbility": null,
+        "weight": 0.0
       },
+      "ListenerBuffs": [],
+      "BelongBuffList": {
+        "Buffs": [
+          {
+            "id": 0,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 1,
+            "timer": 0,
+            "layers": 0,
+            "rank": 1,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 2,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 3,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 4,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 5,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 7,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 6,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 10,
+            "timer": 0,
+            "layers": 0,
+            "rank": 3,
+            "element": 7,
+            "curio": 0,
+            "tags": [],
+            "buffName": "妙论派",
+            "buffAbility": "元素反应加成提高<color=yellow>15%</color>",
+            "weight": 0.0
+          },
+          {
+            "id": 8,
+            "timer": 0,
+            "layers": 0,
+            "rank": 2,
+            "element": 6,
+            "curio": 0,
+            "tags": [],
+            "buffName": "琥珀",
+            "buffAbility": "护盾自然破碎时产生产生共振，对对方全体造成<color=yellow>200%</color>盾量伤害",
+            "weight": 0.0
+          },
+          {
+            "id": 9,
+            "timer": 0,
+            "layers": 0,
+            "rank": 1,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": "苹果酿",
+            "buffAbility": "速度提高<color=yellow>20%</color>",
+            "weight": 0.0
+          },
+          {
+            "id": 11,
+            "timer": 0,
+            "layers": 0,
+            "rank": 2,
+            "element": 0,
+            "curio": 0,
+            "tags": [
+              6
+            ],
+            "buffName": "相遇之缘",
+            "buffAbility": "能带来奇迹的等价交换之物",
+            "weight": 0.0
+          },
+          {
+            "id": 12,
+            "timer": 0,
+            "layers": 0,
+            "rank": 3,
+            "element": 0,
+            "curio": 1,
+            "tags": [
+              7
+            ],
+            "buffName": "纠缠之缘",
+            "buffAbility": "能带来没有任何作用的奇迹的等价交换之物",
+            "weight": 0.0
+          },
+          {
+            "id": 13,
+            "timer": 0,
+            "layers": 0,
+            "rank": 1,
+            "element": 0,
+            "curio": 2,
+            "tags": [
+              4
+            ],
+            "buffName": "原石",
+            "buffAbility": "财富的象征",
+            "weight": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "Layer": 1,
       "IsFinish": false,
-      "CurrentSceneModel": 8,
+      "CurrentSceneModel": 0,
       "CurrentRoomType": 0,
-      "CurrentRoomTag": 0,
+      "CurrentRoomTag": 6,
       "TargetDoorCount": 1,
       "DoorTypeWeight": {
         "InitRoom": 0.0,
@@ -54,25 +299,1275 @@
             7,
             0
           ],
-          "SelectableRoomTag": [
-            [
-              4,
-              3
-            ]
+          "SelectableEnemyTag": [
+            4,
+            3
           ],
+          "SelectableSignTag": [],
           "DoorCount": [
             2,
             3
           ],
           "OccurrenceCount": [],
           "MonstertCount": [],
-          "MonstertType": [],
+          "outOfBattleEnemyDatas": [],
           "ChestCount": [],
           "SceneObjectCount": [],
           "NPC": []
         }
       ],
-      "Enemies": {},
+      "Enemies": [
+        {
+          "bornPos": {
+            "x": -2.0,
+            "y": 0.5,
+            "z": -2.61,
+            "normalized": {
+              "x": -0.6013277,
+              "y": 0.150331929,
+              "z": -0.78473264,
+              "magnitude": 1.0,
+              "sqrMagnitude": 1.0
+            },
+            "magnitude": 3.32597351,
+            "sqrMagnitude": 11.0620995
+          },
+          "enemyDatas": [
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            },
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            }
+          ],
+          "IsDead": false
+        },
+        {
+          "bornPos": {
+            "x": -2.0,
+            "y": 0.5,
+            "z": -2.61,
+            "normalized": {
+              "x": -0.6013277,
+              "y": 0.150331929,
+              "z": -0.78473264,
+              "magnitude": 1.0,
+              "sqrMagnitude": 1.0
+            },
+            "magnitude": 3.32597351,
+            "sqrMagnitude": 11.0620995
+          },
+          "enemyDatas": [
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            },
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            },
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            }
+          ],
+          "IsDead": false
+        },
+        {
+          "bornPos": {
+            "x": -2.0,
+            "y": 0.5,
+            "z": -2.61,
+            "normalized": {
+              "x": -0.6013277,
+              "y": 0.150331929,
+              "z": -0.78473264,
+              "magnitude": 1.0,
+              "sqrMagnitude": 1.0
+            },
+            "magnitude": 3.32597351,
+            "sqrMagnitude": 11.0620995
+          },
+          "enemyDatas": [
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            },
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            },
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            }
+          ],
+          "IsDead": false
+        }
+      ],
+      "sceneObjects": {},
+      "Sender": null,
+      "Receiver": null,
+      "TargetBuffs": null,
+      "exceBuff": {
+        "id": 0,
+        "timer": 0,
+        "layers": 0,
+        "rank": 0,
+        "element": 0,
+        "curio": 0,
+        "tags": [],
+        "buffName": null,
+        "buffAbility": null,
+        "weight": 0.0
+      },
+      "ListenerBuffs": [],
+      "BelongBuffList": {
+        "Buffs": [
+          {
+            "id": 0,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 1,
+            "timer": 0,
+            "layers": 0,
+            "rank": 1,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 2,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 3,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 4,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 5,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 7,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 6,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 10,
+            "timer": 0,
+            "layers": 0,
+            "rank": 3,
+            "element": 7,
+            "curio": 0,
+            "tags": [],
+            "buffName": "妙论派",
+            "buffAbility": "元素反应加成提高<color=yellow>15%</color>",
+            "weight": 0.0
+          },
+          {
+            "id": 8,
+            "timer": 0,
+            "layers": 0,
+            "rank": 2,
+            "element": 6,
+            "curio": 0,
+            "tags": [],
+            "buffName": "琥珀",
+            "buffAbility": "护盾自然破碎时产生产生共振，对对方全体造成<color=yellow>200%</color>盾量伤害",
+            "weight": 0.0
+          },
+          {
+            "id": 9,
+            "timer": 0,
+            "layers": 0,
+            "rank": 1,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": "苹果酿",
+            "buffAbility": "速度提高<color=yellow>20%</color>",
+            "weight": 0.0
+          },
+          {
+            "id": 11,
+            "timer": 0,
+            "layers": 0,
+            "rank": 2,
+            "element": 0,
+            "curio": 0,
+            "tags": [
+              6
+            ],
+            "buffName": "相遇之缘",
+            "buffAbility": "能带来奇迹的等价交换之物",
+            "weight": 0.0
+          },
+          {
+            "id": 12,
+            "timer": 0,
+            "layers": 0,
+            "rank": 3,
+            "element": 0,
+            "curio": 1,
+            "tags": [
+              7
+            ],
+            "buffName": "纠缠之缘",
+            "buffAbility": "能带来没有任何作用的奇迹的等价交换之物",
+            "weight": 0.0
+          },
+          {
+            "id": 13,
+            "timer": 0,
+            "layers": 0,
+            "rank": 1,
+            "element": 0,
+            "curio": 2,
+            "tags": [
+              4
+            ],
+            "buffName": "原石",
+            "buffAbility": "财富的象征",
+            "weight": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "Layer": 2,
+      "IsFinish": false,
+      "CurrentSceneModel": 7,
+      "CurrentRoomType": 0,
+      "CurrentRoomTag": 6,
+      "TargetDoorCount": 1,
+      "DoorTypeWeight": {
+        "InitRoom": 0.0,
+        "StartRoom": 0.0,
+        "BossRoom": 0.0,
+        "BattleRoom": 1.0,
+        "EncounterRoom": 1.0,
+        "EliteRoom": 0.2,
+        "EventRoom": 1.0,
+        "RewardRoom": 0.5,
+        "ShopRoom": 0.2,
+        "GameRoom": 0.2,
+        "MiracleRoom": 0.2
+      },
+      "RoomConfigDataFromDoor": [
+        {
+          "CurrentRoomType": 10,
+          "SelectableSceneModel": [
+            0
+          ],
+          "SelectableEnemyTag": [
+            0,
+            3
+          ],
+          "SelectableSignTag": [],
+          "DoorCount": [
+            1
+          ],
+          "OccurrenceCount": [],
+          "MonstertCount": [],
+          "outOfBattleEnemyDatas": [],
+          "ChestCount": [],
+          "SceneObjectCount": [],
+          "NPC": []
+        }
+      ],
+      "Enemies": [
+        {
+          "bornPos": {
+            "x": 0.0,
+            "y": 0.5,
+            "z": -2.61,
+            "normalized": {
+              "x": 0.0,
+              "y": 0.1881495,
+              "z": -0.982140362,
+              "normalized": {
+                "x": 0.0,
+                "y": 0.188149512,
+                "z": -0.9821404,
+                "magnitude": 1.0,
+                "sqrMagnitude": 1.0
+              },
+              "magnitude": 0.99999994,
+              "sqrMagnitude": 0.99999994
+            },
+            "magnitude": 2.65746117,
+            "sqrMagnitude": 7.06209946
+          },
+          "enemyDatas": [
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            },
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            },
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            },
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            },
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            }
+          ],
+          "IsDead": false
+        },
+        {
+          "bornPos": {
+            "x": 0.0,
+            "y": 0.5,
+            "z": -2.61,
+            "normalized": {
+              "x": 0.0,
+              "y": 0.1881495,
+              "z": -0.982140362,
+              "normalized": {
+                "x": 0.0,
+                "y": 0.188149512,
+                "z": -0.9821404,
+                "magnitude": 1.0,
+                "sqrMagnitude": 1.0
+              },
+              "magnitude": 0.99999994,
+              "sqrMagnitude": 0.99999994
+            },
+            "magnitude": 2.65746117,
+            "sqrMagnitude": 7.06209946
+          },
+          "enemyDatas": [
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            },
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            },
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            },
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            },
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            }
+          ],
+          "IsDead": false
+        },
+        {
+          "bornPos": {
+            "x": -2.0,
+            "y": 0.5,
+            "z": -2.61,
+            "normalized": {
+              "x": -0.6013277,
+              "y": 0.150331929,
+              "z": -0.78473264,
+              "magnitude": 1.0,
+              "sqrMagnitude": 1.0
+            },
+            "magnitude": 3.32597351,
+            "sqrMagnitude": 11.0620995
+          },
+          "enemyDatas": [
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            },
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            }
+          ],
+          "IsDead": false
+        }
+      ],
+      "sceneObjects": {},
+      "Sender": null,
+      "Receiver": null,
+      "TargetBuffs": null,
+      "exceBuff": {
+        "id": 0,
+        "timer": 0,
+        "layers": 0,
+        "rank": 0,
+        "element": 0,
+        "curio": 0,
+        "tags": [],
+        "buffName": null,
+        "buffAbility": null,
+        "weight": 0.0
+      },
+      "ListenerBuffs": [],
+      "BelongBuffList": {
+        "Buffs": [
+          {
+            "id": 0,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 1,
+            "timer": 0,
+            "layers": 0,
+            "rank": 1,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 2,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 3,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 4,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 5,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 7,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 6,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 10,
+            "timer": 0,
+            "layers": 0,
+            "rank": 3,
+            "element": 7,
+            "curio": 0,
+            "tags": [],
+            "buffName": "妙论派",
+            "buffAbility": "元素反应加成提高<color=yellow>15%</color>",
+            "weight": 0.0
+          },
+          {
+            "id": 8,
+            "timer": 0,
+            "layers": 0,
+            "rank": 2,
+            "element": 6,
+            "curio": 0,
+            "tags": [],
+            "buffName": "琥珀",
+            "buffAbility": "护盾自然破碎时产生产生共振，对对方全体造成<color=yellow>200%</color>盾量伤害",
+            "weight": 0.0
+          },
+          {
+            "id": 9,
+            "timer": 0,
+            "layers": 0,
+            "rank": 1,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": "苹果酿",
+            "buffAbility": "速度提高<color=yellow>20%</color>",
+            "weight": 0.0
+          },
+          {
+            "id": 11,
+            "timer": 0,
+            "layers": 0,
+            "rank": 2,
+            "element": 0,
+            "curio": 0,
+            "tags": [
+              6
+            ],
+            "buffName": "相遇之缘",
+            "buffAbility": "能带来奇迹的等价交换之物",
+            "weight": 0.0
+          },
+          {
+            "id": 12,
+            "timer": 0,
+            "layers": 0,
+            "rank": 3,
+            "element": 0,
+            "curio": 1,
+            "tags": [
+              7
+            ],
+            "buffName": "纠缠之缘",
+            "buffAbility": "能带来没有任何作用的奇迹的等价交换之物",
+            "weight": 0.0
+          },
+          {
+            "id": 13,
+            "timer": 0,
+            "layers": 0,
+            "rank": 1,
+            "element": 0,
+            "curio": 2,
+            "tags": [
+              4
+            ],
+            "buffName": "原石",
+            "buffAbility": "财富的象征",
+            "weight": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "Layer": 3,
+      "IsFinish": false,
+      "CurrentSceneModel": 0,
+      "CurrentRoomType": 0,
+      "CurrentRoomTag": 6,
+      "TargetDoorCount": 2,
+      "DoorTypeWeight": {
+        "InitRoom": 0.0,
+        "StartRoom": 0.0,
+        "BossRoom": 0.0,
+        "BattleRoom": 1.0,
+        "EncounterRoom": 1.0,
+        "EventRoom": 1.0,
+        "RewardRoom": 0.5,
+        "ShopRoom": 0.2,
+        "GameRoom": 0.2,
+        "MiracleRoom": 0.2
+      },
+      "RoomConfigDataFromDoor": [
+        {
+          "CurrentRoomType": 4,
+          "SelectableSceneModel": [
+            7,
+            0,
+            1
+          ],
+          "SelectableEnemyTag": [
+            1
+          ],
+          "SelectableSignTag": [],
+          "DoorCount": [
+            1,
+            2,
+            3
+          ],
+          "OccurrenceCount": [],
+          "MonstertCount": [],
+          "outOfBattleEnemyDatas": [],
+          "ChestCount": [],
+          "SceneObjectCount": [],
+          "NPC": []
+        },
+        {
+          "CurrentRoomType": 6,
+          "SelectableSceneModel": [
+            7,
+            0,
+            1
+          ],
+          "SelectableEnemyTag": [
+            0,
+            2,
+            3,
+            7
+          ],
+          "SelectableSignTag": [],
+          "DoorCount": [
+            2,
+            3
+          ],
+          "OccurrenceCount": [],
+          "MonstertCount": [
+            1
+          ],
+          "outOfBattleEnemyDatas": [],
+          "ChestCount": [],
+          "SceneObjectCount": [],
+          "NPC": []
+        }
+      ],
+      "Enemies": [
+        {
+          "bornPos": {
+            "x": -2.0,
+            "y": 0.5,
+            "z": -2.61,
+            "normalized": {
+              "x": -0.6013277,
+              "y": 0.150331929,
+              "z": -0.78473264,
+              "magnitude": 1.0,
+              "sqrMagnitude": 1.0
+            },
+            "magnitude": 3.32597351,
+            "sqrMagnitude": 11.0620995
+          },
+          "enemyDatas": [
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            },
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            }
+          ],
+          "IsDead": false
+        },
+        {
+          "bornPos": {
+            "x": 0.0,
+            "y": 0.5,
+            "z": -2.61,
+            "normalized": {
+              "x": 0.0,
+              "y": 0.1881495,
+              "z": -0.982140362,
+              "normalized": {
+                "x": 0.0,
+                "y": 0.188149512,
+                "z": -0.9821404,
+                "magnitude": 1.0,
+                "sqrMagnitude": 1.0
+              },
+              "magnitude": 0.99999994,
+              "sqrMagnitude": 0.99999994
+            },
+            "magnitude": 2.65746117,
+            "sqrMagnitude": 7.06209946
+          },
+          "enemyDatas": [
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            },
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            },
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            },
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            },
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            }
+          ],
+          "IsDead": false
+        },
+        {
+          "bornPos": {
+            "x": -2.0,
+            "y": 0.5,
+            "z": -2.61,
+            "normalized": {
+              "x": -0.6013277,
+              "y": 0.150331929,
+              "z": -0.78473264,
+              "magnitude": 1.0,
+              "sqrMagnitude": 1.0
+            },
+            "magnitude": 3.32597351,
+            "sqrMagnitude": 11.0620995
+          },
+          "enemyDatas": [
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            },
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            }
+          ],
+          "IsDead": false
+        }
+      ],
+      "sceneObjects": {},
+      "Sender": null,
+      "Receiver": null,
+      "TargetBuffs": null,
+      "exceBuff": {
+        "id": 0,
+        "timer": 0,
+        "layers": 0,
+        "rank": 0,
+        "element": 0,
+        "curio": 0,
+        "tags": [],
+        "buffName": null,
+        "buffAbility": null,
+        "weight": 0.0
+      },
+      "ListenerBuffs": [],
+      "BelongBuffList": {
+        "Buffs": [
+          {
+            "id": 0,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 1,
+            "timer": 0,
+            "layers": 0,
+            "rank": 1,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 2,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 3,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 4,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 5,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 7,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 6,
+            "timer": 0,
+            "layers": 0,
+            "rank": 0,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": null,
+            "buffAbility": null,
+            "weight": 0.0
+          },
+          {
+            "id": 10,
+            "timer": 0,
+            "layers": 0,
+            "rank": 3,
+            "element": 7,
+            "curio": 0,
+            "tags": [],
+            "buffName": "妙论派",
+            "buffAbility": "元素反应加成提高<color=yellow>15%</color>",
+            "weight": 0.0
+          },
+          {
+            "id": 8,
+            "timer": 0,
+            "layers": 0,
+            "rank": 2,
+            "element": 6,
+            "curio": 0,
+            "tags": [],
+            "buffName": "琥珀",
+            "buffAbility": "护盾自然破碎时产生产生共振，对对方全体造成<color=yellow>200%</color>盾量伤害",
+            "weight": 0.0
+          },
+          {
+            "id": 9,
+            "timer": 0,
+            "layers": 0,
+            "rank": 1,
+            "element": 0,
+            "curio": 0,
+            "tags": [],
+            "buffName": "苹果酿",
+            "buffAbility": "速度提高<color=yellow>20%</color>",
+            "weight": 0.0
+          },
+          {
+            "id": 11,
+            "timer": 0,
+            "layers": 0,
+            "rank": 2,
+            "element": 0,
+            "curio": 0,
+            "tags": [
+              6
+            ],
+            "buffName": "相遇之缘",
+            "buffAbility": "能带来奇迹的等价交换之物",
+            "weight": 0.0
+          },
+          {
+            "id": 12,
+            "timer": 0,
+            "layers": 0,
+            "rank": 3,
+            "element": 0,
+            "curio": 1,
+            "tags": [
+              7
+            ],
+            "buffName": "纠缠之缘",
+            "buffAbility": "能带来没有任何作用的奇迹的等价交换之物",
+            "weight": 0.0
+          },
+          {
+            "id": 13,
+            "timer": 0,
+            "layers": 0,
+            "rank": 1,
+            "element": 0,
+            "curio": 2,
+            "tags": [
+              4
+            ],
+            "buffName": "原石",
+            "buffAbility": "财富的象征",
+            "weight": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "Layer": 4,
+      "IsFinish": false,
+      "CurrentSceneModel": 1,
+      "CurrentRoomType": 0,
+      "CurrentRoomTag": 6,
+      "TargetDoorCount": 2,
+      "DoorTypeWeight": {
+        "InitRoom": 0.0,
+        "StartRoom": 0.0,
+        "BossRoom": 0.0,
+        "BattleRoom": 1.0,
+        "EncounterRoom": 1.0,
+        "EliteRoom": 0.2,
+        "EventRoom": 1.0,
+        "RewardRoom": 0.5,
+        "ShopRoom": 0.2,
+        "GameRoom": 0.2,
+        "MiracleRoom": 0.2
+      },
+      "RoomConfigDataFromDoor": [
+        {
+          "CurrentRoomType": 6,
+          "SelectableSceneModel": [
+            7,
+            0,
+            1
+          ],
+          "SelectableEnemyTag": [
+            0,
+            2,
+            3,
+            7
+          ],
+          "SelectableSignTag": [],
+          "DoorCount": [
+            2,
+            3
+          ],
+          "OccurrenceCount": [],
+          "MonstertCount": [
+            1
+          ],
+          "outOfBattleEnemyDatas": [],
+          "ChestCount": [],
+          "SceneObjectCount": [],
+          "NPC": []
+        },
+        {
+          "CurrentRoomType": 9,
+          "SelectableSceneModel": [
+            7
+          ],
+          "SelectableEnemyTag": [
+            7,
+            2
+          ],
+          "SelectableSignTag": [],
+          "DoorCount": [
+            1,
+            2
+          ],
+          "OccurrenceCount": [],
+          "MonstertCount": [],
+          "outOfBattleEnemyDatas": [],
+          "ChestCount": [],
+          "SceneObjectCount": [],
+          "NPC": []
+        }
+      ],
+      "Enemies": [
+        {
+          "bornPos": {
+            "x": -2.0,
+            "y": 0.5,
+            "z": -2.61,
+            "normalized": {
+              "x": -0.6013277,
+              "y": 0.150331929,
+              "z": -0.78473264,
+              "magnitude": 1.0,
+              "sqrMagnitude": 1.0
+            },
+            "magnitude": 3.32597351,
+            "sqrMagnitude": 11.0620995
+          },
+          "enemyDatas": [
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            },
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            },
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            }
+          ],
+          "IsDead": false
+        },
+        {
+          "bornPos": {
+            "x": 0.0,
+            "y": 0.5,
+            "z": -2.61,
+            "normalized": {
+              "x": 0.0,
+              "y": 0.1881495,
+              "z": -0.982140362,
+              "normalized": {
+                "x": 0.0,
+                "y": 0.188149512,
+                "z": -0.9821404,
+                "magnitude": 1.0,
+                "sqrMagnitude": 1.0
+              },
+              "magnitude": 0.99999994,
+              "sqrMagnitude": 0.99999994
+            },
+            "magnitude": 2.65746117,
+            "sqrMagnitude": 7.06209946
+          },
+          "enemyDatas": [
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            },
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            },
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            },
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            },
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            }
+          ],
+          "IsDead": false
+        },
+        {
+          "bornPos": {
+            "x": 0.0,
+            "y": 0.5,
+            "z": -2.61,
+            "normalized": {
+              "x": 0.0,
+              "y": 0.1881495,
+              "z": -0.982140362,
+              "normalized": {
+                "x": 0.0,
+                "y": 0.188149512,
+                "z": -0.9821404,
+                "magnitude": 1.0,
+                "sqrMagnitude": 1.0
+              },
+              "magnitude": 0.99999994,
+              "sqrMagnitude": 0.99999994
+            },
+            "magnitude": 2.65746117,
+            "sqrMagnitude": 7.06209946
+          },
+          "enemyDatas": [
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            },
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            },
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            },
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            },
+            {
+              "level": 0,
+              "wave": 0,
+              "CurrentEnemyName": 0
+            }
+          ],
+          "IsDead": false
+        }
+      ],
       "sceneObjects": {},
       "Sender": null,
       "Receiver": null,
@@ -270,16 +1765,54 @@
       }
     }
   ],
-  "CurrentLayer": 1,
-  "TeamCharaPool": [],
+  "CurrentLayer": 5,
+  "TeamCharaPool": [
+    {
+      "CharaNameType": 5403,
+      "ShowCharaName": {
+        "ch": "纳西妲"
+      },
+      "IsGold": true,
+      "HealthPercentage": 1.0,
+      "IsDead": false
+    },
+    {
+      "CharaNameType": 4001,
+      "ShowCharaName": {
+        "ch": "安柏"
+      },
+      "IsGold": false,
+      "HealthPercentage": 1.0,
+      "IsDead": false
+    },
+    {
+      "CharaNameType": 4301,
+      "ShowCharaName": {
+        "ch": "丽莎"
+      },
+      "IsGold": false,
+      "HealthPercentage": 1.0,
+      "IsDead": false
+    }
+  ],
   "TempTeamAppearanceList": [
     null,
     null,
     null,
     null
   ],
-  "TeamAppearanceList": [],
-  "TeamAppearanceIndex": 0,
+  "TeamAppearanceList": [
+    {
+      "CharaNameType": 5403,
+      "ShowCharaName": {
+        "ch": "纳西妲"
+      },
+      "IsGold": true,
+      "HealthPercentage": 1.0,
+      "IsDead": false
+    }
+  ],
+  "TeamAppearanceIndex": 1,
   "DownloadChara": null,
   "CurrentGameConfigData": null,
   "CurrentBuffList": {

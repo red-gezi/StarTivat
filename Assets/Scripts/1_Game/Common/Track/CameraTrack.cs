@@ -2,8 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using UnityEditor;
-using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.UI;
 using static MMD4MecanimData;
@@ -38,8 +38,10 @@ public class CameraTrack
             switch (trackkPointType)
             {
                 case TrackPointType.RelativeToTrigger:
+                    pos = SceneView.lastActiveSceneView.camera.transform.position- ModelConfigManager.Instance.triggerModel.transform.position;
                     break;
                 case TrackPointType.RelativeToTarget:
+                    pos = SceneView.lastActiveSceneView.camera.transform.position - ModelConfigManager.Instance.targetModel.transform.position;
                     break;
                 case TrackPointType.FixedPosition:
                     pos = SceneView.lastActiveSceneView.camera.transform.position;
@@ -86,32 +88,31 @@ public class CameraTrack
             Log.Show("点位文件不存在: " + filePath);
         }
     }
-    [Button("播放摄像机")]
 #endif
-    internal async void Run(GameObject testTrigger, GameObject testTarget)
+    internal async Task Run(Camera camera, GameObject trigger, GameObject target)
     {
         for (int i = 0; i < points.Count; i++)
         {
             var pointData = points[i];
-            var startPoint = Camera.main.transform.position;
-            var startQuat = Camera.main.transform.rotation;
+            var startPoint = camera.transform.position;
+            var startQuat = camera.transform.rotation;
             await CustomThread.TimerAsync(pointData.duration, (progress) =>
             {
                 switch (pointData.trackkPointType)
                 {
                     case TrackPointType.RelativeToTrigger:
-                        Camera.main.transform.position = Vector3.Lerp(startPoint, pointData.pos + testTrigger.transform.position, pointData.moveCurve.Evaluate(progress));
+                        camera.transform.position = Vector3.Lerp(startPoint, pointData.pos + trigger.transform.position, pointData.moveCurve.Evaluate(progress));
                         break;
                     case TrackPointType.RelativeToTarget:
-                        Camera.main.transform.position = Vector3.Lerp(startPoint, pointData.pos + testTarget.transform.position, pointData.moveCurve.Evaluate(progress));
+                        camera.transform.position = Vector3.Lerp(startPoint, pointData.pos + target.transform.position, pointData.moveCurve.Evaluate(progress));
                         break;
                     case TrackPointType.FixedPosition:
-                        Camera.main.transform.position = Vector3.Lerp(startPoint, pointData.pos, pointData.moveCurve.Evaluate(progress));
+                        camera.transform.position = Vector3.Lerp(startPoint, pointData.pos, pointData.moveCurve.Evaluate(progress));
                         break;
                     default:
                         break;
                 }
-                Camera.main.transform.rotation = Quaternion.Lerp(startQuat, pointData.quat, pointData.roationCurve.Evaluate(progress));
+                camera.transform.rotation = Quaternion.Lerp(startQuat, pointData.quat, pointData.roationCurve.Evaluate(progress));
 
             });
 

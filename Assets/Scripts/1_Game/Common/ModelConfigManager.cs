@@ -5,19 +5,38 @@ using UnityEngine;
 class ModelConfigManager : InstanceBehaviour<ModelConfigManager>
 {
     public bool ConfigMode;
+    //当前配置的是否为怪物
+    public bool isConfigEnemy;
     //调整人物的招式曲线
     public GameObject triggerModel;
     public GameObject targetModel;
-    public List<CharaName> playerNames = new List<CharaName>();
+    [Header("当前配置的玩家角色编号，范围1-4")]
+    public int defaultPlayerIndex;
+    public List<PlayerName> playerNames = new List<PlayerName>();
+    [Header("当前配置的敌方角色编号，范围1-5")]
+    public int defaultEnemyIndex;
     public List<EnemyName> enemyNames = new List<EnemyName>();
     private void Start()
     {
         if (ConfigMode)
         {
-            GameManager.Instance.SwitchBattleMode(new OutBattleEnemy()
+            GameManager.Instance.SwitchInBattleMode(
+                playerNames,
+                new OutOfBattleEnemyDatas()
+                {
+                    enemyDatas = enemyNames.Select(enemyName => new EnemyData() { CurrentEnemyName = enemyName }).ToList()
+                });
+            if (!isConfigEnemy)
             {
-                enemyDatas = enemyNames.Select(enemyName => new OutBattleEnemyData() { CurrentEnemyName = enemyName }).ToList()
-            });
+                triggerModel = InBattleManager.Instance.PlayerList[defaultPlayerIndex].gameObject;
+                targetModel = InBattleManager.Instance.EnemyList[defaultEnemyIndex].gameObject;
+            }
+            else
+            {
+                triggerModel = InBattleManager.Instance.EnemyList[defaultEnemyIndex].gameObject;
+                targetModel = InBattleManager.Instance.PlayerList[defaultPlayerIndex].gameObject;
+            }
+
         }
     }
 

@@ -11,7 +11,7 @@ class Anber : Character
         SkillIcon = basicSkillIcon,
         SkillPointChange = 1,
         SkillTags = { SkillTag.SingleTarget, SkillTag.BasicAttack },
-        DefaultTargets = BattleManager.Instance.EnemyList.Take(1).ToList(),
+        DefaultTargets = InBattleManager.Instance.EnemyList.Take(1).ToList(),
         TargetIsEnemy = true,
         Sender = this,
     };
@@ -20,7 +20,7 @@ class Anber : Character
         SkillIcon = specialSkillIcon,
         SkillPointChange = -1,
         SkillTags = { SkillTag.AreaOfEffect, SkillTag.SpecialSkill },
-        DefaultTargets = BattleManager.Instance.EnemyList,
+        DefaultTargets = InBattleManager.Instance.EnemyList,
         TargetIsEnemy = true,
         Sender = this,
     };
@@ -31,7 +31,7 @@ class Anber : Character
         SkillPointChange = 0,
         SkillTags = { SkillTag.AreaOfEffect, SkillTag.Brust },
 
-        DefaultTargets = BattleManager.Instance.EnemyList.Skip(2).Take(1).ToList(),
+        DefaultTargets = InBattleManager.Instance.EnemyList.Skip(2).Take(1).ToList(),
         TargetIsEnemy = true,
         Sender = this,
     };

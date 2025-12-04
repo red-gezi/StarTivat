@@ -1,0 +1,112 @@
+{
+  "trackName": null,
+  "trackType": 1,
+  "points": [
+    {
+      "pos": {
+        "x": 0.200000048,
+        "y": 1.2,
+        "z": -4.299999,
+        "normalized": {
+          "x": 0.0447549559,
+          "y": 0.268529683,
+          "z": -0.9622311,
+          "normalized": {
+            "x": 0.04475496,
+            "y": 0.2685297,
+            "z": -0.962231159,
+            "magnitude": 1.0,
+            "sqrMagnitude": 1.0
+          },
+          "magnitude": 0.99999994,
+          "sqrMagnitude": 0.9999999
+        },
+        "magnitude": 4.46878,
+        "sqrMagnitude": 19.9699936
+      },
+      "quat": {
+        "x": -0.09438597,
+        "y": 0.07109341,
+        "z": -0.0240146369,
+        "w": -0.9927036,
+        "eulerAngles": {
+          "x": 11.0000086,
+          "y": 352.0,
+          "z": 2.00000525,
+          "normalized": {
+            "x": 0.0312342718,
+            "y": 0.9994959,
+            "z": 0.005678969,
+            "normalized": {
+              "x": 0.0312342737,
+              "y": 0.999496,
+              "z": 0.00567896944,
+              "magnitude": 1.0,
+              "sqrMagnitude": 1.0
+            },
+            "magnitude": 0.99999994,
+            "sqrMagnitude": 0.99999994
+          },
+          "magnitude": 352.177521,
+          "sqrMagnitude": 124029.0
+        }
+      },
+      "trackkPointType": 0,
+      "duration": 0.0,
+      "moveCurve": {
+        "keys": [
+          {
+            "time": 0.0,
+            "value": 0.0,
+            "inTangent": 0.0,
+            "outTangent": 0.0,
+            "inWeight": 0.0,
+            "outWeight": 0.0,
+            "weightedMode": 0,
+            "tangentMode": 0
+          },
+          {
+            "time": 1.0,
+            "value": 1.0,
+            "inTangent": 0.0,
+            "outTangent": 0.0,
+            "inWeight": 0.0,
+            "outWeight": 0.0,
+            "weightedMode": 0,
+            "tangentMode": 0
+          }
+        ],
+        "length": 2,
+        "preWrapMode": 8,
+        "postWrapMode": 8
+      },
+      "roationCurve": {
+        "keys": [
+          {
+            "time": 0.0,
+            "value": 0.0,
+            "inTangent": 0.0,
+            "outTangent": 0.0,
+            "inWeight": 0.0,
+            "outWeight": 0.0,
+            "weightedMode": 0,
+            "tangentMode": 0
+          },
+          {
+            "time": 1.0,
+            "value": 1.0,
+            "inTangent": 0.0,
+            "outTangent": 0.0,
+            "inWeight": 0.0,
+            "outWeight": 0.0,
+            "weightedMode": 0,
+            "tangentMode": 0
+          }
+        ],
+        "length": 2,
+        "preWrapMode": 8,
+        "postWrapMode": 8
+      }
+    }
+  ]
+}

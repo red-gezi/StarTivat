@@ -47,7 +47,7 @@ class Citlali : Character
         SkillIcon = basicSkillIcon,
         SkillPointChange = 1,
         SkillTags = { SkillTag.SingleTarget, SkillTag.BasicAttack },
-        DefaultTargets = BattleManager.Instance.charaList.Where(chara => chara.IsEnemy).Take(1).ToList(),
+        DefaultTargets = InBattleManager.Instance.charaList.Where(chara => chara.IsEnemy).Take(1).ToList(),
         TargetIsEnemy = true,
         Sender = this,
     };
@@ -57,7 +57,7 @@ class Citlali : Character
         SkillIcon = specialSkillIcon,
         SkillPointChange = -1,
         SkillTags = { SkillTag.AreaOfEffect, SkillTag.SpecialSkill },
-        DefaultTargets = BattleManager.Instance.charaList.Where(chara => chara.IsEnemy).ToList(),
+        DefaultTargets = InBattleManager.Instance.charaList.Where(chara => chara.IsEnemy).ToList(),
         TargetIsEnemy = true,
         Sender = this,
     };
@@ -68,7 +68,7 @@ class Citlali : Character
         BrustCharaIcon = largeCharaIcon,
         SkillPointChange = 0,
         SkillTags = { SkillTag.AreaOfEffect, SkillTag.Brust },
-        DefaultTargets = BattleManager.Instance.charaList.Where(chara => chara.IsEnemy).Skip(2).Take(1).ToList(),
+        DefaultTargets = InBattleManager.Instance.charaList.Where(chara => chara.IsEnemy).Skip(2).Take(1).ToList(),
         TargetIsEnemy = true,
         Sender = this,
     };
@@ -84,7 +84,7 @@ class Citlali : Character
     public override async Task AttackAction()
     {
         SkillPointManager.ChangePoint(BasicSkillData.SkillPointChange);
-        BattleCameraManager.SetAttackPose(this);
+        //BattleCameraManager.SetAttackPose(this);
         PlayAnimation(AnimationType.Attack);
 
         //根据玩家当前数值和技能数据生成一个数值快照
@@ -102,7 +102,7 @@ class Citlali : Character
     public override async Task SkillAction()
     {
         SkillPointManager.ChangePoint(SpecialSkillData.SkillPointChange);
-        BattleCameraManager.SetSkillPose(this);
+        //BattleCameraManager.SetSkillPose(this);
         PlayAnimation(AnimationType.Skill);
         _ = CalculateHitPointsAsync(200, ElementType.Herb, 2, SelectManager.CurrentSelectTargets, 1);
         await SkillEffect(SelectManager.CurrentSelectTarget);

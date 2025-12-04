@@ -16,7 +16,7 @@ class Traveler : Character
         SkillIcon = basicSkillIcon,
         SkillPointChange = 1,
         SkillTags = { SkillTag.SingleTarget, SkillTag.BasicAttack },
-        DefaultTargets = BattleManager.Instance.EnemyList.Take(1).ToList(),
+        DefaultTargets = InBattleManager.Instance.EnemyList.Take(1).ToList(),
         TargetIsEnemy = true,
         Sender = this,
     };
@@ -25,7 +25,7 @@ class Traveler : Character
         SkillIcon = specialSkillIcon,
         SkillPointChange = -1,
         SkillTags = { SkillTag.Diffusion, SkillTag.SpecialSkill },
-        DefaultTargets = BattleManager.Instance.EnemyList.Skip(2).Take(1).ToList(),
+        DefaultTargets = InBattleManager.Instance.EnemyList.Skip(2).Take(1).ToList(),
         TargetIsEnemy = true,
         Sender = this,
     };
@@ -35,7 +35,7 @@ class Traveler : Character
         BrustCharaIcon = largeCharaIcon,
         SkillPointChange = 0,
         SkillTags = { SkillTag.SingleTarget, SkillTag.Brust },
-        DefaultTargets = BattleManager.Instance.EnemyList.Skip(2).Take(1).ToList(),
+        DefaultTargets = InBattleManager.Instance.EnemyList.Skip(2).Take(1).ToList(),
         TargetIsEnemy = true,
         Sender = this,
     };

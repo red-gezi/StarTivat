@@ -12,8 +12,8 @@ public abstract  class Character : MonoBehaviour
     //角色类对应的模型
     public GameObject model;
     [Header("动画控制器")]
-    public RuntimeAnimatorController OutBattleAnimatorController;
-    public RuntimeAnimatorController BattleAnimatorController;
+    public RuntimeAnimatorController OutOfBattleAnimatorController;
+    public RuntimeAnimatorController InBattleAnimatorController;
     //////////////////////////////////////////////////角色图标////////////////////////////////////////////////////////////////////////////
     [Header("元素附着组件")]
     public Transform ElementalCanves;
@@ -74,7 +74,7 @@ public abstract  class Character : MonoBehaviour
     /// </summary>
     public List<Buff> Buffs { get; set; } = new();
     //
-    public List<Buff> GetCurrentBuff() => new List<Buff>(Buffs).Concat(BattleManager.Instance.GoblePlayerBuffs).ToList();
+    public List<Buff> GetCurrentBuff() => new List<Buff>(Buffs).Concat(InBattleManager.Instance.GoblePlayerBuffs).ToList();
     /// <summary>
     /// 角色固有buff
     /// </summary>
@@ -82,12 +82,12 @@ public abstract  class Character : MonoBehaviour
     //public Buff GetCharaInherentBuff(int bufferId) => Buffs.FirstOrDefault(buff => buff.id == bufferId).Clone();
 
     //角色在自身排位置
-    public int Rank => BattleManager.Instance.charaList.Where(chara => chara.IsEnemy == IsEnemy).ToList().IndexOf(this);
+    public int Rank => InBattleManager.Instance.charaList.Where(chara => chara.IsEnemy == IsEnemy).ToList().IndexOf(this);
     //角色左侧的角色，可能为null
-    public Character Left => BattleManager.Instance.charaList.FirstOrDefault(chara => chara.IsEnemy == IsEnemy && chara.Rank == Rank - 1);
+    public Character Left => InBattleManager.Instance.charaList.FirstOrDefault(chara => chara.IsEnemy == IsEnemy && chara.Rank == Rank - 1);
     //角色右侧的角色，可能为null
-    public Character Right => BattleManager.Instance.charaList.FirstOrDefault(chara => chara.IsEnemy == IsEnemy && chara.Rank == Rank + 1);
-    public List<Character> SameCamp => BattleManager.Instance.charaList.Where(chara => chara.IsEnemy == IsEnemy).ToList();
+    public Character Right => InBattleManager.Instance.charaList.FirstOrDefault(chara => chara.IsEnemy == IsEnemy && chara.Rank == Rank + 1);
+    public List<Character> SameCamp => InBattleManager.Instance.charaList.Where(chara => chara.IsEnemy == IsEnemy).ToList();
     //动画控制器
     public Animator animator => transform.GetChild(0).GetComponent<Animator>();
     //声音控制器
@@ -102,7 +102,7 @@ public abstract  class Character : MonoBehaviour
     public void RegisterBurstAction(Func<Task> action) => PlayerAbilitys.BurstAction = action;
     //////////////////////////////////////////////////角色基础属性////////////////////////////////////////////////////////////////////////////
     public CharaData BasicCharaData { get; set; }
-    public CharaData CurrentCharaData => BasicCharaData.GetCurrentCharaData(Buffs.Concat(IsEnemy ? BattleManager.Instance.GobleEnemyBuffs : BattleManager.Instance.GoblePlayerBuffs).ToList());
+    public CharaData CurrentCharaData => BasicCharaData.GetCurrentCharaData(Buffs.Concat(IsEnemy ? InBattleManager.Instance.GobleEnemyBuffs : InBattleManager.Instance.GoblePlayerBuffs).ToList());
     //角色初始化
     public void CharacterInit()
     {
@@ -127,16 +127,21 @@ public abstract  class Character : MonoBehaviour
     //////////////////////////////////////////////////角色流程////////////////////////////////////////////////////////////////////////////
     //角色状态切换
     [Button("切换为局外模式")]
-    public void SwitchOutBattleMode()
+    public void SwitchOutOfBattleMode()
     {
+        transform.Find("InBattle").gameObject.SetActive(false);
+        transform.Find("OutOfBattle").gameObject.SetActive(true);
+        transform.Find("Model").GetComponent<Animator>().runtimeAnimatorController=OutOfBattleAnimatorController;
 
     }
     [Button("切换为局内状态")]
-    public  void SwitchBattleMode()
+    public  void SwitchInBattleMode()
     {
-        
+        transform.Find("InBattle").gameObject.SetActive(true);
+        transform.Find("OutOfBattle").gameObject.SetActive(false);
+        transform.Find("Model").GetComponent<Animator>().runtimeAnimatorController = InBattleAnimatorController;
     }
-    
+
     //角色入场（作为敌人）
     public virtual Task Entrance()
     {

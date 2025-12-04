@@ -70,13 +70,15 @@ public class SimulatedUniverseBuffList : IBaseBuffList
                     case 13:
                     {
                         eventData.TargetDoorCount=1;
+                        eventData.Enemies=new List<OutOfBattleEnemyDatas>(){ };
                         eventData.RoomConfigDataFromDoor.Add(RoomManager.GetRoomConfig( RoomType.InitRoom));
                         break;
                     }
                 }
-                eventData.TargetDoorCount=2;
+                //测试
+                //eventData.TargetDoorCount=2;
                 //根据最终修正后的房间配置部分数据初始化整个房间的数据
-                eventData=  RoomManager.ReConfigRoomData( eventData);
+                eventData=  RoomManager.ReConfigRoomData(eventData);
                 //添加房间到存档
                 RoomManager.AddRoom(eventData);
 
@@ -92,7 +94,7 @@ public class SimulatedUniverseBuffList : IBaseBuffList
                 //打开ui
                 //await Task.Delay(1000);
                 eventData.AddLog($"已获得金币{eventData.TargetValue}");
-                OutBattleManager.ChangeGold( eventData.TargetValue);
+                OutOfBattleManager.ChangeGold( eventData.TargetValue);
             })
             .RegisterEvent<OutBattleEventData>( BuffTriggerType.On, BuffEventType.ItemGain, async eventData=>
             {
@@ -105,7 +107,7 @@ public class SimulatedUniverseBuffList : IBaseBuffList
                 foreach (int index in eventData.TargetBuffIndex)
                 {
                     Buff targetBuff =GameManager.gameData.CurrentBuffList.GetBuff(index);
-                    OutBattleManager.AddBuff(targetBuff);
+                    OutOfBattleManager.AddBuff(targetBuff);
                     eventData.TargetBuffs = new List<Buff> { targetBuff };
                     eventData.AddLog($"已获得道具{(BufferName)targetBuff.id},尝试触发道具的获得效果");
                     // 等待异步任务完成
@@ -123,7 +125,7 @@ public class SimulatedUniverseBuffList : IBaseBuffList
                 foreach (int index in eventData.TargetBuffIndex)
                 {
                     Buff targetBuff = eventData.BelongBuffList.GetBuff(index);
-                    OutBattleManager.AddBuff(targetBuff);
+                    OutOfBattleManager.AddBuff(targetBuff);
                     eventData.TargetBuffs = new List<Buff> { targetBuff };
                     eventData.AddLog($"已获得道具{(SimulatedUniverseBuffList.BufferName)targetBuff.id},尝试触发道具的获得效果");
                     // 等待异步任务完成
@@ -457,7 +459,7 @@ public class SimulatedUniverseBuffList : IBaseBuffList
         new Buff((int)BufferName.每次获得奇物后获得30金币)
             .RegisterEvent <OutBattleEventData>( BuffTriggerType.After, BuffEventType.ItemGain,async (data)=>
         {
-            await OutBattleGameEventManager.GetGoldAsync(30);
+            await OutOfBattleGameEventManager.GetGoldAsync(30);
             data.AddLog("获得了碎片" + 30);
         }),
 
@@ -469,7 +471,7 @@ public class SimulatedUniverseBuffList : IBaseBuffList
             {
                 (int)SimulatedUniverseBuffList.BufferName.获得金币翻倍,
             };
-            await OutBattleGameEventManager.GetItem(SimulatedUniverseBuffList.BuffList,targets);
+            await OutOfBattleGameEventManager.GetItem(SimulatedUniverseBuffList.BuffList,targets);
             data.AddLog("获得奇物——获得金币翻倍");
             //await Task.Delay(2000);
         }),
@@ -502,7 +504,7 @@ public class SimulatedUniverseBuffList : IBaseBuffList
                 {
                     (int)SimulatedUniverseBuffList.BufferName.欠条,
                 };
-                await OutBattleGameEventManager.GetItem(SimulatedUniverseBuffList.BuffList,targets);
+                await OutOfBattleGameEventManager.GetItem(SimulatedUniverseBuffList.BuffList,targets);
                 data.AddLog("获得的金钱-50并得到欠条");
             }
         }),
