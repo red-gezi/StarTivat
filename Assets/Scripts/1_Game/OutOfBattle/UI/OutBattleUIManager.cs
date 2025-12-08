@@ -9,7 +9,7 @@ using UnityEngine.UI;
 
 public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
 {
-  
+
     private void Start() => InitOutBattleUIManager();
     private void Update()
     {
@@ -41,7 +41,6 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
     bool isSelectionOver;
     int SelectionIndex;
     // ==================== 选择祝福界面 ====================
-
     #region 选择祝福
     public void InitBlessingSelection()
     {
@@ -228,7 +227,7 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
     }
     #endregion
     // ==================== 获得祝福界面 ====================
-    #region 获得祝福界面
+    #region 获得祝福
     public void OpenBlessingAcquisition(/* 可传递新祝福 Blessing newBlessing */)
     {
         // TODO: 显示获得祝福界面
@@ -264,7 +263,6 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
     }
     #endregion
     // ==================== 选择人物界面 ====================
-
     #region 选择人物
     public enum CharaSelectCanvasMode
     {
@@ -569,9 +567,10 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
         CloseCharaSelectCanvas();
     }
     #endregion
+    // ==================== 食物烹饪界面 ====================
     #region 食物烹饪
     #endregion
-    // ==================== 队伍与出战人物界面 ====================
+    // ==================== 队伍与出战人物界面 ==============
     #region 出战人物
     public Transform TeamAvatarContent;
     [Button("设置出战人物")]
@@ -599,7 +598,7 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
         }
     }
     #endregion
-    // ==================== 道具获得提示界面 ====================
+    // ==================== 道具获得提示界面 ================
     #region 道具获得
     [Header("道具获得提示")]
     public GameObject GetItemPrefab;
@@ -617,35 +616,115 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
         Destroy(newItem, 3);
     }
     #endregion
-    // ==================== 事件界面 ====================
-    public GameObject OccurrenceCanvas;
-    public Transform OccurrenceContent;
+    // ==================== 事件界面 ========================
+    #region 事件
+    [Header("事件")]
+    //事件总界面
+    public Transform occurrenceCanvas;
+    //聊天
+    public Transform occurrenceChatContent;
+    //下一步
+    public Transform stepCanvas;
+    //选项
+    public Transform optionContent;
+    //奖励界面
+    public Transform rewardContent;
+    //界面
     [Button("开启事件页面")]
-    public void OpenOccurrenceCanvas(OccurrenceData occurrenceData)
+    public void OpenOccurrenceCanvas(string tag)
     {
-        //配置事件卡面
-        occurrenceData
-        //设置文字
+        Show(occurrenceCanvas);
+        //清空对话ui
+        DestoryContentItem(occurrenceChatContent);
+        //获得事件数据
+        var occurenceData = OccurrenceSystem.GetData(tag);
+        //设置事件
+        //occurenceData.ImageName;
+        //occurenceData.Name;
+        //occurenceData.SideColor;
+        //解析剧本
+        var node = DialogueSystem.Parse(occurenceData.Dialogue["Ch"]);
+        //执行节点
+        DialogueSystem.Start(node);
     }
     [Button("关闭事件页面")]
-    public void CloseOccurrenceCanvas()
+    public void CloseOccurrenceCanvas() => Hide(occurrenceCanvas);
+    ///////////////////////////////////对话
+    [Button("添加事件对话")]
+    public void AddOccurrenceChat(string speaker, string text)
     {
-        OccurrenceData
+        var newItem = CreatContentItemByFirstItem(occurrenceChatContent);
+        newItem.GetComponentsInChildren<Text>()[0].text = speaker;
+        newItem.GetComponentsInChildren<Text>()[1].text = text;
+        //滑条滚到最底
+        var scrollRect = occurrenceChatContent.parent.parent.GetComponent<ScrollRect>();
+        LayoutRebuilder.ForceRebuildLayoutImmediate(scrollRect.content);
+        scrollRect.verticalNormalizedPosition = 0f;
     }
-    public void RefreshOccurrenceCanvas(string tag)
+    //执行下个对话
+    public void StepChat() => DialogueSystem.Step();
+    public void OpenStepCanves() => Show(stepCanvas);
+    public void CloseStepCanves() => Hide(stepCanvas);
+    ///////////////////////////////////选项
+    //设置选项
+    public void AddOccurrenceOption(string text)
     {
-        //清空ui
-        //加载数据
-        //执行节点
-        
+        var item = CreatContentItemByFirstItem(optionContent);
+        item.GetComponentInChildren<Text>().text = text;
+    }
+    //选择选项
+    public void SelectOccurrenceOption(Transform option)
+    {
+        int index = option.GetSiblingIndex();
+        DialogueSystem.Select(index);
+    }
+    [Button("开启选项组件")]
+    public void OpenOccurrenceOptionContent()
+    {
+        Show(optionContent);
+        DestoryContentItem(optionContent);
+    }
+    [Button("关闭选项组件")]
+    public void CloseOccurrenceOptionContent() => Hide(optionContent);
+    ///////////////////////////////////奖励
 
-    }
-    public void RunOccurrenceCommand()
+    //选择奖励
+    public void AddReward(string text)
     {
-
+        var item = CreatContentItemByFirstItem(optionContent);
+        item.GetComponentInChildren<Text>().text = text;
     }
-    public void LoadCurrentOccurrenceData()
+    public void SelectReward(Transform option)
     {
-
+        int index = option.GetSiblingIndex();
+        DialogueSystem.Select(index);
     }
+    [Button("开启奖励组件")]
+    public void OpenRewardContent()
+    {
+        Show(rewardContent);
+        DestoryContentItem(rewardContent);
+    }
+    [Button("关闭奖励组件")]
+    public void CloseRewardContent() => Hide(rewardContent);
+    #endregion
+    // ==================== 常用UI管理函数 ==================
+    #region 常用UI管理函数
+    public void Show(Transform ui) => ui.gameObject.SetActive(true);
+    public void Hide(Transform ui) => ui.gameObject.SetActive(false);
+    private GameObject CreatContentItemByFirstItem(Transform content)
+    {
+        var firstItemTemplate = content.GetChild(0).gameObject;
+        GameObject newItem = Instantiate(firstItemTemplate, content);
+        newItem.SetActive(true);
+        return newItem;
+    }
+    private void DestoryContentItem(Transform content)
+    {
+        for (int i = content.childCount - 1; i > 0; i--)
+        {
+            DestroyImmediate(content.GetChild(i).gameObject);
+        }
+    }
+    #endregion
 }

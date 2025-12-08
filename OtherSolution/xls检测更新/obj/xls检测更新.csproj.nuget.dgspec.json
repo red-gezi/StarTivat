@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "E:\\UnityProject\\TouhouMachineLearning2022\\OtherSolution\\xls检测更新\\xls检测更新.csproj": {}
+    "E:\\UnityProject\\StarTivat\\OtherSolution\\xls检测更新\\xls检测更新.csproj": {}
   },
   "projects": {
-    "E:\\UnityProject\\TouhouMachineLearning2022\\OtherSolution\\xls检测更新\\xls检测更新.csproj": {
+    "E:\\UnityProject\\StarTivat\\OtherSolution\\xls检测更新\\xls检测更新.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\UnityProject\\TouhouMachineLearning2022\\OtherSolution\\xls检测更新\\xls检测更新.csproj",
+        "projectUniqueName": "E:\\UnityProject\\StarTivat\\OtherSolution\\xls检测更新\\xls检测更新.csproj",
         "projectName": "xls检测更新",
-        "projectPath": "E:\\UnityProject\\TouhouMachineLearning2022\\OtherSolution\\xls检测更新\\xls检测更新.csproj",
+        "projectPath": "E:\\UnityProject\\StarTivat\\OtherSolution\\xls检测更新\\xls检测更新.csproj",
         "packagesPath": "C:\\Users\\50606\\.nuget\\packages\\",
-        "outputPath": "E:\\UnityProject\\TouhouMachineLearning2022\\OtherSolution\\xls检测更新\\obj\\",
+        "outputPath": "E:\\UnityProject\\StarTivat\\OtherSolution\\xls检测更新\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "F:\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+          "D:\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
           "C:\\Users\\50606\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -39,6 +39,11 @@
           "warnAsError": [
             "NU1605"
           ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
         }
       },
       "frameworks": {
@@ -47,11 +52,11 @@
           "dependencies": {
             "Newtonsoft.Json": {
               "target": "Package",
-              "version": "[13.0.1, )"
+              "version": "[13.0.4, )"
             },
             "Spire.XLS": {
               "target": "Package",
-              "version": "[12.1.0, )"
+              "version": "[15.11.3, )"
             }
           },
           "imports": [
@@ -70,7 +75,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.401\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.403\\RuntimeIdentifierGraph.json"
         }
       }
     }

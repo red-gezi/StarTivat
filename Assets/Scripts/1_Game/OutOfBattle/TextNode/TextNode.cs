@@ -1,6 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 namespace Assets.Scripts._1_Game.OutOfBattle.TextNode
@@ -9,23 +12,23 @@ namespace Assets.Scripts._1_Game.OutOfBattle.TextNode
     {
 
       
-        internal class Program
-        {
-            static void Main(string[] args)
-            {
-                var text = File.ReadAllLines("text.txt").ToList();
-                var rootNode = TextNodeSystem.Parse(text);
-                //TextNodeSystem.Show(rootNode);
-                while (true)
-                {
-                    TextNodeSystem.Run(rootNode);
-                    Console.WriteLine("对话已结束，回车已经下一轮对话");
-                    Console.WriteLine("——————————————————————————————————");
-                    //Console.ReadLine();
-                }
-                //Console.WriteLine(JsonConvert.SerializeObject(rootNode, Formatting.Indented));
-            }
-        }
+        //internal class Program
+        //{
+        //    static void Main(string[] args)
+        //    {
+        //        var text = File.ReadAllLines("text.txt").ToList();
+        //        var rootNode = TextNodeSystem.Parse(text);
+        //        //TextNodeSystem.Show(rootNode);
+        //        while (true)
+        //        {
+        //            TextNodeSystem.Run(rootNode);
+        //            Console.WriteLine("对话已结束，回车已经下一轮对话");
+        //            Console.WriteLine("——————————————————————————————————");
+        //            //Console.ReadLine();
+        //        }
+        //        //Console.WriteLine(JsonConvert.SerializeObject(rootNode, Formatting.Indented));
+        //    }
+        //}
     }
 
     // 节点类型枚举

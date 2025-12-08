@@ -1,0 +1,13 @@
+[
+  {
+    "Tag": "1_1",
+    "ImageName": "1.png",
+    "SideColor": "gold",
+    "Name": {
+      "Ch": "测试事件"
+    },
+    "Story": {
+      "Ch": "A:你好\nB:测试\nB:测试\nB:测试~\nA:好\n[Branch]S1\n[选项1]\nA:好\nA:好\nA:好\n[Back]选项1\n[选项2]\nB:测试~\nB:测试~\nB:测试~\nB:测试~\n[Back]选项2\n[选项3]\nB:结束啦~\n[End]选项3\n[BranchBack]S1\n[Branch]S3\n[选项1]\nA:好\n[Back]选项1\n[选项2]喵\nB:结束啦~\n[Back]选项2\n[BranchBack]S3\nA:好\nA:好\nB:结束啦~"
+    }
+  }
+]

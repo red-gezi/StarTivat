@@ -1,14 +1,14 @@
-﻿using Mono.Cecil.Cil;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-public class SimulatedUniverseOccurrenceList : IBaseOccurrenceList
+public class SimulatedUniverseOccurrenceList : BaseOccurrenceList
 {
-    public static List<OccurrenceData> occurrenceList = new()
+
+    public new static List<Occurrence> OccurrenceList = new()
     {
-        new OccurrenceData()
+        new Occurrence()
             .RegisterName(OccurrenceName.test1)
             .RegisterTag(OccurrenceTag.Occurrence, OccurrenceTag.Positive)
-            .RegisterStory("s-1")
+            .RegisterData("s-1")
             .RegisterAction("S1",  async ()=>
             {
                 //解锁某成就
