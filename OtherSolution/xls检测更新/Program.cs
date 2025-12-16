@@ -19,62 +19,62 @@ namespace xls检测更新
         static void Main(string[] args)
         {
             Workbook workbook = new Workbook();
-            direPath = Directory.GetCurrentDirectory().Replace(@"\OtherSolution\xls检测更新\bin\Debug\net6.0", "") + @"\Assets\GameResource\GameData\";
+            direPath = Directory.GetCurrentDirectory().Replace(@"\OtherSolution\xls检测更新\bin\Debug\net6.0", "") + @"\Assets\GameResources\GameData\";
             filePath = direPath + "Occurrence.xlsx";
             Task.Run(async () =>
             {
                 while (true)
                 {
-                    //if (lastChangeTime != new FileInfo(filePath).LastWriteTime)
-                    //{
-                    //    Console.WriteLine("进行自动更新" + DateTime.Now);
-                    //    fs = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                    //    Console.WriteLine(workbook);
-                    //    Console.WriteLine(fs);
-                    //    workbook.LoadFromStream(fs);
-                    //    lastChangeTime = new FileInfo(filePath).LastWriteTime;
-                    //    XlsToJson(workbook);
-                    //    fs.Dispose();
-                    //}
+                    if (lastChangeTime != new FileInfo(filePath).LastWriteTime)
+                    {
+                        Console.WriteLine("进行自动更新" + DateTime.Now);
+                        UpdateJson(workbook);
+                    }
                     await Task.Delay(100);
                 }
+
+               
             });
             while (true)
             {
                 Console.WriteLine("可回车进行手动更新");
                 Console.ReadLine();
-                fs = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                workbook.LoadFromStream(fs);
-                XlsToJson(workbook);
-                fs.Dispose();
+                UpdateJson(workbook);
             }
         }
-
+        static void UpdateJson(Workbook workbook)
+        {
+            fs = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            workbook.LoadFromStream(fs);
+            lastChangeTime = new FileInfo(filePath).LastWriteTime;
+            XlsToJson(workbook);
+            fs.Dispose();
+        }
         private static void XlsToJson(Workbook workbook)
         {
             string workbookName = "Ch";
 
-            var storyText = workbook.Worksheets[workbookName]; // 假设新表格也叫Story，或使用实际表名
-            int storyColCount = storyText.Columns.Length;
-            int storyRowCount = storyText.Rows.Length;
+            var dialogueText = workbook.Worksheets[workbookName]; // 假设新表格也叫dialogue，或使用实际表名
+            int dialogueColCount = dialogueText.Columns.Length;
+            int dialogueRowCount = dialogueText.Rows.Length;
             List<DialogModel> dialogModels = new List<DialogModel>();
 
-            for (int i = 2; i <= storyRowCount; i++)
+            for (int i = 2; i <= dialogueRowCount; i++)
             {
                 DialogModel currentDialogModel = new DialogModel();
 
-                string tag = storyText[i, 1].DisplayedText;
-                string imageName = storyText[i, 2].DisplayedText;
-                string sideColor = storyText[i, 3].DisplayedText;
-                string name = storyText[i, 4].DisplayedText;
-                string storyContent = storyText[i, 5].DisplayedText;
+                string tag = dialogueText[i, 1].DisplayedText;
+                string imageName = dialogueText[i, 2].DisplayedText;
+                string sideColor = dialogueText[i, 3].DisplayedText;
+                string name = dialogueText[i, 4].DisplayedText;
+                string dialogueContent = dialogueText[i, 5].DisplayedText;
                 if (tag != "")
                 {
                     currentDialogModel.Tag = tag;
                     currentDialogModel.ImageName = imageName;
                     currentDialogModel.SideColor = sideColor;
                     currentDialogModel.Name[workbookName] = name;
-                    currentDialogModel.Story[workbookName] = storyContent;
+                    currentDialogModel.dialogue[workbookName] = dialogueContent;
                     dialogModels.Add(currentDialogModel);
                 }
             }
@@ -89,7 +89,7 @@ namespace xls检测更新
             public string ImageName { get; set; }
             public string SideColor { get; set; }
             public Dictionary<string, string> Name { get; set; } = new();
-            public Dictionary<string, string> Story { get; set; } = new();
+            public Dictionary<string, string> dialogue { get; set; } = new();
         }
     }
 
@@ -118,6 +118,16 @@ namespace xls检测更新
                 }
             }
             return indexs;
+        }
+        /// <summary>
+        /// 计算两个数的和。
+        /// </summary>
+        /// <param name="a">第一个加数。</param>
+        /// <param name="b">第二个加数。</param>
+        /// <returns>两个数的和。</returns>
+        public static int Add(int a, int b)
+        {
+            return a + b;
         }
         public static T GetXlsData<T>(this CellRange ranges)
         {

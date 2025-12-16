@@ -8,19 +8,20 @@ public class OutOfBattleManager : InstanceBehaviour<OutOfBattleManager>
     public Transform outBattleParent;
     public Transform enemiesParent;
     public GameObject playerController;
-    public static List<Buff> GetCurrentBuff() => new(GameManager.gameData.CurrentOutBattleData.Buffs);
+    //public static List<Buff> GetCurrentBuff() => new(GameDataSystem.GetGameData().CurrentOutBattleData.Buffs);
+    public static List<Buff> GetCurrentBuff() => new(GameDataSystem.GetGameData().CurrentOutBattleData.Buffs);
     //每局初始化一个新的
     public static void AddBuff(Buff buff)
     {
-        GameManager.gameData.CurrentOutBattleData.Buffs.Add(buff);
+        GameDataSystem.GetGameData().CurrentOutBattleData.Buffs.Add(buff);
     }
     public static void RemoveBuff(Buff buff)
     {
-        GameManager.gameData.CurrentOutBattleData.Buffs.Remove(buff);
+        GameDataSystem.GetGameData().CurrentOutBattleData.Buffs.Remove(buff);
     }
     public static void ChangeGold(int count)
     {
-        GameManager.gameData.CurrentOutBattleData.Gold += count;
+        GameDataSystem.GetGameData().CurrentOutBattleData.Gold += count;
     }
 
     internal void CreatEnemy(OutOfBattleEnemyDatas outOfBattleEnemyDatas)

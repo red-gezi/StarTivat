@@ -66,7 +66,7 @@ public class CameraTrack
     [Button("保存点位文件")]
     public void SavePointFile()
     {
-        string path = $"{Directory.GetCurrentDirectory()}/Assets/GameResource/CameraTrack/{trackName}";
+        string path = $"{Directory.GetCurrentDirectory()}/Assets/GameResources/CameraTrack/{trackName}";
         string filePath = path + $"/{trackType.ToString()}.json";
         Directory.CreateDirectory(path);
         Log.Show("保存轨迹数据到" + path);
@@ -75,7 +75,7 @@ public class CameraTrack
     [Button("加载点位文件")]
     public void LoadPointFile()
     {
-        string path = $"{Directory.GetCurrentDirectory()}/Assets/GameResource/CameraTrack/{trackName}";
+        string path = $"{Directory.GetCurrentDirectory()}/Assets/GameResources/CameraTrack/{trackName}";
         string filePath = $"{path}/{trackType.ToString()}.json";
 
         if (File.Exists(filePath))

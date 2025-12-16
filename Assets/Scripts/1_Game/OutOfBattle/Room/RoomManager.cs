@@ -152,9 +152,9 @@ public partial class RoomManager : InstanceBehaviour<RoomManager>
     public static async Task EnterRoom(RoomConfigData roomConfigData)
     {
         //获取当前层数
-        int layer = GameManager.gameData.CurrentLayer;
+        int layer = GameDataSystem.GetGameData().CurrentLayer;
         Log.Show($"进入第{layer}层房间", 0);
-        await OutOfBattleGameEventManager.EnterRoom(new RoomData(layer, roomConfigData));
+        await GameEventSystem.EnterRoom(new RoomData(layer, roomConfigData));
         RefreshRoom();
     }
     public static RoomData ReConfigRoomData(RoomData roomData)
@@ -194,9 +194,9 @@ public partial class RoomManager : InstanceBehaviour<RoomManager>
         //将当前房间数据添加到游戏数据中
         Debug.Log("将当前房间数据添加到游戏数据中");
         Debug.Log(roomData.ToJson());
-        GameManager.gameData.CurrentRoomDatas.Add(roomData);
+        GameDataSystem.AddRoomData(roomData);
         //保存改动后游戏数据
-        GameManager.Save();
+        GameDataSystem.Save();
     }
     //战斗结束,返回房间原位
     internal static void ReturnRoom()
@@ -209,7 +209,7 @@ public partial class RoomManager : InstanceBehaviour<RoomManager>
         //清空之前的配置
 
 
-        var currentRoom = GameManager.gameData.CurrentRoomDatas.Last();
+        var currentRoom = GameDataSystem.GetGameData().CurrentRoomDatas.Last();
         //切换地图
         SceneObjectManager.Instance.SwitchSceneModel(currentRoom.CurrentSceneModel);
         //生成房间道具
@@ -285,7 +285,7 @@ public partial class RoomManager : InstanceBehaviour<RoomManager>
     //返回初始大厅
     public static async Task RebackInitRoom()
     {
-        GameManager.gameData.CurrentRoomDatas = new();
+        GameDataSystem.GetGameData().CurrentRoomDatas = new();
         await EnterRoom(GetRoomConfig(RoomType.InitRoom));
     }
 }

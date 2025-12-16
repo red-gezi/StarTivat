@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
-
 public class Buff
 {
-    public int id;
+    public int ID { get; set; }
     public int timer;
     public int layers;
     public int rank;
@@ -19,28 +18,40 @@ public class Buff
     public string buffAbility;
     //执行顺序权重，越大的越后
     public float weight;
+    //奇物的配表数据
+    BuffData Data {  get; set; }
+    public Dictionary<string, object> Flags;
     // 生命周期事件
-    public Buff(int id) => this.id = id;
-    /// <summary>
-    /// 创造祝福类型buff
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="element"></param>
-    /// <param name="rank"></param>
-    /// <param name="buffName"></param>
-    /// <param name="buffAbility"></param>
-    public Buff(int id, ElementType element, int rank, string buffName, string buffAbility)
+    public Buff()
     {
-        this.id = id;
+    }
+    public Buff Clone() => (Buff)MemberwiseClone();
+    public Buff RegisterName<T>(T occurrenceName) where T : Enum
+    {
+        ID = Convert.ToInt32(occurrenceName);
+        return this;
+    }
+
+    Dictionary<(BuffTriggerType, BuffEventType), Delegate> BufferEvents = new();
+    public Func<T, Task> GetEvent<T>(BuffTriggerType triggerType, BuffEventType eventType)
+    {
+        return (Func<T, Task>)(BufferEvents.ContainsKey((triggerType, eventType)) ? BufferEvents[(triggerType, eventType)] : null);
+    }
+    public Buff RegisterTag(params BuffTag[] tags)
+    {
+        this.tags = tags.ToList();
+        return this;
+    }
+    public Buff RegisterBless( ElementType element, int rank, string buffName, string buffAbility)
+    {
         this.element = element;
         this.rank = rank;
         this.buffName = buffName;
         this.buffAbility = buffAbility;
-
+        return this;
     }
-    public Buff(int id, CurioType curio, int rank, string buffName, string buffAbility)
+    public Buff RegisterCurio(CurioType curio, int rank, string buffName, string buffAbility)
     {
-        this.id = id;
         this.curio = curio;
         this.rank = rank;
         switch (rank)
@@ -52,17 +63,6 @@ public class Buff
         }
         this.buffName = buffName;
         this.buffAbility = buffAbility;
-    }
-    public Buff Clone() => (Buff)MemberwiseClone();
-
-    Dictionary<(BuffTriggerType, BuffEventType), Delegate> BufferEvents = new();
-    public Func<T, Task> GetEvent<T>(BuffTriggerType triggerType, BuffEventType eventType)
-    {
-        return (Func<T, Task>)(BufferEvents.ContainsKey((triggerType, eventType)) ? BufferEvents[(triggerType, eventType)] : null);
-    }
-    public Buff RegisterTag(params BuffTag[] tags)
-    {
-        this.tags = tags.ToList();
         return this;
     }
     public Buff RegisterEvent<T>(BuffTriggerType triggerType, BuffEventType eventType, Func<T, Task> handler) where T : EventData
@@ -86,5 +86,17 @@ public class Buff
             Debug.LogWarning($"当前buff成功触发{triggerType}—{eventType}事件");
             await buffEvent?.Invoke(data);
         }
+    }
+    public T GetFlag<T>(string key, T defaultValue = default(T))
+    {
+        if (Flags.ContainsKey(key) && Flags[key] is T)
+        {
+            return (T)Flags[key];
+        }
+        return defaultValue;
+    }
+    public void SetFlag(string key, object value)
+    {
+        Flags[key] = value;
     }
 }

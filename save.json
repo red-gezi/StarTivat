@@ -10,7 +10,7 @@
       "CurrentSceneModel": 8,
       "CurrentRoomType": 0,
       "CurrentRoomTag": 2,
-      "TargetDoorCount": 3,
+      "TargetDoorCount": 1,
       "DoorTypeWeight": {
         "InitRoom": 0.0,
         "StartRoom": 0.0,
@@ -25,33 +25,6 @@
         "MiracleRoom": 0.2
       },
       "RoomConfigDataFromDoor": [
-        {
-          "CurrentRoomType": 6,
-          "SelectableSceneModel": [
-            7,
-            0,
-            1
-          ],
-          "SelectableEnemyTag": [
-            0,
-            2,
-            3,
-            7
-          ],
-          "SelectableSignTag": [],
-          "DoorCount": [
-            2,
-            3
-          ],
-          "OccurrenceCount": [],
-          "MonstertCount": [
-            1
-          ],
-          "outOfBattleEnemyDatas": [],
-          "ChestCount": [],
-          "SceneObjectCount": [],
-          "NPC": []
-        },
         {
           "CurrentRoomType": 2,
           "SelectableSceneModel": [
@@ -75,36 +48,14 @@
           "ChestCount": [],
           "SceneObjectCount": [],
           "NPC": []
-        },
-        {
-          "CurrentRoomType": 7,
-          "SelectableSceneModel": [
-            8,
-            1
-          ],
-          "SelectableEnemyTag": [
-            0,
-            2
-          ],
-          "SelectableSignTag": [],
-          "DoorCount": [
-            1
-          ],
-          "OccurrenceCount": [],
-          "MonstertCount": [],
-          "outOfBattleEnemyDatas": [],
-          "ChestCount": [],
-          "SceneObjectCount": [],
-          "NPC": []
         }
       ],
       "Enemies": [],
       "sceneObjects": {},
       "Sender": null,
       "Receiver": null,
-      "TargetBuffs": null,
-      "exceBuff": {
-        "id": 0,
+      "ExceBuffs": null,
+      "ExceBuff": {
         "timer": 0,
         "layers": 0,
         "rank": 0,
@@ -113,187 +64,12 @@
         "tags": [],
         "buffName": null,
         "buffAbility": null,
-        "weight": 0.0
+        "weight": 0.0,
+        "Flags": null,
+        "ID": 0
       },
       "ListenerBuffs": [],
-      "BelongBuffList": {
-        "Buffs": [
-          {
-            "id": 0,
-            "timer": 0,
-            "layers": 0,
-            "rank": 0,
-            "element": 0,
-            "curio": 0,
-            "tags": [],
-            "buffName": null,
-            "buffAbility": null,
-            "weight": 0.0
-          },
-          {
-            "id": 1,
-            "timer": 0,
-            "layers": 0,
-            "rank": 1,
-            "element": 0,
-            "curio": 0,
-            "tags": [],
-            "buffName": null,
-            "buffAbility": null,
-            "weight": 0.0
-          },
-          {
-            "id": 2,
-            "timer": 0,
-            "layers": 0,
-            "rank": 0,
-            "element": 0,
-            "curio": 0,
-            "tags": [],
-            "buffName": null,
-            "buffAbility": null,
-            "weight": 0.0
-          },
-          {
-            "id": 3,
-            "timer": 0,
-            "layers": 0,
-            "rank": 0,
-            "element": 0,
-            "curio": 0,
-            "tags": [],
-            "buffName": null,
-            "buffAbility": null,
-            "weight": 0.0
-          },
-          {
-            "id": 4,
-            "timer": 0,
-            "layers": 0,
-            "rank": 0,
-            "element": 0,
-            "curio": 0,
-            "tags": [],
-            "buffName": null,
-            "buffAbility": null,
-            "weight": 0.0
-          },
-          {
-            "id": 5,
-            "timer": 0,
-            "layers": 0,
-            "rank": 0,
-            "element": 0,
-            "curio": 0,
-            "tags": [],
-            "buffName": null,
-            "buffAbility": null,
-            "weight": 0.0
-          },
-          {
-            "id": 7,
-            "timer": 0,
-            "layers": 0,
-            "rank": 0,
-            "element": 0,
-            "curio": 0,
-            "tags": [],
-            "buffName": null,
-            "buffAbility": null,
-            "weight": 0.0
-          },
-          {
-            "id": 6,
-            "timer": 0,
-            "layers": 0,
-            "rank": 0,
-            "element": 0,
-            "curio": 0,
-            "tags": [],
-            "buffName": null,
-            "buffAbility": null,
-            "weight": 0.0
-          },
-          {
-            "id": 10,
-            "timer": 0,
-            "layers": 0,
-            "rank": 3,
-            "element": 7,
-            "curio": 0,
-            "tags": [],
-            "buffName": "妙论派",
-            "buffAbility": "元素反应加成提高<color=yellow>15%</color>",
-            "weight": 0.0
-          },
-          {
-            "id": 8,
-            "timer": 0,
-            "layers": 0,
-            "rank": 2,
-            "element": 6,
-            "curio": 0,
-            "tags": [],
-            "buffName": "琥珀",
-            "buffAbility": "护盾自然破碎时产生产生共振，对对方全体造成<color=yellow>200%</color>盾量伤害",
-            "weight": 0.0
-          },
-          {
-            "id": 9,
-            "timer": 0,
-            "layers": 0,
-            "rank": 1,
-            "element": 0,
-            "curio": 0,
-            "tags": [],
-            "buffName": "苹果酿",
-            "buffAbility": "速度提高<color=yellow>20%</color>",
-            "weight": 0.0
-          },
-          {
-            "id": 11,
-            "timer": 0,
-            "layers": 0,
-            "rank": 2,
-            "element": 0,
-            "curio": 0,
-            "tags": [
-              6
-            ],
-            "buffName": "相遇之缘",
-            "buffAbility": "能带来奇迹的等价交换之物",
-            "weight": 0.0
-          },
-          {
-            "id": 12,
-            "timer": 0,
-            "layers": 0,
-            "rank": 3,
-            "element": 0,
-            "curio": 1,
-            "tags": [
-              7
-            ],
-            "buffName": "纠缠之缘",
-            "buffAbility": "能带来没有任何作用的奇迹的等价交换之物",
-            "weight": 0.0
-          },
-          {
-            "id": 13,
-            "timer": 0,
-            "layers": 0,
-            "rank": 1,
-            "element": 0,
-            "curio": 2,
-            "tags": [
-              4
-            ],
-            "buffName": "原石",
-            "buffAbility": "财富的象征",
-            "weight": 0.0
-          }
-        ]
-      }
+      "BelongBuffList": null
     }
   ],
   "CurrentLayer": 1,
@@ -308,183 +84,19 @@
   "TeamAppearanceIndex": 0,
   "DownloadChara": null,
   "CurrentGameConfigData": null,
-  "CurrentBuffList": {
-    "Buffs": [
-      {
-        "id": 0,
-        "timer": 0,
-        "layers": 0,
-        "rank": 0,
-        "element": 0,
-        "curio": 0,
-        "tags": [],
-        "buffName": null,
-        "buffAbility": null,
-        "weight": 0.0
-      },
-      {
-        "id": 1,
-        "timer": 0,
-        "layers": 0,
-        "rank": 1,
-        "element": 0,
-        "curio": 0,
-        "tags": [],
-        "buffName": null,
-        "buffAbility": null,
-        "weight": 0.0
-      },
-      {
-        "id": 2,
-        "timer": 0,
-        "layers": 0,
-        "rank": 0,
-        "element": 0,
-        "curio": 0,
-        "tags": [],
-        "buffName": null,
-        "buffAbility": null,
-        "weight": 0.0
-      },
-      {
-        "id": 3,
-        "timer": 0,
-        "layers": 0,
-        "rank": 0,
-        "element": 0,
-        "curio": 0,
-        "tags": [],
-        "buffName": null,
-        "buffAbility": null,
-        "weight": 0.0
-      },
-      {
-        "id": 4,
-        "timer": 0,
-        "layers": 0,
-        "rank": 0,
-        "element": 0,
-        "curio": 0,
-        "tags": [],
-        "buffName": null,
-        "buffAbility": null,
-        "weight": 0.0
-      },
-      {
-        "id": 5,
-        "timer": 0,
-        "layers": 0,
-        "rank": 0,
-        "element": 0,
-        "curio": 0,
-        "tags": [],
-        "buffName": null,
-        "buffAbility": null,
-        "weight": 0.0
-      },
-      {
-        "id": 7,
-        "timer": 0,
-        "layers": 0,
-        "rank": 0,
-        "element": 0,
-        "curio": 0,
-        "tags": [],
-        "buffName": null,
-        "buffAbility": null,
-        "weight": 0.0
-      },
-      {
-        "id": 6,
-        "timer": 0,
-        "layers": 0,
-        "rank": 0,
-        "element": 0,
-        "curio": 0,
-        "tags": [],
-        "buffName": null,
-        "buffAbility": null,
-        "weight": 0.0
-      },
-      {
-        "id": 10,
-        "timer": 0,
-        "layers": 0,
-        "rank": 3,
-        "element": 7,
-        "curio": 0,
-        "tags": [],
-        "buffName": "妙论派",
-        "buffAbility": "元素反应加成提高<color=yellow>15%</color>",
-        "weight": 0.0
-      },
-      {
-        "id": 8,
-        "timer": 0,
-        "layers": 0,
-        "rank": 2,
-        "element": 6,
-        "curio": 0,
-        "tags": [],
-        "buffName": "琥珀",
-        "buffAbility": "护盾自然破碎时产生产生共振，对对方全体造成<color=yellow>200%</color>盾量伤害",
-        "weight": 0.0
-      },
-      {
-        "id": 9,
-        "timer": 0,
-        "layers": 0,
-        "rank": 1,
-        "element": 0,
-        "curio": 0,
-        "tags": [],
-        "buffName": "苹果酿",
-        "buffAbility": "速度提高<color=yellow>20%</color>",
-        "weight": 0.0
-      },
-      {
-        "id": 11,
-        "timer": 0,
-        "layers": 0,
-        "rank": 2,
-        "element": 0,
-        "curio": 0,
-        "tags": [
-          6
-        ],
-        "buffName": "相遇之缘",
-        "buffAbility": "能带来奇迹的等价交换之物",
-        "weight": 0.0
-      },
-      {
-        "id": 12,
-        "timer": 0,
-        "layers": 0,
-        "rank": 3,
-        "element": 0,
-        "curio": 1,
-        "tags": [
-          7
-        ],
-        "buffName": "纠缠之缘",
-        "buffAbility": "能带来没有任何作用的奇迹的等价交换之物",
-        "weight": 0.0
-      },
-      {
-        "id": 13,
-        "timer": 0,
-        "layers": 0,
-        "rank": 1,
-        "element": 0,
-        "curio": 2,
-        "tags": [
-          4
-        ],
-        "buffName": "原石",
-        "buffAbility": "财富的象征",
-        "weight": 0.0
-      }
-    ]
+  "CurrentBuffList": null,
+  "BaseBuff": {
+    "timer": 0,
+    "layers": 0,
+    "rank": 0,
+    "element": 0,
+    "curio": 0,
+    "tags": [],
+    "buffName": null,
+    "buffAbility": null,
+    "weight": 0.0,
+    "Flags": null,
+    "ID": 0
   },
   "CurrentOccurrenceList": null
 }

@@ -5,13 +5,14 @@ using System.Threading.Tasks;
 using UnityEngine;
 public class Occurrence
 {
-    public int ID;
+    public int ID { get; set; }
     public List<OccurrenceTag> occurrenceTags = new();
     public List<Task> occurrenceTask = new();
     public float weight = 1;
     public bool isLock = false;
+    public OccurrenceData Data { get; set; }
     public Sprite cardFace = null;
-    public string text = "";
+    public Dictionary<string, int> Flags;
     public Occurrence()
     {
     }
@@ -51,8 +52,7 @@ public class Occurrence
     //从数据表格获得数据
     public Occurrence RegisterData(string tag)
     {
-        OccurrenceSystem.GetData(tag);
-
+        Data = OccurrenceSystem.GetData(tag);
         //occurrenceTask.Add(task);
         return this;
     }

@@ -26,7 +26,7 @@ class Nahida : Character
         RegisterBurstAction(BrustAction);
         //注册作为敌人角色技能
         //添加角色自带buff
-        RegisterBuff(new Buff(0)
+        RegisterBuff(new Buff()
             .RegisterEvent<BattleEventData>(BuffTriggerType.On, BuffEventType.TurnStart, async (data) =>
             {
                 //回合开始,释放战技
@@ -87,8 +87,8 @@ class Nahida : Character
         PlayAnimation(AnimationType.Attack);
 
         //根据玩家当前数值和技能数据生成一个数值快照
-        BasicSkillData.CurrentCharaData = await BattleGameEventManager.GetCurrentCharaData(this);
-        await BattleGameEventManager.SendSkillData(BasicSkillData);
+        BasicSkillData.CurrentCharaData = await GameEventSystem.GetCurrentCharaData(this);
+        await GameEventSystem.SendSkillData(BasicSkillData);
         //_ = SendSkillData(BasicSkillData);
         //
         _ = CalculateHitPointsAsync(200, ElementType.Herb, 2, SelectManager.CurrentSelectTargets, 0.8f);

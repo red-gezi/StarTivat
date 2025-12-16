@@ -17,7 +17,7 @@ namespace Hotfix
         //static string serverIP = @"http://106.15.38.165:495";
         static string serverIP = @"http://127.0.0.1:233";
         //游戏热更资源放置路径
-        static string HotfixAssetPath = @"Assets\GameResource";
+        static string HotfixAssetPath = @"Assets\GameResources";
         //游戏AB包资源路径
         static string ABPath = @"AssetsBundles";
 
@@ -37,43 +37,45 @@ namespace Hotfix
         [MenuItem("StarTivat/Tools/打开服务端", false, 1)]
         static void StartServer() => System.Diagnostics.Process.Start(@"HotfixServer\bin\Debug\net6.0\HotFixServer.exe");
         [MenuItem("StarTivat/Tools/打开游戏客户端", false, 2)]
-        static void StartClient() => System.Diagnostics.Process.Start(@"Pc\TouHouMachineLearningSummary.exe");
-        [MenuItem("StarTivat/Tools/打开数据表格（云端）", false, 50)]
-        static void OpenCloudXls() => System.Diagnostics.Process.Start(@"https://kdocs.cn/l/cfS6F51QxqGd");
-        [MenuItem("StarTivat/Tools/打开数据表格", false, 51)]
-        static void OpenXls() => System.Diagnostics.Process.Start(@"Assets\GameResources\GameData\GameData.xlsx");
+        //static void StartClient() => System.Diagnostics.Process.Start(@"Pc\TouHouMachineLearningSummary.exe");
+        //[MenuItem("StarTivat/Tools/打开数据表格（云端）", false, 50)]
+        //static void OpenCloudXls() => System.Diagnostics.Process.Start(@"https://kdocs.cn/l/cfS6F51QxqGd");
+        [MenuItem("StarTivat/Tools/打开事件剧情生成器", false, 50)]
+        static void OpenDialogueTool() => System.Diagnostics.Process.Start(@"OtherSolution\剧情数据生成\bin\Debug\net6.0-windows\剧情数据生成.exe");
+        [MenuItem("StarTivat/Tools/打开事件数据表格", false, 51)]
+        static void OpenXls() => System.Diagnostics.Process.Start(@"Assets\GameResources\GameData\Occurrence.xlsx");
         [MenuItem("StarTivat/Tools/打开表格数据实时同步工具", false, 52)]
         static void UpdateXls() => System.Diagnostics.Process.Start(@"OtherSolution\xls检测更新\bin\Debug\net6.0\xls检测更新.exe");
         /////////////////////////////////////////////////////////////////场景///////////////////////////////////////////////////////////////////////////////////////////
         [MenuItem("StarTivat/Scene/载入热更场景", priority = 150)]
-        static void LoadInitScene() => System.Diagnostics.Process.Start(@"Assets\GameResource\Scenes\0_Menu.unity");
+        static void LoadInitScene() => System.Diagnostics.Process.Start(@"Assets\GameResources\Scenes\0_Menu.unity");
         [MenuItem("StarTivat/Scene/载入游戏场景", priority = 151)]
-        static void LoadHotFixScene() => System.Diagnostics.Process.Start(@"Assets\GameResource\Scenes\1_Game.unity");
+        static void LoadHotFixScene() => System.Diagnostics.Process.Start(@"Assets\GameResources\Scenes\1_Game.unity");
         //[MenuItem("StarTivat/Scene/载入登录场景", priority = 152)]
         //static void LoadLoginScene() => System.Diagnostics.Process.Start(@"Assets\Scenes\1_LoginScene.unity");
         //[MenuItem("StarTivat/Scene/载入对战场景", priority = 153)]
         //static void LoaBattleScene() => System.Diagnostics.Process.Start(@"Assets\Scenes\2_BattleScene.unity");
         /////////////////////////////////////////////////////////////////项目配置///////////////////////////////////////////////////////////////////////////////////////////
-        [MenuItem("StarTivat/Config/切换当前卡牌使用线上版本（确保debug完要切回来）", priority = 1)]
-        static void ChangeToOnlineCardScript()
-        {
-            var targetFile = new FileInfo("Assets\\Script\\9_MixedScene\\CardSpace\\GameCard.asmdef1");
-            if (targetFile.Exists)
-            {
-                targetFile.MoveTo("Assets\\Script\\9_MixedScene\\CardSpace\\GameCard.asmdef");
-                AssetDatabase.Refresh();
-            }
-        }
-        [MenuItem("StarTivat/Config/切换当前卡牌使用本地版本（可以查看更多debug细节）", priority = 2)]
-        static void ChangeToLoaclCardScript()
-        {
-            var targetFile = new FileInfo("Assets\\Script\\9_MixedScene\\CardSpace\\GameCard.asmdef");
-            if (targetFile.Exists)
-            {
-                targetFile.MoveTo("Assets\\Script\\9_MixedScene\\CardSpace\\GameCard.asmdef1");
-                AssetDatabase.Refresh();
-            }
-        }
+        //[MenuItem("StarTivat/Config/切换当前卡牌使用线上版本（确保debug完要切回来）", priority = 1)]
+        //static void ChangeToOnlineCardScript()
+        //{
+        //    var targetFile = new FileInfo("Assets\\Script\\9_MixedScene\\CardSpace\\GameCard.asmdef1");
+        //    if (targetFile.Exists)
+        //    {
+        //        targetFile.MoveTo("Assets\\Script\\9_MixedScene\\CardSpace\\GameCard.asmdef");
+        //        AssetDatabase.Refresh();
+        //    }
+        //}
+        //[MenuItem("StarTivat/Config/切换当前卡牌使用本地版本（可以查看更多debug细节）", priority = 2)]
+        //static void ChangeToLoaclCardScript()
+        //{
+        //    var targetFile = new FileInfo("Assets\\Script\\9_MixedScene\\CardSpace\\GameCard.asmdef");
+        //    if (targetFile.Exists)
+        //    {
+        //        targetFile.MoveTo("Assets\\Script\\9_MixedScene\\CardSpace\\GameCard.asmdef1");
+        //        AssetDatabase.Refresh();
+        //    }
+        //}
         /////////////////////////////////////////////////////////////////发布（服务端）///////////////////////////////////////////////////////////////////////////////////////////
         [MenuItem("StarTivat/Public/发布当前服务器到正式环境", false, 0)]
         static async void UpdateServer()
@@ -85,24 +87,24 @@ namespace Hotfix
             await VersionsHub.StopAsync();
         }
         /////////////////////////////////////////////////////////////////发布卡牌版本///////////////////////////////////////////////////////////////////////////////////////////
-        [MenuItem("StarTivat/Public/发布代码版本到测试版", false, 100)]
-        static void UpdateCardToTest() => UpdateCard("Test");
+        //[MenuItem("StarTivat/Public/发布代码版本到测试版", false, 100)]
+        //static void UpdateCardToTest() => UpdateCard("Test");
 
-        [MenuItem("StarTivat/Public/发布代码版本到正式版", false, 101)]
-        static void UpdateCardToRelease() => UpdateCard("Release");
-        private static void UpdateCard(string tag)
-        {
-            var gameCardAssembly = new DirectoryInfo(@"Library\ScriptAssemblies").GetFiles("GameCard*.dll").FirstOrDefault();
+        //[MenuItem("StarTivat/Public/发布代码版本到正式版", false, 101)]
+        //static void UpdateCardToRelease() => UpdateCard("Release");
+        //private static void UpdateCard(string tag)
+        //{
+        //    var gameCardAssembly = new DirectoryInfo(@"Library\ScriptAssemblies").GetFiles("GameCard*.dll").FirstOrDefault();
 
-            if (gameCardAssembly != null)
-            {
-                //_ = Command.NetCommand.UploadCardConfigsAsync(cardConfig, drawAbleList, CommandPassword);
-            }
-            else
-            {
-                Debug.LogError("检索不到卡牌dll文件");
-            }
-        }
+        //    if (gameCardAssembly != null)
+        //    {
+        //        //_ = Command.NetCommand.UploadCardConfigsAsync(cardConfig, drawAbleList, CommandPassword);
+        //    }
+        //    else
+        //    {
+        //        Debug.LogError("检索不到卡牌dll文件");
+        //    }
+        //}
         /////////////////////////////////////////////////////////////////发布热更新资源///////////////////////////////////////////////////////////////////////////////////////////
         [MenuItem("StarTivat/Public/清空AB包标签", priority = 150)]
         static void ClearABTags() => ClearAssetBundlesTags();

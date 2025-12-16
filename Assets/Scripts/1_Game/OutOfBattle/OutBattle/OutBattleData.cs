@@ -3,6 +3,9 @@
 public class OutOfBattleData
 {
     public int Gold { get; set; } = 0;
+    /// <summary>
+    /// 局外全局已拥有buff
+    /// </summary>
     public List<Buff> Buffs { get; set; } = new();
     //房间概率
 

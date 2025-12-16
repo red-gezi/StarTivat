@@ -7,4 +7,6 @@ public class OccurrenceData
     public string SideColor { get; set; }
     public Dictionary<string, string> Name { get; set; } = new();
     public Dictionary<string, string> Dialogue { get; set; } = new();
+    public string ShowName => Name["Ch"];
+    public string ShowDialogue => Dialogue["Ch"];
 }

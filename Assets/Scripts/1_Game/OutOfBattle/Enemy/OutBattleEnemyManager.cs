@@ -143,7 +143,7 @@ public class OutOfBattleEnemyManager : MonoBehaviour
         Debug.LogError("Ω¯»Î’Ω∂∑!!");
         await ScreenWarpManager.ShowScreen();
         await Task.Delay(1000);
-        List<PlayerName> playerNames = GameManager.gameData.TeamAppearanceList.Select(chara => chara.CharaNameType).ToList();
+        List<PlayerName> playerNames =GameDataSystem.GetTeamAppearanceList().Select(chara => chara.CharaNameType).ToList();
         GameManager.Instance.SwitchInBattleMode(playerNames, enemyDatas);
         //GameManager.CurrentBuffList.
         await ScreenWarpManager.CloseScreen();

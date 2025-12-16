@@ -117,34 +117,34 @@ public class TeamManager
             .OrderByDescending(chara => ((int)chara.CharaNameType) / 1000)
             .ToList();
         //如果角色池没角色，默认加入旅行者
-        if (!GameManager.gameData.TeamCharaPool.Any())
+        if (!GameDataSystem.GetGameData().TeamCharaPool.Any())
         {
             Debug.LogWarning("角色池子无角色，默认加入一个");
-            GameManager.gameData.TeamCharaPool.Add(GetCharaData(PlayerName.Nahida));
-            GameManager.gameData.TeamCharaPool.Add(GetCharaData(PlayerName.Amber));
-            GameManager.gameData.TeamCharaPool.Add(GetCharaData(PlayerName.Lisa));
+            GameDataSystem.GetGameData().TeamCharaPool.Add(GetCharaData(PlayerName.Nahida));
+            GameDataSystem.GetGameData().TeamCharaPool.Add(GetCharaData(PlayerName.Amber));
+            GameDataSystem.GetGameData().TeamCharaPool.Add(GetCharaData(PlayerName.Lisa));
         }
-        if (!GameManager.gameData.TeamAppearanceList.Any())
+        if (!GameDataSystem.GetGameData().TeamAppearanceList.Any())
         {
             Debug.LogWarning("出战队列无角色，默认加入一个");
-            GameManager.gameData.TeamAppearanceList.Add(GetCharaData(PlayerName.Nahida));
-            GameManager.gameData.TeamAppearanceIndex = 1;
+            GameDataSystem.GetTeamAppearanceList().Add(GetCharaData(PlayerName.Nahida));
+            GameDataSystem.SetTeamAppearanceIndex(1);
         }
-        //GameManager.gameData.TeamAppearanceList.Add(GetCharaData(CharaName.Amber));
-        //GameManager.gameData.TeamAppearanceList.Add(GetCharaData(CharaName.Lisa));
+        //GameDataSystem.GetGameData().TeamAppearanceList.Add(GetCharaData(CharaName.Amber));
+        //GameDataSystem.GetGameData().TeamAppearanceList.Add(GetCharaData(CharaName.Lisa));
 
-        SwitchChara(GameManager.gameData.TeamAppearanceIndex);
+        SwitchChara(GameDataSystem.GetGameData().TeamAppearanceIndex);
 
         //OutBattleUIManager.Instance.RefreshTeamAppearanceList();
 
     }
     public static void SwitchChara(int index)
     {
-        var teamList = GameManager.gameData.TeamAppearanceList;
+        var teamList = GameDataSystem.GetTeamAppearanceList();
         if (index > 0 && index <= teamList.Count)
         {
             PlayerManager.Instance.SwitchChara(teamList[index - 1].CharaNameType);
-            GameManager.gameData.TeamAppearanceIndex = index;
+            GameDataSystem.SetTeamAppearanceIndex(index);
         }
         else
         {
@@ -163,21 +163,21 @@ public class TeamManager
             Debug.LogWarning("获取角色模板数据失败，请检查" + charaName);
             return;
         }
-        if (GameManager.gameData.TeamCharaPool.Any(chara => chara.CharaNameType == charaName))
+        if (GameDataSystem.GetGameData().TeamCharaPool.Any(chara => chara.CharaNameType == charaName))
         {
             Debug.LogError("队伍池已存在该人物，不做处理");
             return;
         }
-        GameManager.gameData.TeamCharaPool.Add(item);
+        GameDataSystem.GetGameData().TeamCharaPool.Add(item);
         OutOfBattleUIManager.Instance.RefreshTeamAppearanceList();
-        Debug.Log(GameManager.gameData.TeamCharaPool.ToJson());
+        Debug.Log(GameDataSystem.GetGameData().TeamCharaPool.ToJson());
     }
     //将指定角色移除队伍列表
     public static void RemoveCharaFromTeamPool(PlayerName charaName)
     {
-        var item = GameManager.gameData.TeamAppearanceList.FirstOrDefault(data => data.CharaNameType == charaName);
+        var item = GameDataSystem.GetTeamAppearanceList().FirstOrDefault(data => data.CharaNameType == charaName);
         if (item == null) return;
-        GameManager.gameData.TeamCharaPool.Remove(item);
+        GameDataSystem.GetGameData().TeamCharaPool.Remove(item);
         OutOfBattleUIManager.Instance.RefreshTeamAppearanceList();
     }
 
@@ -189,18 +189,18 @@ public class TeamManager
     #region 临时出战列表
     public static void AddCharaIntoTempTeamAppearanceList(PlayerName charaName)
     {
-        var targetChara = GameManager.gameData.TeamCharaPool.FirstOrDefault(chara => chara.CharaNameType == charaName);
+        var targetChara = GameDataSystem.GetGameData().TeamCharaPool.FirstOrDefault(chara => chara.CharaNameType == charaName);
         if (targetChara == null)
         {
             Debug.LogError("队伍池不存在存在该人物，不做处理");
             return;
         }
-        for (int i = 0; i < GameManager.gameData.TempTeamAppearanceList.Length; i++)
+        for (int i = 0; i < GameDataSystem.GetGameData().TempTeamAppearanceList.Length; i++)
         {
-            if (GameManager.gameData.TempTeamAppearanceList[i] == null)
+            if (GameDataSystem.GetGameData().TempTeamAppearanceList[i] == null)
             {
                 Debug.Log($"加入人物{charaName}到位置{i}");
-                GameManager.gameData.TempTeamAppearanceList[i] = targetChara;
+                GameDataSystem.GetGameData().TempTeamAppearanceList[i] = targetChara;
                 OutOfBattleUIManager.Instance.RefreshTempTeamAppearanceList();
                 OutOfBattleUIManager.Instance.RefreshCharaList();
                 return;
@@ -210,12 +210,12 @@ public class TeamManager
     }
     public static void RemoveCharaFromTempTeamAppearanceList(PlayerName charaName)
     {
-        for (int i = 0; i < GameManager.gameData.TempTeamAppearanceList.Length; i++)
+        for (int i = 0; i < GameDataSystem.GetGameData().TempTeamAppearanceList.Length; i++)
         {
-            if (GameManager.gameData.TempTeamAppearanceList[i]?.CharaNameType == charaName)
+            if (GameDataSystem.GetGameData().TempTeamAppearanceList[i]?.CharaNameType == charaName)
             {
                 Debug.Log($"移除人物{charaName}从位置{i}");
-                GameManager.gameData.TempTeamAppearanceList[i] = null;
+                GameDataSystem.GetGameData().TempTeamAppearanceList[i] = null;
                 OutOfBattleUIManager.Instance.RefreshTempTeamAppearanceList();
                 OutOfBattleUIManager.Instance.RefreshCharaList();
                 return;
@@ -240,22 +240,22 @@ public class TeamManager
     //设置指定角色出战
     public static void SetTeamAppearanceList(List<PlayerName> charaNameList)
     {
-        GameManager.gameData.TeamAppearanceIndex = 1;
-        GameManager.gameData.TeamAppearanceList = charaNameList
-            .Select(charaName => GameManager.gameData.TeamCharaPool.FirstOrDefault(chara => chara.CharaNameType == charaName))
-            .ToList();
+        GameDataSystem.GetGameData().TeamAppearanceIndex = 1;
+        GameDataSystem.SetTeamAppearanceList(charaNameList
+             .Select(charaName => GameDataSystem.GetGameData().TeamCharaPool.FirstOrDefault(chara => chara.CharaNameType == charaName))
+             .ToList());
         OutOfBattleUIManager.Instance.RefreshTeamAppearanceList();
     }
     //设置下载角色
     public static void SetDownloadChara(PlayerName charaName)
     {
-        GameManager.gameData.DownloadChara = GameManager.gameData.TeamCharaPool.FirstOrDefault(chara => chara.CharaNameType == charaName);
+        GameDataSystem.GetGameData().DownloadChara = GameDataSystem.GetGameData().TeamCharaPool.FirstOrDefault(chara => chara.CharaNameType == charaName);
         OutOfBattleUIManager.Instance.RefreshTeamAppearanceList();
     }
     public static void RemoveDownloadChara()
     {
-        GameManager.gameData.DownloadChara = null;
-       OutOfBattleUIManager.Instance.RefreshTeamAppearanceList();
+        GameDataSystem.GetGameData().DownloadChara = null;
+        OutOfBattleUIManager.Instance.RefreshTeamAppearanceList();
     }
     #endregion
 
@@ -265,28 +265,4 @@ public class TeamManager
 
 
 
-}
-
-public class TeamCharaData
-{
-    public PlayerName CharaNameType { get; set; }
-    public Dictionary<string, string> ShowCharaName { get; set; } = new() { };
-    private float healthPercentage = 1f;
-    //角色稀有度
-    public bool IsGold { get; set; }
-    public float HealthPercentage
-    {
-        get => healthPercentage;
-        set => healthPercentage = Math.Clamp(value, 0.01f, 1f);
-    }
-    public bool IsDead { get; set; } = false;
-
-
-    public TeamCharaData(PlayerName charaNameType, string showCharaName)
-
-    {
-        CharaNameType = charaNameType;
-        ShowCharaName["ch"] = showCharaName;
-        IsGold = ((int)charaNameType)>=5000;
-    }
 }

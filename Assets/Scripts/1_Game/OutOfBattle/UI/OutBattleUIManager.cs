@@ -10,7 +10,7 @@ using UnityEngine.UI;
 public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
 {
 
-    private void Start() => InitOutBattleUIManager();
+    //private void Start() => InitOutBattleUIManager();
     private void Update()
     {
         if (true)
@@ -22,11 +22,14 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
         }
     }
     //初始化所有局外ui的状态
-    public void InitOutBattleUIManager()
+    public void Init()
     {
         InitBlessingSelection();
         InitCurioSelection();
         InitCharaSelect();
+        //关闭各种界面
+        CloseOccurrenceCanvas();
+
     }
     // ==================== 整体ui界面 ====================
     public GameObject UI;
@@ -318,9 +321,9 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
     }
     //初始化人物选择列表，有多种模式
     //游戏进入模式，从TeamManager.AllCharaData获取全人物模板数据,选择至多4个组队
-    //队伍换人模式，从GameManager.gameData.TeamCharaPool;获得角色池人物数据
+    //队伍换人模式，从GameDataSystem.GetGameData().TeamCharaPool;获得角色池人物数据
     //人物下载模式，从TeamManager.AllCharaData获取全人物模板数据,剔除已有人物，选择一个加入队伍池子
-    //人物复活模式，从GameManager.gameData.TeamCharaPool,剔除未死亡人物，选择一个复活
+    //人物复活模式，从GameDataSystem.GetGameData().TeamCharaPool,剔除未死亡人物，选择一个复活
     //属性变更模式，从TeamManager.AllCharaData获取全人物模板数据，选择一个进行修改
     private void OpenCharaSelectCanves(CharaSelectCanvasMode charaPoolInitMode)
     {
@@ -341,7 +344,7 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
                 TempAvartListText.text = "当前队伍";
                 ConfirmButton.GetComponent<Button>().onClick.AddListener(() =>
                 {
-                    List<PlayerName> charaNameList = GameManager.gameData.TempTeamAppearanceList
+                    List<PlayerName> charaNameList = GameDataSystem.GetGameData().TempTeamAppearanceList
                                                                             .Where(chara => chara != null)
                                                                             .Select(chara => chara.CharaNameType)
                                                                             .ToList();
@@ -355,7 +358,7 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
 
                 ConfirmButton.GetComponent<Button>().onClick.AddListener(() =>
                 {
-                    List<PlayerName> charaNameList = GameManager.gameData.TempTeamAppearanceList
+                    List<PlayerName> charaNameList = GameDataSystem.GetGameData().TempTeamAppearanceList
                                                                             .Where(chara => chara != null)
                                                                             .Select(chara => chara.CharaNameType)
                                                                             .ToList();
@@ -373,9 +376,10 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
                 }
                 ConfirmButton.GetComponent<Button>().onClick.AddListener(() =>
                 {
-                    if (GameManager.gameData.DownloadChara != null)
+                    
+                    if (GameDataSystem.GetGameData().DownloadChara != null)
                     {
-                        GameManager.gameData.TeamCharaPool.Add(GameManager.gameData.DownloadChara);
+                        GameDataSystem.GetGameData().TeamCharaPool.Add(GameDataSystem.GetGameData().DownloadChara);
                     }
                     CloseCharaSelectCanvas();
                 });
@@ -389,9 +393,9 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
         targetCharaDatas = currentCharaSelectInitMode switch
         {
             CharaSelectCanvasMode.TeamCreat => TeamManager.AllCharaData,
-            CharaSelectCanvasMode.TeamSwap => GameManager.gameData.TeamCharaPool,
-            CharaSelectCanvasMode.CharacterDownload => TeamManager.AllCharaData.Where(chara => !GameManager.gameData.TeamCharaPool.Select(teamChara => teamChara.CharaNameType).ToList().Contains(chara.CharaNameType)).ToList(),
-            CharaSelectCanvasMode.CharacterRevive => GameManager.gameData.TeamCharaPool.Where(chara => chara.IsDead).ToList(),
+            CharaSelectCanvasMode.TeamSwap => GameDataSystem.GetGameData().TeamCharaPool,
+            CharaSelectCanvasMode.CharacterDownload => TeamManager.AllCharaData.Where(chara => !GameDataSystem.GetGameData().TeamCharaPool.Select(teamChara => teamChara.CharaNameType).ToList().Contains(chara.CharaNameType)).ToList(),
+            CharaSelectCanvasMode.CharacterRevive => GameDataSystem.GetGameData().TeamCharaPool.Where(chara => chara.IsDead).ToList(),
             _ => throw new NotImplementedException(),
         };
         //初始化角色池UI
@@ -414,7 +418,7 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
             item.Find("Mask").Find("Icon").GetComponent<Image>().sprite = AssetBundleManager.Load<Sprite>("CharaIcon", targetCharaDatas[i].CharaNameType.ToString());
             item.Find("Name").GetComponent<Text>().text = targetCharaDatas[i].ShowCharaName["ch"];
             // 设置选中框
-            int index = Array.FindIndex(GameManager.gameData.TempTeamAppearanceList,
+            int index = Array.FindIndex(GameDataSystem.GetGameData().TempTeamAppearanceList,
                 chara => chara?.CharaNameType == targetCharaDatas[i].CharaNameType);
             bool isActive = index != -1;
             item.Find("Select").gameObject.SetActive(isActive);
@@ -433,7 +437,7 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
                     //设置点击事件
                     item.GetComponent<Button>().onClick.AddListener(() =>
                     {
-                        if (!GameManager.gameData.TempTeamAppearanceList.Contains(targetCharaDatas[rank]))
+                        if (!GameDataSystem.GetGameData().TempTeamAppearanceList.Contains(targetCharaDatas[rank]))
                         {
                             AddCharaIntoTeamPool(targetCharaDatas[rank].CharaNameType);
                             AddCharaIntoTempTeamAppearanceList(targetCharaDatas[rank].CharaNameType);
@@ -449,7 +453,7 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
                     //设置点击事件-将角色列表人物加入到出战列表中/从出战列表移除
                     item.GetComponent<Button>().onClick.AddListener(() =>
                     {
-                        if (!GameManager.gameData.TempTeamAppearanceList.Contains(targetCharaDatas[rank]))
+                        if (!GameDataSystem.GetGameData().TempTeamAppearanceList.Contains(targetCharaDatas[rank]))
                         {
                             AddCharaIntoTempTeamAppearanceList(targetCharaDatas[rank].CharaNameType);
                         }
@@ -463,7 +467,7 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
                 case CharaSelectCanvasMode.CharacterDownload:
                     item.GetComponent<Button>().onClick.AddListener(() =>
                     {
-                        if (GameManager.gameData.DownloadChara == null)
+                        if (GameDataSystem.GetGameData().DownloadChara == null)
                         {
                             SetDownloadChara(targetCharaDatas[rank].CharaNameType);
                         }
@@ -496,7 +500,7 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
             int rank = i;
             Transform item = TeamPoolContent.GetChild(i);
             // 设置选中框
-            int index = Array.FindIndex(GameManager.gameData.TempTeamAppearanceList,
+            int index = Array.FindIndex(GameDataSystem.GetGameData().TempTeamAppearanceList,
                 chara => chara?.CharaNameType == targetCharaDatas[i].CharaNameType);
             bool isActive = index != -1;
             item.Find("Select").gameObject.SetActive(isActive);
@@ -528,7 +532,7 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
             var item = TempTeamAppearanceContent.GetChild(i);
             item.GetComponent<Button>().onClick.RemoveAllListeners();
             var icon = item.Find("Mask").Find("Icon");
-            var charaData = GameManager.gameData.TempTeamAppearanceList[i];
+            var charaData = GameDataSystem.GetGameData().TempTeamAppearanceList[i];
             icon.gameObject.SetActive(charaData != null);
             int rank = i;
             if (charaData != null)
@@ -536,7 +540,7 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
                 icon.GetComponent<Image>().sprite = AssetBundleManager.Load<Sprite>("CharaIcon", charaData.CharaNameType.ToString());
                 item.GetComponent<Button>().onClick.AddListener(() =>
                 {
-                    var charaData = GameManager.gameData.TempTeamAppearanceList[rank];
+                    var charaData = GameDataSystem.GetGameData().TempTeamAppearanceList[rank];
                     RemoveCharaFromTempTeamAppearanceList(charaData.CharaNameType);
                     RemoveCharaFromTeamPool(charaData.CharaNameType);
 
@@ -580,7 +584,7 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
     [Button("刷新出战人物ui")]
     public void RefreshTeamAppearanceList()
     {
-        var datas = GameManager.gameData.TeamAppearanceList;
+        var datas = GameDataSystem.GetTeamAppearanceList();
         for (int i = 0; i < 4; i++)
         {
             Transform item = TeamAvatarContent.GetChild(i);
@@ -593,8 +597,9 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
             item.Find("Name").GetComponent<Text>().text = datas[i].ShowCharaName["ch"];
             item.Find("Mask").GetChild(0).GetComponent<Image>().sprite = AssetBundleManager.Load<Sprite>("CharaIcon", datas[i].CharaNameType.ToString());
             item.Find("Number").GetChild(0).GetComponent<Text>().text = i.ToString();
-            item.Find("bg_w").gameObject.SetActive(i + 1 == GameManager.gameData.TeamAppearanceIndex);
-            item.Find("bg_b").gameObject.SetActive(i + 1 != GameManager.gameData.TeamAppearanceIndex);
+            ;
+            item.Find("bg_w").gameObject.SetActive(i + 1 == GameDataSystem.GetTeamAppearanceIndex());
+            item.Find("bg_b").gameObject.SetActive(i + 1 != GameDataSystem.GetTeamAppearanceIndex());
         }
     }
     #endregion
@@ -643,15 +648,16 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
         //occurenceData.Name;
         //occurenceData.SideColor;
         //解析剧本
-        var node = DialogueSystem.Parse(occurenceData.Dialogue["Ch"]);
+        var node = OccurrenceSystem.Parse(occurenceData);
         //执行节点
-        DialogueSystem.Start(node);
+        OccurrenceSystem.Run(node);
+
     }
     [Button("关闭事件页面")]
     public void CloseOccurrenceCanvas() => Hide(occurrenceCanvas);
     ///////////////////////////////////对话
     [Button("添加事件对话")]
-    public void AddOccurrenceChat(string speaker, string text)
+    public async void AddOccurrenceChat(string speaker, string text)
     {
         var newItem = CreatContentItemByFirstItem(occurrenceChatContent);
         newItem.GetComponentsInChildren<Text>()[0].text = speaker;
@@ -659,8 +665,15 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
         //滑条滚到最底
         var scrollRect = occurrenceChatContent.parent.parent.GetComponent<ScrollRect>();
         LayoutRebuilder.ForceRebuildLayoutImmediate(scrollRect.content);
-        scrollRect.verticalNormalizedPosition = 0f;
+        float currentVerticalNormalizedPosition = scrollRect.verticalNormalizedPosition;
+        await CustomThread.TimerAsync(0.2f, (progress) =>
+        {
+            scrollRect.verticalNormalizedPosition = Mathf.Lerp(currentVerticalNormalizedPosition, 0, progress * progress);
+        });
     }
+    //需要连同滚动条一起隐藏
+    public void OpenOccurrenceChatContent() => Show(occurrenceChatContent.parent.parent);
+    public void CloseOccurrenceChatContent() => Hide(occurrenceChatContent.parent.parent);
     //执行下个对话
     public void StepChat() => DialogueSystem.Step();
     public void OpenStepCanves() => Show(stepCanvas);
@@ -677,6 +690,8 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
     {
         int index = option.GetSiblingIndex();
         DialogueSystem.Select(index);
+
+
     }
     [Button("开启选项组件")]
     public void OpenOccurrenceOptionContent()
@@ -691,7 +706,7 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
     //选择奖励
     public void AddReward(string text)
     {
-        var item = CreatContentItemByFirstItem(optionContent);
+        var item = CreatContentItemByFirstItem(rewardContent);
         item.GetComponentInChildren<Text>().text = text;
     }
     public void SelectReward(Transform option)

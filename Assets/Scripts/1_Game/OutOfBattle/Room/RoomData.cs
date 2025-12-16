@@ -55,7 +55,7 @@ public class RoomData : EventData
         //Enemies = BaseRoomConfigData.outOfBattleEnemyDatas;
         /////////////////////////////////////////////////////根据配置信息构造房间实例数据/////////////////////////////////////////////////////
         //获得当前房间数据,用于选定新房间的场地模型不与当前重复
-        RoomData currentRoomData = GameManager.gameData.CurrentRoomDatas.LastOrDefault();
+        RoomData currentRoomData = GameDataSystem.GetGameData().CurrentRoomDatas.LastOrDefault();
         if (currentRoomData == null)
         {
             Debug.LogError("当前无房间信息");

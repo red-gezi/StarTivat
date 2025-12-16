@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 
@@ -9,33 +10,35 @@ public class OccurrenceSystem
 
     public static void Init()
     {
+        //加载所有事件数据
 #if UNITY_EDITOR
         //从本地加载
-
+        AllOccurrenceData = File.ReadAllText("E:\\UnityProject\\StarTivat\\Assets\\GameResources\\GameData\\Occurrence.json").ToObject<List<OccurrenceData>>();
 #else
          //从AB包加载
          AssetBundleManager.Load<TextAsset>("GameData", "Occurrence.json");
 #endif
+
+        SU_OccurrenceList.Init();
+        OccurrenceCore.AddOccurrenceList(typeof(OccurrenceName), SU_OccurrenceList.Occurrences);
     }
     public static OccurrenceData GetData(string tag)
     {
-        return AllOccurrenceData.FirstOrDefault(occurrence => occurrence.Tag == tag);
-    }
-    public  string GetName(Occurrence occurrence)
-    {
-        return "";
-    }
-    public string GetText(Occurrence occurrence)
-    {
-        return "";
-    }
-    public void Parse(Occurrence occurrence)
-    {
-        DialogueSystem.Parse(occurrence.text);
-    }
-    public void Run(Occurrence occurrence)
-    {
 
+        OccurrenceData occurrenceData = AllOccurrenceData.FirstOrDefault(occurrence => occurrence.Tag == tag);
+        if (occurrenceData == null)
+        {
+            Log.Show($"无法找到{tag}对应事件文本");
+        }
+        return occurrenceData;
+    }
+    public static Node Parse(OccurrenceData occurrenceData)
+    {
+        return DialogueSystem.Parse(occurrenceData.ShowDialogue);
+    }
+    public static void Run(Node node)
+    {
+        DialogueSystem.Run(node);
     }
     public static Occurrence GetOccurrence<T>(T occurrenceName) where T : Enum
     {
@@ -44,7 +47,7 @@ public class OccurrenceSystem
     public static List<Occurrence> GetRandomOccurrence(int count, params OccurrenceTag[] tags)
     {
         //游戏从存档获得当前事件列表与激活状态
-        List<Occurrence> occurrences = GameManager.gameData.CurrentOccurrenceList;
+        List<Occurrence> occurrences = GameDataSystem.GetGameData().CurrentOccurrenceList;
         // 1. 筛选出包含目标tag的项
         var filtered = occurrences
             .Where(o => !o.isLock)

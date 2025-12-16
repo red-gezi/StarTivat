@@ -6,10 +6,11 @@ public class OccurrenceCore
 {
     //private static BaseOccurrenceList CurrentOccurrenceList { get; set; }
     //初始化,装载一个特定模式下事件的拷贝数据，可以在游戏过程中被修改
-    private static Dictionary<Type, List<Occurrence>> AllOccurrenceList { get; set; } = new()
+    private static Dictionary<Type, List<Occurrence>> AllOccurrenceList { get; set; } = new();
+    public static void AddOccurrenceList(Type occurrenceName, List<Occurrence> occurrenceList)
     {
-         { typeof(OccurrenceName), SimulatedUniverseOccurrenceList.OccurrenceList.Clone() }
-    };
+        AllOccurrenceList.Add(occurrenceName, occurrenceList.Clone());
+    }
     //查询
     public static Occurrence GetOccurrence<T>(T occurrenceName) where T : Enum
     {
@@ -21,9 +22,5 @@ public class OccurrenceCore
         }
         var currentOccurrenceList = AllOccurrenceList[typeof(T)];
         return currentOccurrenceList.FirstOrDefault(occurrence => occurrence.ID == ID).Clone();
-    }
-    public void Test()
-    {
-        GetOccurrence(OccurrenceName.test1);
     }
 }

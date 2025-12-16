@@ -31,11 +31,11 @@ class CameraTrackManager : MonoBehaviour
     {
         cameraTrackDatas = new();
         string currentTrackName = name;
-        string path = $"{Directory.GetCurrentDirectory()}/Assets/GameResource/CameraTrack/{currentTrackName}";
+        string path = $"{Directory.GetCurrentDirectory()}/Assets/GameResources/CameraTrack/{currentTrackName}";
         //不存在时加载默认模板
         if (!Directory.Exists(path))
         {
-            path = $"{Directory.GetCurrentDirectory()}/Assets/GameResource/CameraTrack/{"Template"}";
+            path = $"{Directory.GetCurrentDirectory()}/Assets/GameResources/CameraTrack/{"Template"}";
         }
         new DirectoryInfo(path).GetFiles("*.json").ForEach(file =>
         {

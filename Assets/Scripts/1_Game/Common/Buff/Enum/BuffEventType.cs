@@ -9,9 +9,12 @@
     GoldGain,
     GoldGainEffect,
     //流程事件
+    BattleStart,
+    BattleEnd,
     TurnStart,
     TurnEnd,
-
+    StageStart,
+    StageEnd,
     //获得角色数值
     GetCurrentCharaData,
     //发送技能数据

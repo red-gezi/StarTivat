@@ -1,19 +1,11 @@
 ﻿using Sirenix.OdinInspector;
+using System;
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 //决定一场游戏的整体流程,在局外房间和局内战斗来回切换
 
-public class GameManager : MonoBehaviour
+public class GameManager :InstanceBehaviour<GameManager> 
 {
-    public static GameManager Instance;
-    //整个游戏的存档
-    [ShowInInspector]
-    public static GameData gameData;
-    //当前游戏模式的基本buff,包含游戏的基础流程
-    public static Buff BaseBuff { get; set; }
-    //当前应用的游戏模式下各种奇物祝福的buff列表
-
     //定位点模型
     public GameObject pointPrefab;
     private void Awake() => Instance = this;
@@ -21,13 +13,19 @@ public class GameManager : MonoBehaviour
 
     public async void Init()
     {
+        //初始化热更资源包，测试阶段只加载少量包
         await AssetBundleManager.Init("", false, new List<string>() { "charaicon.gezi" });
         Debug.Log("游戏开始");
+        //初始化buff数据
+        BuffSystem.Init();
+        //初始化事件数据
+        OccurrenceSystem.Init();
+
         //删除游戏存档(临时)
-        Delete();
+        GameDataSystem.Delete();
         //加载游戏存档
-        Load();
-        //Save();
+        GameDataSystem.Load();
+        //GameDataSystem.Save();
         //初始化buff数据
         //初始化角色池子与队伍信息
         TeamManager.InitCharaList();
@@ -35,15 +33,18 @@ public class GameManager : MonoBehaviour
         //OutBattleUIManager.Instance.InitCharaSelectCanves( OutBattleUIManager.CharaSelectCanvasMode.TeamCreat);
         //进入当前房间
         RoomManager.RefreshRoom();
+
+        //初始化ui数据
+        OutOfBattleUIManager.Instance.Init();
         SwitchOutOfBattleMode();
+        //测试获得事件数据
+        var buff = BuffSystem.GetBuff(SU_BuffName.基础流程);
+        OccurrenceSystem.GetOccurrence(OccurrenceName.test1);
+        OutOfBattleUIManager.Instance.OpenOccurrenceCanvas("1_2");
+        //BattleGameEventManager.SendSkillData
+        await GameEventSystem.BattleStart();
     }
-    //初始化模拟宇宙buff列表
-    public static void InitBuffList()
-    {
-        SimulatedUniverseBuffList.Init();
-        BaseBuff = SimulatedUniverseBuffList.BuffList.GetBuff((int)SimulatedUniverseBuffList.BufferName.基础流程);
-        gameData.CurrentBuffList = SimulatedUniverseBuffList.BuffList;
-    }
+    
     //public void SavePlayerPos(Transform transform)
     //{
     //    gameData.PlayerPos = transform.position.ToTuple();
@@ -86,29 +87,5 @@ public class GameManager : MonoBehaviour
         _ = InBattleManager.Instance.Init(playerNames, enemyDatas.enemyDatas);
         //初始化对局
     }
-    //删除非法存档(测试)
-    public static void Delete()
-    {
-        File.Delete("save.json");
-    }
-    public static void Save()
-    {
-        File.WriteAllText("save.json", gameData.ToJson());
-    }
-    public static async void Load()
-    {
-        if (!File.Exists("save.json"))
-        {
-            gameData = new();
-            gameData.CurrentOutBattleData = new();
-            InitBuffList();
 
-            await RoomManager.RebackInitRoom();
-            Save();
-        }
-        else
-        {
-            gameData = File.ReadAllText("save.json").ToObject<GameData>();
-        }
-    }
 }

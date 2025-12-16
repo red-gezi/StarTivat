@@ -115,6 +115,20 @@ public class DialogueSystem
                 }
                 currentNode = branchNode;
             }
+            else if (line.StartsWith("[Reward]"))
+            {
+                var rewardNode = new Node
+                {
+                    CurrentNodeType = NodeType.Reward,
+                    ParentNode = currentNode,
+                    Tag = line.Substring(line.IndexOf(']') + 1),
+                };
+                if (currentNode != null)
+                {
+                    currentNode.NextNodes.Add(rewardNode);
+                }
+                currentNode = rewardNode;
+            }
             //解析为分支标签节点
             else if (line.StartsWith("[") && line.Contains("]"))
             {
@@ -145,7 +159,7 @@ public class DialogueSystem
     ///////////////////////////单步运行///////////////////////////////
     public static Node? currentNode;
     public static Node? currentBranchNode;
-    public static void Start(Node node)
+    public static void Run(Node node)
     {
         currentNode = node;
         Step();
@@ -154,14 +168,20 @@ public class DialogueSystem
     {
         if (currentNode == null)
         {
-            Console.WriteLine("已结束");
+            //结尾非end但已无下个剧情节点
+            OutOfBattleUIManager.Instance.CloseOccurrenceCanvas();
             return;
         }
         switch (currentNode.CurrentNodeType)
         {
+            case NodeType.Start:
+                currentNode = currentNode?.NextNodes.FirstOrDefault();
+                Step();
+                break;
             case NodeType.Speaker:
                 //调用台词
                 Log.Show($"{currentNode.Speaker}:{currentNode.Text}");
+                OutOfBattleUIManager.Instance.AddOccurrenceChat(currentNode.Speaker, currentNode.Text);
                 currentNode = currentNode.GetNextNode();
                 break;
             case NodeType.Branch:
@@ -177,6 +197,7 @@ public class DialogueSystem
                 //调用选项
                 Log.Show($"展开奖励面板，请选择:{currentNode.Text}");
                 OutOfBattleUIManager.Instance.CloseStepCanves();
+                OutOfBattleUIManager.Instance.CloseOccurrenceChatContent();
                 OutOfBattleUIManager.Instance.OpenRewardContent();
                 currentNode.NextNodes
                     .Where(node => node.CurrentNodeType == NodeType.BranchTag)
@@ -189,16 +210,21 @@ public class DialogueSystem
             case NodeType.Back:
                 //返回分支的最后一个选项
                 currentNode = currentNode.ParentNode?.ParentNode?.NextNodes.LastOrDefault();
+                Step();
                 break;
             case NodeType.BranchBack:
                 //返回分支的最后一个选项
                 currentNode = currentNode.ParentNode?.GetNextNode();
+                Step();
                 break;
             case NodeType.End:
                 currentNode = null;
+                OutOfBattleUIManager.Instance.CloseOccurrenceCanvas();
                 break;
             case NodeType.BranchTag:
+                //OutOfBattleUIManager.Instance.AddOccurrenceChat(currentNode.Speaker, currentNode.Text);
                 currentNode = currentNode?.NextNodes.FirstOrDefault();
+                Step();
                 break;
             
             default:
@@ -209,6 +235,11 @@ public class DialogueSystem
     public static void Select(int index)
     {
         currentNode = currentNode.NextNodes[index - 1];
-        Log.Show($"玩家选择了 {currentNode.Text}");
+        Log.Show($"玩家选择了 {currentNode.Tag}");
+        OutOfBattleUIManager.Instance.OpenStepCanves();
+        OutOfBattleUIManager.Instance.OpenOccurrenceChatContent();
+        OutOfBattleUIManager.Instance.CloseOccurrenceOptionContent();
+        OutOfBattleUIManager.Instance.CloseRewardContent();
+        Step();
     }
 }
