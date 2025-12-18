@@ -8,7 +8,6 @@ public class BuffCore
     private static Dictionary<Type, List<Buff>> AllBuffList { get; set; } = new();
     public static void AddBuffList(Type buffName, List<Buff> buffList)
     {
-      var s=  new List<Buff>(buffList);
         AllBuffList.Add(buffName, buffList);
     }
     //查询

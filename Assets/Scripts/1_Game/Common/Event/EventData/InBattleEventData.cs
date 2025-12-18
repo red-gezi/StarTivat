@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-public class BattleEventData : EventData
+public class InBattleEventData : EventData
 {
     Buff TriggerBuffer { get; set; }
     public Character Sender { get; set; }

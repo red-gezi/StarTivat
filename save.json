@@ -9,7 +9,7 @@
       "IsFinish": false,
       "CurrentSceneModel": 8,
       "CurrentRoomType": 0,
-      "CurrentRoomTag": 2,
+      "CurrentRoomTag": 3,
       "TargetDoorCount": 1,
       "DoorTypeWeight": {
         "InitRoom": 0.0,
@@ -26,16 +26,14 @@
       },
       "RoomConfigDataFromDoor": [
         {
-          "CurrentRoomType": 2,
+          "CurrentRoomType": 3,
           "SelectableSceneModel": [
             7,
-            0,
-            1
+            0
           ],
           "SelectableEnemyTag": [
             4,
-            5,
-            6
+            3
           ],
           "SelectableSignTag": [],
           "DoorCount": [
@@ -65,11 +63,24 @@
         "buffName": null,
         "buffAbility": null,
         "weight": 0.0,
-        "Flags": null,
-        "ID": 0
+        "ID": 0,
+        "Flags": {}
       },
       "ListenerBuffs": [],
-      "BelongBuffList": null
+      "BelongBuffList": null,
+      "ThisBuff": {
+        "timer": 0,
+        "layers": 0,
+        "rank": 0,
+        "element": 0,
+        "curio": 0,
+        "tags": [],
+        "buffName": null,
+        "buffAbility": null,
+        "weight": 0.0,
+        "ID": 0,
+        "Flags": {}
+      }
     }
   ],
   "CurrentLayer": 1,
@@ -95,8 +106,8 @@
     "buffName": null,
     "buffAbility": null,
     "weight": 0.0,
-    "Flags": null,
-    "ID": 0
+    "ID": 0,
+    "Flags": {}
   },
   "CurrentOccurrenceList": null
 }

@@ -5,6 +5,12 @@ using UnityEngine;
 
 public class GameEventSystem
 {
+    public static async Task<T> Test<T>(BuffEventType buffEventType, T data) where T : EventData
+    {
+        Log.Show("测试开始");
+        await GameEventCore.TriggerEventAsync(buffEventType, data);
+        return data;
+    }
     ////////////////////////////////////////////////////////////////////////局外////////////////////////////////////////////////////////////////////////
     public static async Task EnterRoom(RoomData roomData)
     {
@@ -62,13 +68,14 @@ public class GameEventSystem
         await GameEventCore.TriggerEventAsync(BuffEventType.GoldGain, data);
     }
     ////////////////////////////////////////////////////////////////////////局内////////////////////////////////////////////////////////////////////////
-    public static async Task<BattleEventData> BattleStart()
+    public static async Task<InBattleEventData> BattleStart()
     {
         Log.Show("开始");
-        var data = new BattleEventData()
+        var data = new InBattleEventData()
         {
-            ListenerBuffs = OutOfBattleManager.GetCurrentBuff(),
-            ExceBuffs= OutOfBattleManager.GetCurrentBuff(),
+            ListenerBuffs = InBattleSystem.GetAllInBattleBuffs(),
+            ExceBuff = InBattleSystem.GetBaseBuff(),
+
         };
         await GameEventCore.TriggerEventAsync(BuffEventType.BattleStart, data);
         return data;
@@ -83,7 +90,8 @@ public class GameEventSystem
         {
             //TargetBuffIndex = buffIndex,
             Target = character,
-            ListenerBuffs = OutOfBattleManager.GetCurrentBuff(),
+            ListenerBuffs = character.GetCurrentBuffs(),
+            ExceBuff = InBattleSystem.GetBaseBuff(),
         };
         await GameEventCore.TriggerEventAsync(BuffEventType.GetCurrentCharaData, data);
         return data;
@@ -91,8 +99,8 @@ public class GameEventSystem
     public static async Task SendSkillData(SkillData skillData)
     {
         Debug.Log("发送技能数据给对面");
-        skillData.ListenerBuffs = skillData.Sender.Buffs;
-        skillData.ExceBuff = GameDataSystem.GetBaseBuff();
+        skillData.ListenerBuffs = skillData.Sender.GetCurrentBuffs();
+        skillData.ExceBuff = InBattleSystem.GetBaseBuff();
         skillData.AddLog($"发送技能数据给{skillData.Receiver.name}");
         await GameEventCore.TriggerEventAsync(BuffEventType.SendSkillData, skillData);
         return;

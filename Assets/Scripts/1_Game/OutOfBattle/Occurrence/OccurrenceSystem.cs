@@ -18,7 +18,7 @@ public class OccurrenceSystem
          //从AB包加载
          AssetBundleManager.Load<TextAsset>("GameData", "Occurrence.json");
 #endif
-
+        //从存档中判断有无游戏事件列表，有的话载入，没有的话初始化
         SU_OccurrenceList.Init();
         OccurrenceCore.AddOccurrenceList(typeof(OccurrenceName), SU_OccurrenceList.Occurrences);
     }

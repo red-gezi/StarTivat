@@ -43,8 +43,8 @@ public class CharaInfoBoardManager : MonoBehaviour
     {
         //设置摄像机位置
         var character = isShowEnemy
-            ? InBattleManager.Instance.EnemyList[index]
-            : InBattleManager.Instance.PlayerList[index];
+            ? InBattleSystem.Instance.EnemyList[index]
+            : InBattleSystem.Instance.PlayerList[index];
         //BattleCameraManager.SetIdleShow(character);
         RefreshCharaInfoBoard(character);
     }
@@ -57,8 +57,8 @@ public class CharaInfoBoardManager : MonoBehaviour
     public void RefreshCharaList()
     {
         int count = isShowEnemy ?
-            InBattleManager.Instance.EnemyList.Count :
-            InBattleManager.Instance.PlayerList.Count;
+            InBattleSystem.Instance.EnemyList.Count :
+            InBattleSystem.Instance.PlayerList.Count;
         for (int i = 0; i < 5; i++)
         {
 
@@ -67,8 +67,8 @@ public class CharaInfoBoardManager : MonoBehaviour
             if (i < count)
             {
                 var character = isShowEnemy
-                ? InBattleManager.Instance.EnemyList[i]
-                : InBattleManager.Instance.PlayerList[i];
+                ? InBattleSystem.Instance.EnemyList[i]
+                : InBattleSystem.Instance.PlayerList[i];
                 charaItem.GetChild(0).GetChild(0).GetComponent<Image>().sprite = character.miniCharaIcon;
             }
         }

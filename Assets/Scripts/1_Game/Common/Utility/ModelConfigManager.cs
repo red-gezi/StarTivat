@@ -20,7 +20,7 @@ class ModelConfigManager : InstanceBehaviour<ModelConfigManager>
     {
         if (ConfigMode)
         {
-            GameManager.Instance.SwitchInBattleMode(
+            GameFlowSystem.Instance.SwitchInBattleMode(
                 playerNames,
                 new OutOfBattleEnemyDatas()
                 {
@@ -28,13 +28,13 @@ class ModelConfigManager : InstanceBehaviour<ModelConfigManager>
                 });
             if (!isConfigEnemy)
             {
-                triggerModel = InBattleManager.Instance.PlayerList[defaultPlayerIndex].gameObject;
-                targetModel = InBattleManager.Instance.EnemyList[defaultEnemyIndex].gameObject;
+                triggerModel = InBattleSystem.Instance.PlayerList[defaultPlayerIndex].gameObject;
+                targetModel = InBattleSystem.Instance.EnemyList[defaultEnemyIndex].gameObject;
             }
             else
             {
-                triggerModel = InBattleManager.Instance.EnemyList[defaultEnemyIndex].gameObject;
-                targetModel = InBattleManager.Instance.PlayerList[defaultPlayerIndex].gameObject;
+                triggerModel = InBattleSystem.Instance.EnemyList[defaultEnemyIndex].gameObject;
+                targetModel = InBattleSystem.Instance.PlayerList[defaultPlayerIndex].gameObject;
             }
 
         }

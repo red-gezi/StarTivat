@@ -9,7 +9,7 @@ public class OutOfBattleManager : InstanceBehaviour<OutOfBattleManager>
     public Transform enemiesParent;
     public GameObject playerController;
     //public static List<Buff> GetCurrentBuff() => new(GameDataSystem.GetGameData().CurrentOutBattleData.Buffs);
-    public static List<Buff> GetCurrentBuff() => new(GameDataSystem.GetGameData().CurrentOutBattleData.Buffs);
+    public static List<Buff> GetCurrentBuff() => GameDataSystem.GetGameData().CurrentOutBattleData.Buffs;
     //每局初始化一个新的
     public static void AddBuff(Buff buff)
     {

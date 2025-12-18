@@ -126,7 +126,7 @@ public class PlayerManager : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.T))
         {
-            GameManager.Instance.SwitchInBattleMode(InBattleManager.Instance.players, new OutOfBattleEnemyDatas()
+            GameFlowSystem.Instance.SwitchInBattleMode(InBattleSystem.Instance.players, new OutOfBattleEnemyDatas()
             {
                 enemyDatas = new List<EnemyData>()
                 {

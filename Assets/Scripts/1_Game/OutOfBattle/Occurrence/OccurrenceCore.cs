@@ -21,6 +21,8 @@ public class OccurrenceCore
             return null;
         }
         var currentOccurrenceList = AllOccurrenceList[typeof(T)];
-        return currentOccurrenceList.FirstOrDefault(occurrence => occurrence.ID == ID).Clone();
+        //return currentOccurrenceList.FirstOrDefault(occurrence => occurrence.ID == ID).Clone();
+        //返回事件本身，方便全局处理
+        return currentOccurrenceList.FirstOrDefault(occurrence => occurrence.ID == ID);
     }
 }

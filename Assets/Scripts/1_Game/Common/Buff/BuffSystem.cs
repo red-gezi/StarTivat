@@ -19,7 +19,9 @@ public class BuffSystem
          AssetBundleManager.Load<TextAsset>("GameData", "Occurrence.json");
 #endif
         SU_BuffList.Init();
+        Chara_BuffList.Init();
         BuffCore.AddBuffList(typeof(SU_BuffName), SU_BuffList.Buffs);
+        BuffCore.AddBuffList(typeof(Chara_BuffName), Chara_BuffList.Buffs);
     }
     public static BuffData GetData(string tag)
     {

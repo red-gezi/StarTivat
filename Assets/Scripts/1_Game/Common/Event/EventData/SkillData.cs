@@ -9,8 +9,8 @@ public class SkillData : EventData
     public List<SkillTag> SkillTags { get; set; } = new();
     public Sprite BrustCharaIcon { get; set; }
     public int SkillPointChange { get; set; }
-    public Character Sender { get; set; }
-    public Character Receiver { get; set; }
+    public new Character Sender { get; set; }
+    public new Character Receiver { get; set; }
     public CharaData CurrentCharaData { get; set; }
     public List<Character> DefaultTargets { get; set; }
     public int TargetMultiple { get; set; }

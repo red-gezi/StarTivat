@@ -28,7 +28,7 @@ class Citlali : Character
         //注册作为敌人角色技能
         //添加角色自带buff
         RegisterBuff(new Buff()
-            .RegisterEvent<BattleEventData>(BuffTriggerType.On, BuffEventType.TurnStart, async (data) =>
+            .RegisterEvent<InBattleEventData>(BuffTriggerType.On, BuffEventType.TurnStart, async (data) =>
             {
                 //回合开始,释放战技
             })
@@ -47,7 +47,7 @@ class Citlali : Character
         SkillIcon = basicSkillIcon,
         SkillPointChange = 1,
         SkillTags = { SkillTag.SingleTarget, SkillTag.BasicAttack },
-        DefaultTargets = InBattleManager.Instance.charaList.Where(chara => chara.IsEnemy).Take(1).ToList(),
+        DefaultTargets = InBattleSystem.Instance.charaList.Where(chara => chara.IsEnemy).Take(1).ToList(),
         TargetIsEnemy = true,
         Sender = this,
     };
@@ -57,7 +57,7 @@ class Citlali : Character
         SkillIcon = specialSkillIcon,
         SkillPointChange = -1,
         SkillTags = { SkillTag.AreaOfEffect, SkillTag.SpecialSkill },
-        DefaultTargets = InBattleManager.Instance.charaList.Where(chara => chara.IsEnemy).ToList(),
+        DefaultTargets = InBattleSystem.Instance.charaList.Where(chara => chara.IsEnemy).ToList(),
         TargetIsEnemy = true,
         Sender = this,
     };
@@ -68,7 +68,7 @@ class Citlali : Character
         BrustCharaIcon = largeCharaIcon,
         SkillPointChange = 0,
         SkillTags = { SkillTag.AreaOfEffect, SkillTag.Brust },
-        DefaultTargets = InBattleManager.Instance.charaList.Where(chara => chara.IsEnemy).Skip(2).Take(1).ToList(),
+        DefaultTargets = InBattleSystem.Instance.charaList.Where(chara => chara.IsEnemy).Skip(2).Take(1).ToList(),
         TargetIsEnemy = true,
         Sender = this,
     };

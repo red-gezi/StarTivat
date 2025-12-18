@@ -144,7 +144,7 @@ public class OutOfBattleEnemyManager : MonoBehaviour
         await ScreenWarpManager.ShowScreen();
         await Task.Delay(1000);
         List<PlayerName> playerNames =GameDataSystem.GetTeamAppearanceList().Select(chara => chara.CharaNameType).ToList();
-        GameManager.Instance.SwitchInBattleMode(playerNames, enemyDatas);
+        GameFlowSystem.Instance.SwitchInBattleMode(playerNames, enemyDatas);
         //GameManager.CurrentBuffList.
         await ScreenWarpManager.CloseScreen();
 

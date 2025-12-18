@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 //决定一场游戏的整体流程,在局外房间和局内战斗来回切换
 
-public class GameManager :InstanceBehaviour<GameManager> 
+public class GameFlowSystem : InstanceBehaviour<GameFlowSystem>
 {
     //定位点模型
     public GameObject pointPrefab;
@@ -38,13 +38,21 @@ public class GameManager :InstanceBehaviour<GameManager>
         OutOfBattleUIManager.Instance.Init();
         SwitchOutOfBattleMode();
         //测试获得事件数据
-        var buff = BuffSystem.GetBuff(SU_BuffName.基础流程);
-        OccurrenceSystem.GetOccurrence(OccurrenceName.test1);
-        OutOfBattleUIManager.Instance.OpenOccurrenceCanvas("1_2");
+        var buff = BuffSystem.GetBuff(Chara_BuffName.人物天赋1);
+        await GameEventSystem.Test(BuffEventType.BattleStart, new InBattleEventData() { ListenerBuffs = new() { buff }, ExceBuff = buff });
+        await GameEventSystem.Test(BuffEventType.Hit, new SkillData() { ListenerBuffs = new() { buff }, ExceBuff =  buff  });
+        await GameEventSystem.Test(BuffEventType.Hit, new SkillData() { ListenerBuffs = new() { buff }, ExceBuff =  buff  });
+        buff = BuffSystem.GetBuff(Chara_BuffName.人物天赋1);
+        await GameEventSystem.Test(BuffEventType.BattleStart, new InBattleEventData() { ListenerBuffs = new() { buff }, ExceBuff = buff });
+        await GameEventSystem.Test(BuffEventType.Hit, new SkillData() { ListenerBuffs = new() { buff }, ExceBuff = buff });
+        await GameEventSystem.Test(BuffEventType.Hit, new SkillData() { ListenerBuffs = new() { buff }, ExceBuff = buff });
+        await GameEventSystem.Test(BuffEventType.Hit, new SkillData() { ListenerBuffs = new() { buff }, ExceBuff = buff });
+        //OccurrenceSystem.GetOccurrence(OccurrenceName.test1);
+        //OutOfBattleUIManager.Instance.OpenOccurrenceCanvas("1_2");
         //BattleGameEventManager.SendSkillData
-        await GameEventSystem.BattleStart();
+        //await GameEventSystem.BattleStart();
     }
-    
+
     //public void SavePlayerPos(Transform transform)
     //{
     //    gameData.PlayerPos = transform.position.ToTuple();
@@ -80,11 +88,11 @@ public class GameManager :InstanceBehaviour<GameManager>
         //开启局内ui
         BattleUIManager.ShowUI();
         //开启战场角色
-        InBattleManager.Instance.battleParent.gameObject.SetActive(true);
+        InBattleSystem.Instance.battleParent.gameObject.SetActive(true);
         //设置摄像机模式
         CameraManager.Instance.CurrentCameraMode = CameraMode.CameraTrack;
         //初始化对局信息
-        _ = InBattleManager.Instance.Init(playerNames, enemyDatas.enemyDatas);
+        _ = InBattleSystem.Instance.Init(playerNames, enemyDatas.enemyDatas);
         //初始化对局
     }
 

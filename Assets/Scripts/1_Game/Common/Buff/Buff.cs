@@ -19,8 +19,8 @@ public class Buff
     //执行顺序权重，越大的越后
     public float weight;
     //奇物的配表数据
-    BuffData Data {  get; set; }
-    public Dictionary<string, object> Flags;
+    BuffData Data { get; set; }
+    public Dictionary<string, object> Flags { get; set; } = new();
     // 生命周期事件
     public Buff()
     {
@@ -35,14 +35,27 @@ public class Buff
     Dictionary<(BuffTriggerType, BuffEventType), Delegate> BufferEvents = new();
     public Func<T, Task> GetEvent<T>(BuffTriggerType triggerType, BuffEventType eventType)
     {
-        return (Func<T, Task>)(BufferEvents.ContainsKey((triggerType, eventType)) ? BufferEvents[(triggerType, eventType)] : null);
+        var targetEvent = (BufferEvents.ContainsKey((triggerType, eventType)) ? BufferEvents[(triggerType, eventType)] : null);
+        // 添加类型检查
+        if (targetEvent != null)
+        {
+            if (targetEvent is Func<T, Task>)
+            {
+                return (Func<T, Task>)targetEvent;
+            }
+            else
+            {
+                Log.Show($"事件 {triggerType} - {eventType}.的数据包类型出错 ，当前为 {typeof(T)}, 期望为 {targetEvent?.GetType()}", 2);
+            }
+        }
+        return null;
     }
     public Buff RegisterTag(params BuffTag[] tags)
     {
         this.tags = tags.ToList();
         return this;
     }
-    public Buff RegisterBless( ElementType element, int rank, string buffName, string buffAbility)
+    public Buff RegisterBless(ElementType element, int rank, string buffName, string buffAbility)
     {
         this.element = element;
         this.rank = rank;
@@ -70,6 +83,7 @@ public class Buff
         BufferEvents[(triggerType, eventType)] = handler;
         return this;
     }
+
     public bool HasEvent(BuffTriggerType triggerType, BuffEventType eventType)
     {
         return BufferEvents.ContainsKey((triggerType, eventType));
@@ -79,11 +93,12 @@ public class Buff
         var buffEvent = GetEvent<T>(triggerType, eventType);
         if (buffEvent == null)
         {
-            //Debug.LogError($"当前buff不存在{triggerType}—{eventType}事件");
+            Log.Show($"当前buff不存在{triggerType}—{eventType}事件", 1);
         }
         else
         {
-            Debug.LogWarning($"当前buff成功触发{triggerType}—{eventType}事件");
+            Log.Show($"当前buff成功触发{triggerType}—{eventType}事件");
+            data.ThisBuff = this;
             await buffEvent?.Invoke(data);
         }
     }

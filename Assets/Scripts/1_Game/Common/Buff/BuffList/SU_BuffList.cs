@@ -115,6 +115,9 @@ public partial class SU_BuffList : BaseBuffList
                         await GameEventCore.TriggerEventAsync(BuffEventType.ItemGainEffect, eventData);
                     }
                 })
+                .RegisterEvent<InBattleEventData>( BuffTriggerType.On, BuffEventType.BattleStart, async eventData=>{
+                    Log.Show("回合开始事件");
+                })
                 .RegisterEvent<SkillData>( BuffTriggerType.On, BuffEventType.SendSkillData, async eventData=>
                 {
                     if (eventData.SkillTags.Contains(SkillTag.AreaOfEffect))

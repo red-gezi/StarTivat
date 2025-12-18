@@ -30,7 +30,7 @@ class Lisa : Character
         SkillIcon = basicSkillIcon,
         SkillPointChange = 1,
         SkillTags = { SkillTag.SingleTarget, SkillTag.BasicAttack },
-        DefaultTargets = InBattleManager.Instance.charaList.Where(chara => chara.IsEnemy).Take(1).ToList(),
+        DefaultTargets = InBattleSystem.Instance.charaList.Where(chara => chara.IsEnemy).Take(1).ToList(),
         TargetIsEnemy = true,
         Sender = this,
     };
@@ -39,7 +39,7 @@ class Lisa : Character
         SkillIcon = specialSkillIcon,
         SkillPointChange = -1,
         SkillTags = { SkillTag.AreaOfEffect, SkillTag.SpecialSkill },
-        DefaultTargets = InBattleManager.Instance.charaList.Where(chara => chara.IsEnemy).ToList(),
+        DefaultTargets = InBattleSystem.Instance.charaList.Where(chara => chara.IsEnemy).ToList(),
         TargetIsEnemy = true,
         Sender = this,
     };
@@ -49,7 +49,7 @@ class Lisa : Character
         BrustCharaIcon = largeCharaIcon,
         SkillPointChange = 0,
         SkillTags = { SkillTag.AreaOfEffect, SkillTag.Brust },
-        DefaultTargets = InBattleManager.Instance.charaList.Where(chara => chara.IsEnemy).Skip(2).Take(1).ToList(),
+        DefaultTargets = InBattleSystem.Instance.charaList.Where(chara => chara.IsEnemy).Skip(2).Take(1).ToList(),
         TargetIsEnemy = true,
         Sender = this,
     };

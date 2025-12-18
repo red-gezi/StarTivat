@@ -150,7 +150,7 @@ public class CharaUiManager : MonoBehaviour
     [Button("»¶ÓäÒÇÊ½")]
     public async void CreatTest(EffectType effectType)
     {
-        var targets = InBattleManager.Instance.EnemyList.Select(enemy => enemy.gameObject).ToList();
+        var targets = InBattleSystem.Instance.EnemyList.Select(enemy => enemy.gameObject).ToList();
         for (int i = 0; i < 10; i++)
         {
             int j = Random.Range(0, 5);
