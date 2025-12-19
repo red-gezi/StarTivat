@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Unity.Plastic.Newtonsoft.Json.Serialization;
 using UnityEngine;
 
-public class CameraManager : InstanceBehaviour<CameraManager>
+public class CameraSystem : InstanceBehaviour<CameraSystem>
 {
     //局外状态下摄像机的位置
     public Transform outBattleCameraPos;

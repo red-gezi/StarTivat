@@ -145,7 +145,7 @@ public class PlayerManager : MonoBehaviour
                 DoorCount = new() { 2, 3 },
             }
             .SetEnemyTag(RoomTag.EnemyCount3);
-            await RoomManager.EnterRoom(roomData);
+            await RoomSystem.EnterRoom(roomData);
         }
     }
     public async void OnMouseClickCanve()

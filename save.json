@@ -9,8 +9,8 @@
       "IsFinish": false,
       "CurrentSceneModel": 8,
       "CurrentRoomType": 0,
-      "CurrentRoomTag": 3,
-      "TargetDoorCount": 1,
+      "CurrentRoomTag": 0,
+      "TargetDoorCount": 3,
       "DoorTypeWeight": {
         "InitRoom": 0.0,
         "StartRoom": 0.0,
@@ -26,14 +26,58 @@
       },
       "RoomConfigDataFromDoor": [
         {
-          "CurrentRoomType": 3,
+          "CurrentRoomType": 8,
           "SelectableSceneModel": [
-            7,
-            0
+            8
           ],
           "SelectableEnemyTag": [
-            4,
+            0,
             3
+          ],
+          "SelectableSignTag": [],
+          "DoorCount": [
+            1
+          ],
+          "OccurrenceCount": [],
+          "MonstertCount": [],
+          "outOfBattleEnemyDatas": [],
+          "ChestCount": [],
+          "SceneObjectCount": [],
+          "NPC": []
+        },
+        {
+          "CurrentRoomType": 7,
+          "SelectableSceneModel": [
+            8,
+            1
+          ],
+          "SelectableEnemyTag": [
+            0,
+            2
+          ],
+          "SelectableSignTag": [],
+          "DoorCount": [
+            1
+          ],
+          "OccurrenceCount": [],
+          "MonstertCount": [],
+          "outOfBattleEnemyDatas": [],
+          "ChestCount": [],
+          "SceneObjectCount": [],
+          "NPC": []
+        },
+        {
+          "CurrentRoomType": 6,
+          "SelectableSceneModel": [
+            7,
+            0,
+            1
+          ],
+          "SelectableEnemyTag": [
+            0,
+            2,
+            3,
+            7
           ],
           "SelectableSignTag": [],
           "DoorCount": [
@@ -41,7 +85,9 @@
             3
           ],
           "OccurrenceCount": [],
-          "MonstertCount": [],
+          "MonstertCount": [
+            1
+          ],
           "outOfBattleEnemyDatas": [],
           "ChestCount": [],
           "SceneObjectCount": [],

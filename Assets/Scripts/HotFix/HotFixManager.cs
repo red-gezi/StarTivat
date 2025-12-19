@@ -164,11 +164,11 @@ namespace Hotfix
             Debug.LogWarning("开始初始化AB包");
             AssetBundle.UnloadAllAssetBundles(true);
             loadText.text = "资源包校验完毕，少女加载中~~~~~";
-            await AssetBundleManager.Init(ServerTag,true);
+            await AssetBundleSystem.Init(ServerTag,true);
             //显示AB包加载进度
             while (true)
             {
-                (int currentLoadABCouat, int totalLoadABCouat) process = AssetBundleManager.GetLoadProcess();
+                (int currentLoadABCouat, int totalLoadABCouat) process = AssetBundleSystem.GetLoadProcess();
                 slider.value = process.currentLoadABCouat * 1.0f / process.totalLoadABCouat;
                 processText.text = $"{process.currentLoadABCouat}/{process.totalLoadABCouat}";
                 if (process.currentLoadABCouat == process.totalLoadABCouat)

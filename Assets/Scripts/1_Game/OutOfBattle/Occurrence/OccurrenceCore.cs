@@ -9,7 +9,7 @@ public class OccurrenceCore
     private static Dictionary<Type, List<Occurrence>> AllOccurrenceList { get; set; } = new();
     public static void AddOccurrenceList(Type occurrenceName, List<Occurrence> occurrenceList)
     {
-        AllOccurrenceList.Add(occurrenceName, occurrenceList.Clone());
+        AllOccurrenceList.Add(occurrenceName, occurrenceList);
     }
     //查询
     public static Occurrence GetOccurrence<T>(T occurrenceName) where T : Enum

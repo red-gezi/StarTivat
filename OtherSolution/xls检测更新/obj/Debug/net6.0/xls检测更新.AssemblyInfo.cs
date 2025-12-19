@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("xls检测更新")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+23ba13f629aa147d2e999a65bf3019dc9ae5d63b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0f9988ac8be54785d6ee10e30433b7b5cfbae8f8")]
 [assembly: System.Reflection.AssemblyProductAttribute("xls检测更新")]
 [assembly: System.Reflection.AssemblyTitleAttribute("xls检测更新")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

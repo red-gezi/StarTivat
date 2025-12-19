@@ -31,7 +31,7 @@ public class DoorManager : MonoBehaviour
             _ => Color.gray
         };
         //设置图标
-        GetComponent<Renderer>().material.SetTexture("_Icon", RoomManager.GetRoomIcon(RoomConfigData.CurrentRoomType));
+        GetComponent<Renderer>().material.SetTexture("_Icon", RoomSystem.GetRoomIcon(RoomConfigData.CurrentRoomType));
         //设置文字
         transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().text = RoomConfigData.CurrentRoomType switch
         {
@@ -52,6 +52,6 @@ public class DoorManager : MonoBehaviour
     }
     public async void GoToNextRoom()
     {
-        await RoomManager.EnterRoom(CurrentRoomConfigData);
+        await RoomSystem.EnterRoom(CurrentRoomConfigData);
     }
 }

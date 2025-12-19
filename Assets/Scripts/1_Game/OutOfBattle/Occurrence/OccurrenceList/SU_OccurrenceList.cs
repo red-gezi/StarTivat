@@ -5,7 +5,7 @@ public class SU_OccurrenceList : BaseOccurrenceList
     public new static List<Occurrence> Occurrences { get; set; } = new();
     public static void Init()
     {
-        Occurrences  = new()
+        Occurrences = new()
         {
             new Occurrence()
                 .RegisterName(OccurrenceName.test1)
@@ -15,6 +15,7 @@ public class SU_OccurrenceList : BaseOccurrenceList
                 {
                     //解锁某成就
                     await Task.Delay(1000);
+                    Log.Show("触发了S1效果");
                 })
         };
     }

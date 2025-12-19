@@ -43,8 +43,10 @@ namespace Hotfix
         [MenuItem("StarTivat/Tools/打开事件剧情生成器", false, 50)]
         static void OpenDialogueTool() => System.Diagnostics.Process.Start(@"OtherSolution\剧情数据生成\bin\Debug\net6.0-windows\剧情数据生成.exe");
         [MenuItem("StarTivat/Tools/打开事件数据表格", false, 51)]
-        static void OpenXls() => System.Diagnostics.Process.Start(@"Assets\GameResources\GameData\Occurrence.xlsx");
-        [MenuItem("StarTivat/Tools/打开表格数据实时同步工具", false, 52)]
+        static void OpenOccurrenceXls() => System.Diagnostics.Process.Start(@"Assets\GameResources\GameData\Occurrence.xlsx");
+        [MenuItem("StarTivat/Tools/打开事件数据导出json", false, 52)]
+        static void OpenOccurrenceJson() => System.Diagnostics.Process.Start(@"Assets\GameResources\GameData\Occurrence.json");
+        [MenuItem("StarTivat/Tools/打开表格数据实时同步工具", false, 55)]
         static void UpdateXls() => System.Diagnostics.Process.Start(@"OtherSolution\xls检测更新\bin\Debug\net6.0\xls检测更新.exe");
         /////////////////////////////////////////////////////////////////场景///////////////////////////////////////////////////////////////////////////////////////////
         [MenuItem("StarTivat/Scene/载入热更场景", priority = 150)]

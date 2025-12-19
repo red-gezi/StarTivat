@@ -6,7 +6,7 @@ using UnityEngine;
 
 
 
-public class AssetBundleManager
+public class AssetBundleSystem
 {
     static int totalLoadABCouat = 1;
     static int currentLoadABCouat = 0;

@@ -2,7 +2,7 @@ using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-public class RoomPointManager : InstanceBehaviour<RoomPointManager>
+public class RoomPointSystem : InstanceBehaviour<RoomPointSystem>
 {
     public Transform roompoints;
     //按标签获得一组点位

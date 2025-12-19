@@ -6,15 +6,16 @@ using UnityEngine;
 
 public class GameFlowSystem : InstanceBehaviour<GameFlowSystem>
 {
-    //定位点模型
-    public GameObject pointPrefab;
+    [Title("是否从AB包加载数据")]
+    public bool loadConfigDataFromAB;
+
     private void Awake() => Instance = this;
     private void Start() => Init();
 
     public async void Init()
     {
         //初始化热更资源包，测试阶段只加载少量包
-        await AssetBundleManager.Init("", false, new List<string>() { "charaicon.gezi" });
+        await AssetBundleSystem.Init("", false, new List<string>() { "charaicon.gezi" });
         Debug.Log("游戏开始");
         //初始化buff数据
         BuffSystem.Init();
@@ -28,27 +29,27 @@ public class GameFlowSystem : InstanceBehaviour<GameFlowSystem>
         //GameDataSystem.Save();
         //初始化buff数据
         //初始化角色池子与队伍信息
-        TeamManager.InitCharaList();
+        TeamSystem.InitCharaList();
 
         //OutBattleUIManager.Instance.InitCharaSelectCanves( OutBattleUIManager.CharaSelectCanvasMode.TeamCreat);
         //进入当前房间
-        RoomManager.RefreshRoom();
+        RoomSystem.RefreshRoomModel();
 
         //初始化ui数据
         OutOfBattleUIManager.Instance.Init();
         SwitchOutOfBattleMode();
         //测试获得事件数据
-        var buff = BuffSystem.GetBuff(Chara_BuffName.人物天赋1);
-        await GameEventSystem.Test(BuffEventType.BattleStart, new InBattleEventData() { ListenerBuffs = new() { buff }, ExceBuff = buff });
-        await GameEventSystem.Test(BuffEventType.Hit, new SkillData() { ListenerBuffs = new() { buff }, ExceBuff =  buff  });
-        await GameEventSystem.Test(BuffEventType.Hit, new SkillData() { ListenerBuffs = new() { buff }, ExceBuff =  buff  });
-        buff = BuffSystem.GetBuff(Chara_BuffName.人物天赋1);
-        await GameEventSystem.Test(BuffEventType.BattleStart, new InBattleEventData() { ListenerBuffs = new() { buff }, ExceBuff = buff });
-        await GameEventSystem.Test(BuffEventType.Hit, new SkillData() { ListenerBuffs = new() { buff }, ExceBuff = buff });
-        await GameEventSystem.Test(BuffEventType.Hit, new SkillData() { ListenerBuffs = new() { buff }, ExceBuff = buff });
-        await GameEventSystem.Test(BuffEventType.Hit, new SkillData() { ListenerBuffs = new() { buff }, ExceBuff = buff });
+        //var buff = BuffSystem.GetBuff(Chara_BuffName.人物天赋1);
+        //await GameEventSystem.Test(BuffEventType.BattleStart, new InBattleEventData() { ListenerBuffs = new() { buff }, ExceBuff = buff });
+        //await GameEventSystem.Test(BuffEventType.Hit, new SkillData() { ListenerBuffs = new() { buff }, ExceBuff =  buff  });
+        //await GameEventSystem.Test(BuffEventType.Hit, new SkillData() { ListenerBuffs = new() { buff }, ExceBuff =  buff  });
+        //buff = BuffSystem.GetBuff(Chara_BuffName.人物天赋1);
+        //await GameEventSystem.Test(BuffEventType.BattleStart, new InBattleEventData() { ListenerBuffs = new() { buff }, ExceBuff = buff });
+        //await GameEventSystem.Test(BuffEventType.Hit, new SkillData() { ListenerBuffs = new() { buff }, ExceBuff = buff });
+        //await GameEventSystem.Test(BuffEventType.Hit, new SkillData() { ListenerBuffs = new() { buff }, ExceBuff = buff });
+        //await GameEventSystem.Test(BuffEventType.Hit, new SkillData() { ListenerBuffs = new() { buff }, ExceBuff = buff });
         //OccurrenceSystem.GetOccurrence(OccurrenceName.test1);
-        //OutOfBattleUIManager.Instance.OpenOccurrenceCanvas("1_2");
+        OutOfBattleUIManager.Instance.OpenOccurrenceCanvas("1_2");
         //BattleGameEventManager.SendSkillData
         //await GameEventSystem.BattleStart();
     }
@@ -68,9 +69,9 @@ public class GameFlowSystem : InstanceBehaviour<GameFlowSystem>
         //显示局外角色，设置模式
         OutOfBattleManager.Instance.playerController.SetActive(true);
         //角色返回房间
-        RoomManager.ReturnRoom();
+        RoomSystem.ReturnRoom();
         //设置摄像机模式
-        CameraManager.Instance.CurrentCameraMode = CameraMode.Free;
+        CameraSystem.Instance.CurrentCameraMode = CameraMode.Free;
         //初始化房间
 
         //规则化角色视角
@@ -90,7 +91,7 @@ public class GameFlowSystem : InstanceBehaviour<GameFlowSystem>
         //开启战场角色
         InBattleSystem.Instance.battleParent.gameObject.SetActive(true);
         //设置摄像机模式
-        CameraManager.Instance.CurrentCameraMode = CameraMode.CameraTrack;
+        CameraSystem.Instance.CurrentCameraMode = CameraMode.CameraTrack;
         //初始化对局信息
         _ = InBattleSystem.Instance.Init(playerNames, enemyDatas.enemyDatas);
         //初始化对局

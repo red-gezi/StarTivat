@@ -74,7 +74,7 @@ namespace xls检测更新
                     currentDialogModel.ImageName = imageName;
                     currentDialogModel.SideColor = sideColor;
                     currentDialogModel.Name[workbookName] = name;
-                    currentDialogModel.dialogue[workbookName] = dialogueContent;
+                    currentDialogModel.Dialogue[workbookName] = dialogueContent;
                     dialogModels.Add(currentDialogModel);
                 }
             }
@@ -89,7 +89,7 @@ namespace xls检测更新
             public string ImageName { get; set; }
             public string SideColor { get; set; }
             public Dictionary<string, string> Name { get; set; } = new();
-            public Dictionary<string, string> dialogue { get; set; } = new();
+            public Dictionary<string, string> Dialogue { get; set; } = new();
         }
     }
 

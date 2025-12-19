@@ -103,7 +103,7 @@ class CameraTrackManager : MonoBehaviour
         {
             Log.Show("检索不到对应轨迹", 2);
         }
-        CameraManager.AddCameraTrack(trgetTrack, ModelConfigManager.Instance.triggerModel, ModelConfigManager.Instance.targetModel);
+        CameraSystem.AddCameraTrack(trgetTrack, ModelConfigManager.Instance.triggerModel, ModelConfigManager.Instance.targetModel);
     }
 
 #endif

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public partial class RoomManager : InstanceBehaviour<RoomManager>
+public partial class RoomSystem : InstanceBehaviour<RoomSystem>
 {
     public List<Sprite> roomIcons;
     public static Texture2D GetRoomIcon(RoomType roomType)
@@ -155,7 +155,7 @@ public partial class RoomManager : InstanceBehaviour<RoomManager>
         int layer = GameDataSystem.GetGameData().CurrentLayer;
         Log.Show($"进入第{layer}层房间", 0);
         await GameEventSystem.EnterRoom(new RoomData(layer, roomConfigData));
-        RefreshRoom();
+        RefreshRoomModel();
     }
     public static RoomData ReConfigRoomData(RoomData roomData)
     {
@@ -167,7 +167,7 @@ public partial class RoomManager : InstanceBehaviour<RoomManager>
         /////////////////////////////////////////////////////根据房间参数构造怪物数据/////////////////////////////////////////////////////
         //根据敌人数量标签随机敌人数量
         //roomData.CurrentRoomTag
-        /////////////////////////////////////////////////////根据房间参数构造传送门/////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////根据房间参数构造传送门数据/////////////////////////////////////////////////////
 
         roomData.TargetDoorCount = UnityEngine.Random.Range(1, 4);
         //若传送门数据不存在,则根据配置文件生成
@@ -204,7 +204,7 @@ public partial class RoomManager : InstanceBehaviour<RoomManager>
         //throw new NotImplementedException();
     }
     //根据房间信息刷新场地模型
-    public static void RefreshRoom()
+    public static void RefreshRoomModel()
     {
         //清空之前的配置
 
@@ -217,9 +217,9 @@ public partial class RoomManager : InstanceBehaviour<RoomManager>
         var EnemyPoints = currentRoom.Enemies.Count() switch
         {
             0 => new List<Transform>(),
-            1 => RoomPointManager.Instance.GetPoints(RoomPointsType.EnemyPoint1),
-            2 => RoomPointManager.Instance.GetPoints(RoomPointsType.EnemyPoint2),
-            3 => RoomPointManager.Instance.GetPoints(RoomPointsType.EnemyPoint3),
+            1 => RoomPointSystem.Instance.GetPoints(RoomPointsType.EnemyPoint1),
+            2 => RoomPointSystem.Instance.GetPoints(RoomPointsType.EnemyPoint2),
+            3 => RoomPointSystem.Instance.GetPoints(RoomPointsType.EnemyPoint3),
             _ => null
         };
         if (EnemyPoints == null)
@@ -235,7 +235,7 @@ public partial class RoomManager : InstanceBehaviour<RoomManager>
                 OutOfBattleManager.Instance.CreatEnemy(currentRoom.Enemies[i]);
             }
         }
-
+        //生成事件
 
         //生成传送门(开启指定数量的门,并对门初始化)
         switch (currentRoom.RoomConfigDataFromDoor.Count)
@@ -277,7 +277,7 @@ public partial class RoomManager : InstanceBehaviour<RoomManager>
             default: Debug.LogError($"传送门数量错误,当前数量{currentRoom.RoomConfigDataFromDoor.Count},请纠正"); break;
         }
         //初始化角色位置
-        Transform BirthPoint = RoomPointManager.Instance.GetPoints(RoomPointsType.BirthPoint).FirstOrDefault();
+        Transform BirthPoint = RoomPointSystem.Instance.GetPoints(RoomPointsType.BirthPoint).FirstOrDefault();
         PlayerManager.Instance.transform.position = BirthPoint.position;
         PlayerManager.Instance.transform.eulerAngles = BirthPoint.eulerAngles;
         //触发镜头初始化效果

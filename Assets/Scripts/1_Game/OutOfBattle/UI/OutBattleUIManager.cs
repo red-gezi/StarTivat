@@ -348,7 +348,7 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
                                                                             .Where(chara => chara != null)
                                                                             .Select(chara => chara.CharaNameType)
                                                                             .ToList();
-                    TeamManager.SetTeamAppearanceList(charaNameList);
+                    TeamSystem.SetTeamAppearanceList(charaNameList);
                     CloseCharaSelectCanvas();
                 });
                 break;
@@ -362,7 +362,7 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
                                                                             .Where(chara => chara != null)
                                                                             .Select(chara => chara.CharaNameType)
                                                                             .ToList();
-                    TeamManager.SetTeamAppearanceList(charaNameList);
+                    TeamSystem.SetTeamAppearanceList(charaNameList);
                     CloseCharaSelectCanvas();
                 });
                 break;
@@ -392,9 +392,9 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
         currentCharaSelectInitMode = charaPoolInitMode;
         targetCharaDatas = currentCharaSelectInitMode switch
         {
-            CharaSelectCanvasMode.TeamCreat => TeamManager.AllCharaData,
+            CharaSelectCanvasMode.TeamCreat => TeamSystem.AllCharaData,
             CharaSelectCanvasMode.TeamSwap => GameDataSystem.GetGameData().TeamCharaPool,
-            CharaSelectCanvasMode.CharacterDownload => TeamManager.AllCharaData.Where(chara => !GameDataSystem.GetGameData().TeamCharaPool.Select(teamChara => teamChara.CharaNameType).ToList().Contains(chara.CharaNameType)).ToList(),
+            CharaSelectCanvasMode.CharacterDownload => TeamSystem.AllCharaData.Where(chara => !GameDataSystem.GetGameData().TeamCharaPool.Select(teamChara => teamChara.CharaNameType).ToList().Contains(chara.CharaNameType)).ToList(),
             CharaSelectCanvasMode.CharacterRevive => GameDataSystem.GetGameData().TeamCharaPool.Where(chara => chara.IsDead).ToList(),
             _ => throw new NotImplementedException(),
         };
@@ -415,7 +415,7 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
             Transform item = TeamPoolContent.GetChild(i);
             item.gameObject.SetActive(true);
             item.GetComponent<Button>().onClick.RemoveAllListeners();
-            item.Find("Mask").Find("Icon").GetComponent<Image>().sprite = AssetBundleManager.Load<Sprite>("CharaIcon", targetCharaDatas[i].CharaNameType.ToString());
+            item.Find("Mask").Find("Icon").GetComponent<Image>().sprite = AssetBundleSystem.Load<Sprite>("CharaIcon", targetCharaDatas[i].CharaNameType.ToString());
             item.Find("Name").GetComponent<Text>().text = targetCharaDatas[i].ShowCharaName["ch"];
             // 设置选中框
             int index = Array.FindIndex(GameDataSystem.GetGameData().TempTeamAppearanceList,
@@ -487,9 +487,9 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
         RefreshTempTeamAppearanceList();
         //刷新属性配置ui
     }
-    public void AddCharaIntoTeamPool(PlayerName charaName) => TeamManager.AddCharaIntoTeamPool(charaName);
-    public void AddCharaIntoTempTeamAppearanceList(PlayerName charaName) => TeamManager.AddCharaIntoTempTeamAppearanceList(charaName);
-    public void SetDownloadChara(PlayerName charaName) => TeamManager.SetDownloadChara(charaName);
+    public void AddCharaIntoTeamPool(PlayerName charaName) => TeamSystem.AddCharaIntoTeamPool(charaName);
+    public void AddCharaIntoTempTeamAppearanceList(PlayerName charaName) => TeamSystem.AddCharaIntoTempTeamAppearanceList(charaName);
+    public void SetDownloadChara(PlayerName charaName) => TeamSystem.SetDownloadChara(charaName);
 
     [Button("刷新角色池列表ui")]
     public void RefreshCharaList()
@@ -537,7 +537,7 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
             int rank = i;
             if (charaData != null)
             {
-                icon.GetComponent<Image>().sprite = AssetBundleManager.Load<Sprite>("CharaIcon", charaData.CharaNameType.ToString());
+                icon.GetComponent<Image>().sprite = AssetBundleSystem.Load<Sprite>("CharaIcon", charaData.CharaNameType.ToString());
                 item.GetComponent<Button>().onClick.AddListener(() =>
                 {
                     var charaData = GameDataSystem.GetGameData().TempTeamAppearanceList[rank];
@@ -551,17 +551,17 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
 
     private void RemoveCharaFromTempTeamAppearanceList(PlayerName charaName)
     {
-        TeamManager.RemoveCharaFromTempTeamAppearanceList(charaName);
+        TeamSystem.RemoveCharaFromTempTeamAppearanceList(charaName);
     }
-    public void RemoveAllFromTeamPool() => TeamManager.RemoveAllFromTeamPool();
+    public void RemoveAllFromTeamPool() => TeamSystem.RemoveAllFromTeamPool();
     // public void RemoveCharaFromTeamPool(CharaName charaName) => TeamManager.RemoveCharaFromTeamPool(charaName);
 
     [Button("队伍池移除人物")]
-    public void RemoveCharaFromTeamPool(PlayerName charaName) => TeamManager.RemoveCharaFromTeamPool(charaName);
-    public void RemoveFromTeamAppearanceList(PlayerName charaName) => TeamManager.RemoveCharaFromTeamAppearanceList(charaName);
-    public void RemoveAllFromTeamAppearanceList() => TeamManager.RemoveAllFromTeamAppearanceList();
+    public void RemoveCharaFromTeamPool(PlayerName charaName) => TeamSystem.RemoveCharaFromTeamPool(charaName);
+    public void RemoveFromTeamAppearanceList(PlayerName charaName) => TeamSystem.RemoveCharaFromTeamAppearanceList(charaName);
+    public void RemoveAllFromTeamAppearanceList() => TeamSystem.RemoveAllFromTeamAppearanceList();
 
-    public void RemoveDownloadChara() => TeamManager.RemoveDownloadChara();
+    public void RemoveDownloadChara() => TeamSystem.RemoveDownloadChara();
 
     public void SetCurrentChara(CharaData chara)
     {
@@ -578,9 +578,9 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
     #region 出战人物
     public Transform TeamAvatarContent;
     [Button("设置出战人物")]
-    public void SetTeamAppearanceList(List<PlayerName> charaNameList) => TeamManager.SetTeamAppearanceList(charaNameList);
+    public void SetTeamAppearanceList(List<PlayerName> charaNameList) => TeamSystem.SetTeamAppearanceList(charaNameList);
     [Button("队伍切换人物")]
-    public void SwitchChara(int index) => TeamManager.SwitchChara(index);
+    public void SwitchChara(int index) => TeamSystem.SwitchChara(index);
     [Button("刷新出战人物ui")]
     public void RefreshTeamAppearanceList()
     {
@@ -595,7 +595,7 @@ public class OutOfBattleUIManager : InstanceBehaviour<OutOfBattleUIManager>
             }
             //TeamAvatarContent.GetChild(i).Find("Hp").GetComponent<Text>().text = datas[i].ShowCharaName["ch"];
             item.Find("Name").GetComponent<Text>().text = datas[i].ShowCharaName["ch"];
-            item.Find("Mask").GetChild(0).GetComponent<Image>().sprite = AssetBundleManager.Load<Sprite>("CharaIcon", datas[i].CharaNameType.ToString());
+            item.Find("Mask").GetChild(0).GetComponent<Image>().sprite = AssetBundleSystem.Load<Sprite>("CharaIcon", datas[i].CharaNameType.ToString());
             item.Find("Number").GetChild(0).GetComponent<Text>().text = i.ToString();
             ;
             item.Find("bg_w").gameObject.SetActive(i + 1 == GameDataSystem.GetTeamAppearanceIndex());

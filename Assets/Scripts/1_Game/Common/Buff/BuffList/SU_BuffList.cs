@@ -26,14 +26,14 @@ public partial class SU_BuffList : BaseBuffList
                         case 3:
                         {
                             eventData.TargetDoorCount=1;
-                            eventData.RoomConfigDataFromDoor.Add(RoomManager.GetRoomConfig( RoomType.EliteRoom));
+                            eventData.RoomConfigDataFromDoor.Add(RoomSystem.GetRoomConfig( RoomType.EliteRoom));
                             break;
                         }
                         //Boss房前
                         case 7:
                         {
                             eventData.TargetDoorCount=1;
-                            eventData.RoomConfigDataFromDoor.Add(RoomManager.GetRoomConfig( RoomType.EliteRoom));
+                            eventData.RoomConfigDataFromDoor.Add(RoomSystem.GetRoomConfig( RoomType.EliteRoom));
                             break;
                         }
                         //最终准备房前
@@ -46,7 +46,7 @@ public partial class SU_BuffList : BaseBuffList
                         {
 
                             eventData.TargetDoorCount=1;
-                            eventData.RoomConfigDataFromDoor.Add(RoomManager.GetRoomConfig( RoomType.BossRoom));
+                            eventData.RoomConfigDataFromDoor.Add(RoomSystem.GetRoomConfig( RoomType.BossRoom));
                             break;
                         }
                         //Boss房
@@ -54,16 +54,16 @@ public partial class SU_BuffList : BaseBuffList
                         {
                             eventData.TargetDoorCount=1;
                             eventData.Enemies=new List<OutOfBattleEnemyDatas>(){ };
-                            eventData.RoomConfigDataFromDoor.Add(RoomManager.GetRoomConfig( RoomType.InitRoom));
+                            eventData.RoomConfigDataFromDoor.Add(RoomSystem.GetRoomConfig( RoomType.InitRoom));
                             break;
                         }
                     }
                     //测试
                     //eventData.TargetDoorCount=2;
                     //根据最终修正后的房间配置部分数据初始化整个房间的数据
-                    eventData=  RoomManager.ReConfigRoomData(eventData);
+                    eventData=  RoomSystem.ReConfigRoomData(eventData);
                     //添加房间到存档
-                    RoomManager.AddRoom(eventData);
+                    RoomSystem.AddRoom(eventData);
 
 
                 })

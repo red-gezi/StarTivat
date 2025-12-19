@@ -123,9 +123,9 @@ public abstract  class Character : MonoBehaviour
     public abstract Task BrustAction();
     public virtual async Task StrengthenAttackAction() { await Task.CompletedTask; }
     public virtual async Task StrengthenSkillAction() { await Task.CompletedTask; }
-    public virtual PlayerAbilityManager PlayerAbilitys { get; set; } = new();
+    public virtual PlayerAbilitySystem PlayerAbilitys { get; set; } = new();
 
-    public virtual EnemyAbilityManager EnemyAbilitys { get; set; } = new();
+    public virtual EnemyAbilitySystem EnemyAbilitys { get; set; } = new();
 
     //////////////////////////////////////////////////角色流程////////////////////////////////////////////////////////////////////////////
     //角色状态切换

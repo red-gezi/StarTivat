@@ -6,15 +6,23 @@ using UnityEngine;
 public class Occurrence
 {
     public int ID { get; set; }
-    public List<OccurrenceTag> occurrenceTags = new();
-    public List<Task> occurrenceTask = new();
-    public float weight = 1;
-    public bool isLock = false;
+    public List<OccurrenceTag> OccurrenceTags { get; set; } = new();
+    public Dictionary<string, Func<Task>> OccurrenceTask { get; set; } = new();
+    public float Weight { get; set; } = 1;
+    public bool IsLock { get; set; } = false;
     public OccurrenceData Data { get; set; }
-    public Sprite cardFace = null;
     public Dictionary<string, int> Flags;
+    private Sprite image;
     public Occurrence()
     {
+    }
+    public Sprite GetOccurrenceImage()
+    {
+        if (Data == null)
+        {
+            return null;
+        }
+        return image ??= AssetBundleSystem.Load<Sprite>("OccurrenceImage", Data.ImageName);
     }
     public Occurrence RegisterName<T>(T occurrenceName) where T : Enum
     {
@@ -23,13 +31,13 @@ public class Occurrence
     }
     public Occurrence RegisterTag(params OccurrenceTag[] tags)
     {
-        occurrenceTags = tags.ToList();
+        OccurrenceTags = tags.ToList();
         return this;
     }
     //注册生效条件
     public Occurrence RegisterFilter(Func<Occurrence, bool> a)
     {
-        RegisterFilter(x => x.isLock);
+        RegisterFilter(x => x.IsLock);
         //occurrenceTask = a;
         return this;
     }
@@ -40,25 +48,34 @@ public class Occurrence
     ////}
     public Occurrence RegisterWeight(float weight)
     {
-        this.weight = weight;
+        this.Weight = weight;
         return this;
     }
     //添加选项后的行为
-    public Occurrence RegisterOption(string flag, Task task)
-    {
-        occurrenceTask.Add(task);
-        return this;
-    }
+    //public Occurrence RegisterOption(string flag, Task task)
+    //{
+    //    OccurrenceTask.Add(task);
+    //    return this;
+    //}
     //从数据表格获得数据
     public Occurrence RegisterData(string tag)
     {
         Data = OccurrenceSystem.GetData(tag);
-        //occurrenceTask.Add(task);
         return this;
     }
     public Occurrence RegisterAction(string tag, Func<Task> task)
     {
-        //occurrenceTask.Add(task);
+        OccurrenceTask[tag] = task;
+        return this;
+    }
+    public Occurrence SetLock()
+    {
+        IsLock = true;
+        return this;
+    }
+    public Occurrence SetUnLock()
+    {
+        IsLock = false;
         return this;
     }
 }

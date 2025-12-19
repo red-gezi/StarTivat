@@ -7,17 +7,17 @@ using UnityEngine;
 public class OccurrenceSystem
 {
     private static List<OccurrenceData> AllOccurrenceData { get; set; } = new();
-
     public static void Init()
     {
         //加载所有事件数据
-#if UNITY_EDITOR
-        //从本地加载
-        AllOccurrenceData = File.ReadAllText("E:\\UnityProject\\StarTivat\\Assets\\GameResources\\GameData\\Occurrence.json").ToObject<List<OccurrenceData>>();
-#else
-         //从AB包加载
-         AssetBundleManager.Load<TextAsset>("GameData", "Occurrence.json");
-#endif
+        if (GameFlowSystem.Instance.loadConfigDataFromAB)
+        {
+            AllOccurrenceData = AssetBundleSystem.Load<TextAsset>("GameData", "Occurrence.json").text.ToObject<List<OccurrenceData>>();
+        }
+        else
+        {
+            AllOccurrenceData = File.ReadAllText("E:\\UnityProject\\StarTivat\\Assets\\GameResources\\GameData\\Occurrence.json").ToObject<List<OccurrenceData>>();
+        }
         //从存档中判断有无游戏事件列表，有的话载入，没有的话初始化
         SU_OccurrenceList.Init();
         OccurrenceCore.AddOccurrenceList(typeof(OccurrenceName), SU_OccurrenceList.Occurrences);
@@ -50,8 +50,8 @@ public class OccurrenceSystem
         List<Occurrence> occurrences = GameDataSystem.GetGameData().CurrentOccurrenceList;
         // 1. 筛选出包含目标tag的项
         var filtered = occurrences
-            .Where(o => !o.isLock)
-            .Where(o => tags.Any(tag => o.occurrenceTags.Contains(tag)))
+            .Where(o => !o.IsLock)
+            .Where(o => tags.Any(tag => o.OccurrenceTags.Contains(tag)))
             .ToList();
 
         if (filtered.Count == 0 || count <= 0)
@@ -66,7 +66,7 @@ public class OccurrenceSystem
         }
 
         // 3. 计算总权重
-        float totalWeight = filtered.Sum(o => o.weight);
+        float totalWeight = filtered.Sum(o => o.Weight);
 
         // 4. 加权随机选择
         var result = new List<Occurrence>();
@@ -79,12 +79,12 @@ public class OccurrenceSystem
             float sum = 0;
             for (int j = 0; j < filtered.Count; j++)
             {
-                sum += filtered[j].weight;
+                sum += filtered[j].Weight;
                 if (r <= sum)
                 {
                     // 将选中的项加入结果并从候选列表中移除
                     result.Add(filtered[j]);
-                    totalWeight -= filtered[j].weight;
+                    totalWeight -= filtered[j].Weight;
                     filtered.RemoveAt(j);
                     break;
                 }

@@ -28,7 +28,7 @@ public class GameDataSystem
             CurrentGameData.CurrentOutBattleData = new();
             //此处应该根据存档数据设置基础流程
             SetBaseBuff<SU_BuffList>();
-            await RoomManager.RebackInitRoom();
+            await RoomSystem.RebackInitRoom();
             Save();
         }
         else

@@ -11,13 +11,15 @@ public class BuffSystem
     public static void Init()
     {
         //加载所有事件数据
-#if UNITY_EDITOR
-        //从本地加载
-        //AllBuffData = File.ReadAllText("E:\\UnityProject\\StarTivat\\Assets\\GameResources\\GameData\\Buff.json").ToObject<List<BuffData>>();
-#else
-         //从AB包加载
-         AssetBundleManager.Load<TextAsset>("GameData", "Occurrence.json");
-#endif
+        if (GameFlowSystem.Instance.loadConfigDataFromAB)
+        {
+            AllBuffData = AssetBundleSystem.Load<TextAsset>("GameData", "Buff.json").text.ToObject<List<BuffData>>();
+        }
+        else
+        {
+            AllBuffData = File.ReadAllText("E:\\UnityProject\\StarTivat\\Assets\\GameResources\\GameData\\Buff.json").ToObject<List<BuffData>>();
+        }
+        //加载所有事件数据
         SU_BuffList.Init();
         Chara_BuffList.Init();
         BuffCore.AddBuffList(typeof(SU_BuffName), SU_BuffList.Buffs);
