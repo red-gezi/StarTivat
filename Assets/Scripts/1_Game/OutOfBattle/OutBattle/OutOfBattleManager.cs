@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-public class OutOfBattleManager : InstanceBehaviour<OutOfBattleManager>
+public class OutOfBattleSystem : InstanceBehaviour<OutOfBattleSystem>
 {
     //局外模型所处的父物体
     public Transform outBattleParent;

@@ -3,6 +3,7 @@
 using Sirenix.Utilities;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 public class DialogueSystem
 {
@@ -159,17 +160,23 @@ public class DialogueSystem
     ///////////////////////////单步运行///////////////////////////////
     public static Node? currentNode;
     public static Node? currentBranchNode;
-    public static void Run(Node node)
+    public static bool isOver;
+    public static async Task RunAsync(Node node)
     {
+        isOver = false;
         currentNode = node;
         Step();
+        while (!isOver)
+        {
+            await Task.Yield(); // 最低开销，立即返回到下一帧
+        }
     }
     public static void Step()
     {
         if (currentNode == null)
         {
             //结尾非end但已无下个剧情节点
-            OutOfBattleUIManager.Instance.CloseOccurrenceCanvas();
+            isOver = true;
             return;
         }
         switch (currentNode.CurrentNodeType)
@@ -181,27 +188,27 @@ public class DialogueSystem
             case NodeType.Speaker:
                 //调用台词
                 Log.Show($"{currentNode.Speaker}:{currentNode.Text}");
-                OutOfBattleUIManager.Instance.AddOccurrenceChat(currentNode.Speaker, currentNode.Text);
+                OutOfBattleUISystem.Instance.AddOccurrenceChat(currentNode.Speaker, currentNode.Text);
                 currentNode = currentNode.GetNextNode();
                 break;
             case NodeType.Branch:
                 //调用选项
                 Log.Show($"展开选项面板，请选择:{currentNode.Text}");
-                OutOfBattleUIManager.Instance.CloseStepCanves();
-                OutOfBattleUIManager.Instance.OpenOccurrenceOptionContent();
+                OutOfBattleUISystem.Instance.CloseStepCanves();
+                OutOfBattleUISystem.Instance.OpenOccurrenceOptionContent();
                 currentNode.NextNodes
                     .Where(node => node.CurrentNodeType == NodeType.BranchTag)
-                    .ForEach(node => OutOfBattleUIManager.Instance.AddOccurrenceOption(node.Text));
+                    .ForEach(node => OutOfBattleUISystem.Instance.AddOccurrenceOption(node.Text));
                 break;
             case NodeType.Reward:
                 //调用选项
                 Log.Show($"展开奖励面板，请选择:{currentNode.Text}");
-                OutOfBattleUIManager.Instance.CloseStepCanves();
-                OutOfBattleUIManager.Instance.CloseOccurrenceChatContent();
-                OutOfBattleUIManager.Instance.OpenRewardContent();
+                OutOfBattleUISystem.Instance.CloseStepCanves();
+                OutOfBattleUISystem.Instance.CloseOccurrenceChatContent();
+                OutOfBattleUISystem.Instance.OpenRewardContent();
                 currentNode.NextNodes
                     .Where(node => node.CurrentNodeType == NodeType.BranchTag)
-                    .ForEach(node => OutOfBattleUIManager.Instance.AddReward(node.Text));
+                    .ForEach(node => OutOfBattleUISystem.Instance.AddReward(node.Text));
                 break;
             case NodeType.Action:
                 Log.Show($"执行行动{currentNode.Tag}");
@@ -219,14 +226,13 @@ public class DialogueSystem
                 break;
             case NodeType.End:
                 currentNode = null;
-                OutOfBattleUIManager.Instance.CloseOccurrenceCanvas();
+                Step();
                 break;
             case NodeType.BranchTag:
                 //OutOfBattleUIManager.Instance.AddOccurrenceChat(currentNode.Speaker, currentNode.Text);
                 currentNode = currentNode?.NextNodes.FirstOrDefault();
                 Step();
                 break;
-            
             default:
                 currentNode = currentNode.GetNextNode() ?? currentNode?.NextNodes.FirstOrDefault();
                 break;
@@ -236,10 +242,10 @@ public class DialogueSystem
     {
         currentNode = currentNode.NextNodes[index - 1];
         Log.Show($"玩家选择了 {currentNode.Tag}");
-        OutOfBattleUIManager.Instance.OpenStepCanves();
-        OutOfBattleUIManager.Instance.OpenOccurrenceChatContent();
-        OutOfBattleUIManager.Instance.CloseOccurrenceOptionContent();
-        OutOfBattleUIManager.Instance.CloseRewardContent();
+        OutOfBattleUISystem.Instance.OpenStepCanves();
+        OutOfBattleUISystem.Instance.OpenOccurrenceChatContent();
+        OutOfBattleUISystem.Instance.CloseOccurrenceOptionContent();
+        OutOfBattleUISystem.Instance.CloseRewardContent();
         Step();
     }
 }

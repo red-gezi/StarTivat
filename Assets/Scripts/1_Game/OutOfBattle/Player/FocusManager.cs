@@ -14,16 +14,16 @@ public class FocusManager : MonoBehaviour
     //刷新标识位置和状态
     private void Start()
     {
-        PlayerManager.Instance.focusTargetList.Add(this);
+        PlayerSystem.Instance.focusTargetList.Add(this);
         CloseFocusIcon();
     }
 
-    private void OnDestroy() => PlayerManager.Instance.focusTargetList.Remove(this);
+    private void OnDestroy() => PlayerSystem.Instance.focusTargetList.Remove(this);
     private void Update() => RefreshFocusWeight();
     private void RefreshFocusWeight()
     {
-        distance = Vector3.Distance(transform.position, PlayerManager.Instance.transform.position);
-        direDot = Vector3.Dot((transform.position - PlayerManager.Instance.transform.position).normalized, Camera.main.transform.forward);
+        distance = Vector3.Distance(transform.position, PlayerSystem.Instance.transform.position);
+        direDot = Vector3.Dot((transform.position - PlayerSystem.Instance.transform.position).normalized, Camera.main.transform.forward);
         if (distance > 10 || direDot < 0.5)
         {
             focusWeight = 0;

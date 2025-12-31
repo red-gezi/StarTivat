@@ -15,13 +15,13 @@ public class GameFlowSystem : InstanceBehaviour<GameFlowSystem>
     public async void Init()
     {
         //初始化热更资源包，测试阶段只加载少量包
-        await AssetBundleSystem.Init("", false, new List<string>() { "charaicon.gezi" });
+        await AssetBundleSystem.Init("", false, new List<string>() { "charaicon.gezi", "occurrence.gezi" });
         Debug.Log("游戏开始");
         //初始化buff数据
         BuffSystem.Init();
         //初始化事件数据
         OccurrenceSystem.Init();
-
+        //测试下激活
         //删除游戏存档(临时)
         GameDataSystem.Delete();
         //加载游戏存档
@@ -30,15 +30,14 @@ public class GameFlowSystem : InstanceBehaviour<GameFlowSystem>
         //初始化buff数据
         //初始化角色池子与队伍信息
         TeamSystem.InitCharaList();
-
-        //OutBattleUIManager.Instance.InitCharaSelectCanves( OutBattleUIManager.CharaSelectCanvasMode.TeamCreat);
-        //进入当前房间
-        RoomSystem.RefreshRoomModel();
-
         //初始化ui数据
-        OutOfBattleUIManager.Instance.Init();
+        OutOfBattleUISystem.Init();
         SwitchOutOfBattleMode();
-        //测试获得事件数据
+        //测试各种效果
+        var oc = OccurrenceSystem.GetOccurrence("1_1");
+        var b = oc.GetOccurrenceImage();
+        var oc2 = OccurrenceSystem.GetOccurrence("1_2");
+        var b2 = oc.GetOccurrenceImage();
         //var buff = BuffSystem.GetBuff(Chara_BuffName.人物天赋1);
         //await GameEventSystem.Test(BuffEventType.BattleStart, new InBattleEventData() { ListenerBuffs = new() { buff }, ExceBuff = buff });
         //await GameEventSystem.Test(BuffEventType.Hit, new SkillData() { ListenerBuffs = new() { buff }, ExceBuff =  buff  });
@@ -49,7 +48,7 @@ public class GameFlowSystem : InstanceBehaviour<GameFlowSystem>
         //await GameEventSystem.Test(BuffEventType.Hit, new SkillData() { ListenerBuffs = new() { buff }, ExceBuff = buff });
         //await GameEventSystem.Test(BuffEventType.Hit, new SkillData() { ListenerBuffs = new() { buff }, ExceBuff = buff });
         //OccurrenceSystem.GetOccurrence(OccurrenceName.test1);
-        OutOfBattleUIManager.Instance.OpenOccurrenceCanvas("1_2");
+        //OutOfBattleUISystem.Instance.OpenOccurrenceCanvas("1_2");
         //BattleGameEventManager.SendSkillData
         //await GameEventSystem.BattleStart();
     }
@@ -62,12 +61,12 @@ public class GameFlowSystem : InstanceBehaviour<GameFlowSystem>
     public void SwitchOutOfBattleMode()
     {
         //关闭局内ui
-        BattleUIManager.CloeUI();
+        BattleUISystem.CloeUI();
 
         //开启局外ui
-        OutOfBattleUIManager.ShowUI();
+        OutOfBattleUISystem.ShowUI();
         //显示局外角色，设置模式
-        OutOfBattleManager.Instance.playerController.SetActive(true);
+        OutOfBattleSystem.Instance.playerController.SetActive(true);
         //角色返回房间
         RoomSystem.ReturnRoom();
         //设置摄像机模式
@@ -75,19 +74,19 @@ public class GameFlowSystem : InstanceBehaviour<GameFlowSystem>
         //初始化房间
 
         //规则化角色视角
-        PlayerManager.Instance.ResetCameraView();
+        PlayerSystem.Instance.ResetCameraView();
     }
     public void SwitchInBattleMode(List<PlayerName> playerNames, OutOfBattleEnemyDatas enemyDatas)
     {
         //关闭局外ui
-        OutOfBattleUIManager.CloeUI();
+        OutOfBattleUISystem.CloeUI();
         //隐藏局外角色
-        OutOfBattleManager.Instance.playerController.SetActive(false);
+        OutOfBattleSystem.Instance.playerController.SetActive(false);
         //隐藏局外物体
-        OutOfBattleManager.Instance.outBattleParent.gameObject.SetActive(false);
+        OutOfBattleSystem.Instance.outBattleParent.gameObject.SetActive(false);
 
         //开启局内ui
-        BattleUIManager.ShowUI();
+        BattleUISystem.ShowUI();
         //开启战场角色
         InBattleSystem.Instance.battleParent.gameObject.SetActive(true);
         //设置摄像机模式

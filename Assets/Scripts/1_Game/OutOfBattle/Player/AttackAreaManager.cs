@@ -13,7 +13,7 @@ public class AttackAreaManager : MonoBehaviour
             Destroy(gameObject);
         }
         //角色被怪物攻击
-        PlayerManager player = other.GetComponent<PlayerManager>();
+        PlayerSystem player = other.GetComponent<PlayerSystem>();
         if (player != null)
         {
             Debug.Log("碰撞到角色");

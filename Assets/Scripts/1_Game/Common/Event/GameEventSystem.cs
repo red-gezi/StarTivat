@@ -25,7 +25,7 @@ public class GameEventSystem
     {
         Debug.Log("破坏物体");
         //roomData.BelongBuffList = GameDataSystem.GetGameData().CurrentBuffList;
-        roomData.ListenerBuffs = OutOfBattleManager.GetCurrentBuff();
+        roomData.ListenerBuffs = OutOfBattleSystem.GetCurrentBuff();
         roomData.ExceBuff = GameDataSystem.GetBaseBuff();
         await GameEventCore.TriggerEventAsync(BuffEventType.DestoryObject, roomData);
     }
@@ -38,7 +38,7 @@ public class GameEventSystem
             //BelongBuffList = buffList,
             //TargetBuffIndex = buffIndex,
             TargetItem = buffIndex.ToList(),
-            ListenerBuffs = OutOfBattleManager.GetCurrentBuff(),
+            ListenerBuffs = OutOfBattleSystem.GetCurrentBuff(),
             ExceBuff = GameDataSystem.GetBaseBuff(),
         };
         await GameEventCore.TriggerEventAsync(BuffEventType.ItemGain, data);
@@ -50,7 +50,7 @@ public class GameEventSystem
         {
             //BelongBuffList = buffList,
             TargetBuffIndex = new List<int>(num),
-            ListenerBuffs = OutOfBattleManager.GetCurrentBuff(),
+            ListenerBuffs = OutOfBattleSystem.GetCurrentBuff(),
             ExceBuff = GameDataSystem.GetBaseBuff(),
         };
         await GameEventCore.TriggerEventAsync(BuffEventType.ItemGain, data);
@@ -61,7 +61,7 @@ public class GameEventSystem
         var data = new OutBattleEventData()
         {
             TargetValue = num,
-            ListenerBuffs = OutOfBattleManager.GetCurrentBuff(),
+            ListenerBuffs = OutOfBattleSystem.GetCurrentBuff(),
             ExceBuff = GameDataSystem.GetBaseBuff(),
             TargetItem = new() { SU_BuffName.基础流程, SU_BuffName.获得金币翻倍, Chara_BuffName.人物天赋1 }
         };

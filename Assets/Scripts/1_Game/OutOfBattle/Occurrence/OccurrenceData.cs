@@ -2,6 +2,8 @@
 
 public class OccurrenceData
 {
+    
+
     public string Tag { get; set; }
     public string ImageName { get; set; }
     public string SideColor { get; set; }
@@ -9,4 +11,7 @@ public class OccurrenceData
     public Dictionary<string, string> Dialogue { get; set; } = new();
     public string ShowName => Name["Ch"];
     public string ShowDialogue => Dialogue["Ch"];
+    public OccurrenceData()
+    {
+    }
 }

@@ -40,6 +40,33 @@ namespace Hotfix
         //static void StartClient() => System.Diagnostics.Process.Start(@"Pc\TouHouMachineLearningSummary.exe");
         //[MenuItem("StarTivat/Tools/打开数据表格（云端）", false, 50)]
         //static void OpenCloudXls() => System.Diagnostics.Process.Start(@"https://kdocs.cn/l/cfS6F51QxqGd");
+        [MenuItem("StarTivat/Tools/移除无效脚本", false, 3)]
+        static void RemoveMissingScript()
+        {
+            GameObject selected = Selection.activeGameObject;
+            if (selected == null)
+            {
+                EditorUtility.DisplayDialog("Error", "Please select a GameObject", "OK");
+                return;
+            }
+
+            Transform[] allChildren = selected.GetComponentsInChildren<Transform>(true);
+            int totalRemoved = 0;
+
+            foreach (Transform t in allChildren)
+            {
+                int count = 0;
+                do
+                {
+                    count = GameObjectUtility.RemoveMonoBehavioursWithMissingScript(t.gameObject);
+                    totalRemoved += count;
+                }
+                while (count != 0);
+            }
+
+            Debug.Log($"总共移除了 {totalRemoved} 个无效脚本组件");
+            EditorUtility.DisplayDialog("完成", $"总共移除了 {totalRemoved} 个无效脚本组件", "确定");
+        }
         [MenuItem("StarTivat/Tools/打开事件剧情生成器", false, 50)]
         static void OpenDialogueTool() => System.Diagnostics.Process.Start(@"OtherSolution\剧情数据生成\bin\Debug\net6.0-windows\剧情数据生成.exe");
         [MenuItem("StarTivat/Tools/打开事件数据表格", false, 51)]

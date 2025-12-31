@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
-[RequireComponent(typeof(InteractiveManager))]
+[RequireComponent(typeof(InteractiveSystem))]
 public class ChestManager : MonoBehaviour
 {
     public GameObject point;
@@ -15,7 +15,7 @@ public class ChestManager : MonoBehaviour
     }
     public async void OpenChest()
     {
-        GetComponent<InteractiveManager>().CloseTrigger();
+        GetComponent<InteractiveSystem>().CloseTrigger();
         await CustomThread.TimerAsync(0.2f, (progress) =>
         {
             point.transform.eulerAngles = Vector3.left * 90 * progress;

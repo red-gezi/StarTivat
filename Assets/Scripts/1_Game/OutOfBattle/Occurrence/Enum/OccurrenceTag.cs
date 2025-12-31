@@ -1,14 +1,43 @@
 ﻿public enum OccurrenceTag
 {
-    Encounter,   // 遭遇(红框)
-    Reward,      // 奖励(金框)
-    Occurrence,  // 事件(篮框)
-
-    Positive,    // 正面
-    Negative,    // 负面
-    Subtle,      // 微妙
-    Combat,      // 战斗
-    Money,       // 金钱
-    Curiosity,   // 奇物
-    Ingredient   // 食材
+    /// <summary>
+    /// 遭遇(红框)
+    /// </summary>
+    Encounter,
+    /// <summary>
+    /// 奖励(金框)
+    /// </summary>
+    Reward,
+    /// <summary>
+    /// 事件(篮框)
+    /// </summary>
+    Occurrence,
+    /// <summary>
+    /// 正面
+    /// </summary>
+    Positive,
+    /// <summary>
+    /// 负面
+    /// </summary>
+    Negative,
+    /// <summary>
+    /// 微妙
+    /// </summary>
+    Subtle,
+    /// <summary>
+    /// 战斗
+    /// </summary>
+    Combat,
+    /// <summary>
+    /// 金钱
+    /// </summary>
+    Money,
+    /// <summary>
+    /// 奇物
+    /// </summary>
+    Curiosity,
+    /// <summary>
+    /// 食材
+    /// </summary>
+    Ingredient
 }

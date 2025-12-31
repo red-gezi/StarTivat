@@ -24,7 +24,7 @@ public class GameData
     public GameConfigData CurrentGameConfigData { get; set; }
     //当前模式选择的buff列表数据
     public BaseBuffList CurrentBuffList { get; set; }
-    public  Buff BaseBuff { get; set; }
+    public Buff BaseBuff { get; set; }
     //当前模式选择的事件列表数据,包含状态
-    public List<Occurrence> CurrentOccurrenceList { get; set; }
+    public List<Occurrence> CurrentOccurrenceList { get; set; } = new();
 }

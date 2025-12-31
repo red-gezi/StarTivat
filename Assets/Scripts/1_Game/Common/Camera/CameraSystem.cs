@@ -1,8 +1,8 @@
 ﻿using Sirenix.OdinInspector;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Unity.Plastic.Newtonsoft.Json.Serialization;
 using UnityEngine;
 
 public class CameraSystem : InstanceBehaviour<CameraSystem>

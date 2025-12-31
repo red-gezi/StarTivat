@@ -6,11 +6,20 @@
   "CurrentRoomDatas": [
     {
       "Layer": 0,
+      "OccurenceState": {
+        "1_1": true,
+        "1_2": true
+      },
+      "EnemyState": [],
       "IsFinish": false,
       "CurrentSceneModel": 8,
-      "CurrentRoomType": 0,
-      "CurrentRoomTag": 0,
+      "CurrentRoomType": 7,
+      "CurrentRoomTag": 2,
       "TargetDoorCount": 3,
+      "OccurrenceTag": [
+        "1_1",
+        "1_2"
+      ],
       "DoorTypeWeight": {
         "InitRoom": 0.0,
         "StartRoom": 0.0,
@@ -18,7 +27,7 @@
         "BattleRoom": 1.0,
         "EncounterRoom": 1.0,
         "EliteRoom": 0.2,
-        "EventRoom": 1.0,
+        "OccurrenceRoom": 1.0,
         "RewardRoom": 0.5,
         "ShopRoom": 0.2,
         "GameRoom": 0.2,
@@ -26,58 +35,16 @@
       },
       "RoomConfigDataFromDoor": [
         {
-          "CurrentRoomType": 8,
-          "SelectableSceneModel": [
-            8
-          ],
-          "SelectableEnemyTag": [
-            0,
-            3
-          ],
-          "SelectableSignTag": [],
-          "DoorCount": [
-            1
-          ],
-          "OccurrenceCount": [],
-          "MonstertCount": [],
-          "outOfBattleEnemyDatas": [],
-          "ChestCount": [],
-          "SceneObjectCount": [],
-          "NPC": []
-        },
-        {
-          "CurrentRoomType": 7,
-          "SelectableSceneModel": [
-            8,
-            1
-          ],
-          "SelectableEnemyTag": [
-            0,
-            2
-          ],
-          "SelectableSignTag": [],
-          "DoorCount": [
-            1
-          ],
-          "OccurrenceCount": [],
-          "MonstertCount": [],
-          "outOfBattleEnemyDatas": [],
-          "ChestCount": [],
-          "SceneObjectCount": [],
-          "NPC": []
-        },
-        {
-          "CurrentRoomType": 6,
+          "CurrentRoomType": 3,
           "SelectableSceneModel": [
             7,
             0,
             1
           ],
           "SelectableEnemyTag": [
-            0,
-            2,
-            3,
-            7
+            4,
+            5,
+            6
           ],
           "SelectableSignTag": [],
           "DoorCount": [
@@ -85,9 +52,50 @@
             3
           ],
           "OccurrenceCount": [],
-          "MonstertCount": [
-            1
+          "MonstertCount": [],
+          "outOfBattleEnemyDatas": [],
+          "ChestCount": [],
+          "SceneObjectCount": [],
+          "NPC": []
+        },
+        {
+          "CurrentRoomType": 10,
+          "SelectableSceneModel": [
+            7
           ],
+          "SelectableEnemyTag": [
+            7,
+            2
+          ],
+          "SelectableSignTag": [],
+          "DoorCount": [
+            1,
+            2
+          ],
+          "OccurrenceCount": [],
+          "MonstertCount": [],
+          "outOfBattleEnemyDatas": [],
+          "ChestCount": [],
+          "SceneObjectCount": [],
+          "NPC": []
+        },
+        {
+          "CurrentRoomType": 4,
+          "SelectableSceneModel": [
+            7,
+            0
+          ],
+          "SelectableEnemyTag": [
+            4,
+            3
+          ],
+          "SelectableSignTag": [],
+          "DoorCount": [
+            2,
+            3
+          ],
+          "OccurrenceCount": [],
+          "MonstertCount": [],
           "outOfBattleEnemyDatas": [],
           "ChestCount": [],
           "SceneObjectCount": [],
@@ -130,15 +138,53 @@
     }
   ],
   "CurrentLayer": 1,
-  "TeamCharaPool": [],
+  "TeamCharaPool": [
+    {
+      "CharaNameType": 5403,
+      "ShowCharaName": {
+        "ch": "纳西妲"
+      },
+      "IsGold": true,
+      "HealthPercentage": 1.0,
+      "IsDead": false
+    },
+    {
+      "CharaNameType": 4001,
+      "ShowCharaName": {
+        "ch": "安柏"
+      },
+      "IsGold": false,
+      "HealthPercentage": 1.0,
+      "IsDead": false
+    },
+    {
+      "CharaNameType": 4301,
+      "ShowCharaName": {
+        "ch": "丽莎"
+      },
+      "IsGold": false,
+      "HealthPercentage": 1.0,
+      "IsDead": false
+    }
+  ],
   "TempTeamAppearanceList": [
     null,
     null,
     null,
     null
   ],
-  "TeamAppearanceList": [],
-  "TeamAppearanceIndex": 0,
+  "TeamAppearanceList": [
+    {
+      "CharaNameType": 5403,
+      "ShowCharaName": {
+        "ch": "纳西妲"
+      },
+      "IsGold": true,
+      "HealthPercentage": 1.0,
+      "IsDead": false
+    }
+  ],
+  "TeamAppearanceIndex": 1,
   "DownloadChara": null,
   "CurrentGameConfigData": null,
   "CurrentBuffList": null,
@@ -155,5 +201,98 @@
     "ID": 0,
     "Flags": {}
   },
-  "CurrentOccurrenceList": null
+  "CurrentOccurrenceList": [
+    {
+      "Flags": null,
+      "ID": 0,
+      "OccurrenceTags": [
+        2,
+        3
+      ],
+      "Weight": 1.0,
+      "IsLock": false,
+      "Data": {
+        "Tag": "1_1",
+        "ImageName": "1",
+        "SideColor": "gold",
+        "Name": {
+          "Ch": "随机事件一"
+        },
+        "Dialogue": {
+          "Ch": "系统:事件一"
+        },
+        "ShowName": "随机事件一",
+        "ShowDialogue": "系统:事件一"
+      }
+    },
+    {
+      "Flags": null,
+      "ID": 1,
+      "OccurrenceTags": [
+        2,
+        3
+      ],
+      "Weight": 1.0,
+      "IsLock": false,
+      "Data": {
+        "Tag": "1_2",
+        "ImageName": "2",
+        "SideColor": "pink",
+        "Name": {
+          "Ch": "随机事件二"
+        },
+        "Dialogue": {
+          "Ch": "系统:事件二"
+        },
+        "ShowName": "随机事件二",
+        "ShowDialogue": "系统:事件二"
+      }
+    },
+    {
+      "Flags": null,
+      "ID": 0,
+      "OccurrenceTags": [
+        2,
+        3
+      ],
+      "Weight": 1.0,
+      "IsLock": false,
+      "Data": {
+        "Tag": "1_1",
+        "ImageName": "1",
+        "SideColor": "gold",
+        "Name": {
+          "Ch": "随机事件一"
+        },
+        "Dialogue": {
+          "Ch": "系统:事件一"
+        },
+        "ShowName": "随机事件一",
+        "ShowDialogue": "系统:事件一"
+      }
+    },
+    {
+      "Flags": null,
+      "ID": 1,
+      "OccurrenceTags": [
+        2,
+        3
+      ],
+      "Weight": 1.0,
+      "IsLock": false,
+      "Data": {
+        "Tag": "1_2",
+        "ImageName": "2",
+        "SideColor": "pink",
+        "Name": {
+          "Ch": "随机事件二"
+        },
+        "Dialogue": {
+          "Ch": "系统:事件二"
+        },
+        "ShowName": "随机事件二",
+        "ShowDialogue": "系统:事件二"
+      }
+    }
+  ]
 }

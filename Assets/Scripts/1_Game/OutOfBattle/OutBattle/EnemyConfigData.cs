@@ -47,6 +47,6 @@ public class EnemyConfigData
             .Where(pair => pair.Item1 == enemyType)
             .Select(pair => pair.Item2)
             .ToList();
-        return RandManager.GetRandomValue(enemyConfigs);
+        return RandSystem.GetRandomValue(enemyConfigs);
     }
 }

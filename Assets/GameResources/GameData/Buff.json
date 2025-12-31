@@ -1,0 +1,28 @@
+[
+  {
+    "Tag": "1_1",
+    "IconName": "1.png",
+    "Type": 0,
+    "Name": {
+      "Ch": "测试buff1",
+      "En": "TestBuff1"
+    },
+    "Text": {
+      "Ch": "我是一个超级buff，我很强,提供$1加成",
+      "En": "I am a super buff, I'm very strong, providing +1 bonus"
+    }
+  },
+  {
+    "Tag": "1_2",
+    "IconName": "1.png",
+    "Type": 0,
+    "Name": {
+      "Ch": "人物buff1",
+      "En": "CharaBuff"
+    },
+    "Text": {
+      "Ch": "我是一个角色buff，提供$1加成",
+      "En": "I am a character buff, providing +1 bonus"
+    }
+  }
+]

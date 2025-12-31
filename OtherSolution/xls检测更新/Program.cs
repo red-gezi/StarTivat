@@ -1,150 +1,35 @@
-﻿using Newtonsoft.Json;
-using Spire.Xls;
+﻿using Spire.Xls.Core;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-
 namespace xls检测更新
 {
-    class Program
+    partial class Program
     {
-        static DateTime lastChangeTime;
-        static FileStream fs;
-        static string direPath;
-        static string filePath;
-        static Dictionary<string, Dictionary<string, string>> textTranslate = new Dictionary<string, Dictionary<string, string>>();
-        static List<string> supportLanguage = new List<string>();
+        static string direPath => Directory.GetCurrentDirectory().Replace(@"\OtherSolution\xls检测更新\bin\Debug\net6.0", "") + @"\Assets\GameResources\GameData\";
+
         static void Main(string[] args)
         {
-            Workbook workbook = new Workbook();
-            direPath = Directory.GetCurrentDirectory().Replace(@"\OtherSolution\xls检测更新\bin\Debug\net6.0", "") + @"\Assets\GameResources\GameData\";
-            filePath = direPath + "Occurrence.xlsx";
+            BuffSystem.Init(direPath, "buff.xlsx");
+            OccurrenceSystem.Init(direPath, "Occurrence.xlsx");
+            //自动执行
             Task.Run(async () =>
             {
                 while (true)
                 {
-                    if (lastChangeTime != new FileInfo(filePath).LastWriteTime)
-                    {
-                        Console.WriteLine("进行自动更新" + DateTime.Now);
-                        UpdateJson(workbook);
-                    }
+                    BuffSystem.Check();
+                    OccurrenceSystem.Check();
                     await Task.Delay(100);
                 }
-
-               
             });
+            //手动执行
             while (true)
             {
                 Console.WriteLine("可回车进行手动更新");
                 Console.ReadLine();
-                UpdateJson(workbook);
+                BuffSystem.UpdateJson();
+                OccurrenceSystem.UpdateJson();
             }
-        }
-        static void UpdateJson(Workbook workbook)
-        {
-            fs = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            workbook.LoadFromStream(fs);
-            lastChangeTime = new FileInfo(filePath).LastWriteTime;
-            XlsToJson(workbook);
-            fs.Dispose();
-        }
-        private static void XlsToJson(Workbook workbook)
-        {
-            string workbookName = "Ch";
-
-            var dialogueText = workbook.Worksheets[workbookName]; // 假设新表格也叫dialogue，或使用实际表名
-            int dialogueColCount = dialogueText.Columns.Length;
-            int dialogueRowCount = dialogueText.Rows.Length;
-            List<DialogModel> dialogModels = new List<DialogModel>();
-
-            for (int i = 2; i <= dialogueRowCount; i++)
-            {
-                DialogModel currentDialogModel = new DialogModel();
-
-                string tag = dialogueText[i, 1].DisplayedText;
-                string imageName = dialogueText[i, 2].DisplayedText;
-                string sideColor = dialogueText[i, 3].DisplayedText;
-                string name = dialogueText[i, 4].DisplayedText;
-                string dialogueContent = dialogueText[i, 5].DisplayedText;
-                if (tag != "")
-                {
-                    currentDialogModel.Tag = tag;
-                    currentDialogModel.ImageName = imageName;
-                    currentDialogModel.SideColor = sideColor;
-                    currentDialogModel.Name[workbookName] = name;
-                    currentDialogModel.Dialogue[workbookName] = dialogueContent;
-                    dialogModels.Add(currentDialogModel);
-                }
-            }
-
-            // 将解析结果写入文件
-            File.WriteAllText(direPath + @"\Occurrence.json", JsonConvert.SerializeObject(dialogModels, Formatting.Indented));
-            Console.WriteLine("新剧情故事更新完毕");
-        }
-        public class DialogModel
-        {
-            public string Tag { get; set; }
-            public string ImageName { get; set; }
-            public string SideColor { get; set; }
-            public Dictionary<string, string> Name { get; set; } = new();
-            public Dictionary<string, string> Dialogue { get; set; } = new();
-        }
-    }
-
-    static class Extesion
-    {
-        public static int GetIndex(this Worksheet worksheet, string tag)
-        {
-            for (int i = 1; i <= worksheet.Columns.Length; i++)
-            {
-                if (worksheet[1, i].DisplayedText == tag)
-                {
-                    return i;
-                }
-            }
-            //Console.WriteLine($"无法检索到{tag}，请确认是否在单人和多人卡牌中都存在该属性");
-            return 0;
-        }
-        public static List<int> GetIndexs(this Worksheet worksheet, string tag)
-        {
-            List<int> indexs = new List<int>();
-            for (int i = 1; i <= worksheet.Columns.Length; i++)
-            {
-                if (worksheet[1, i].DisplayedText.Contains(tag))
-                {
-                    indexs.Add(i);
-                }
-            }
-            return indexs;
-        }
-        /// <summary>
-        /// 计算两个数的和。
-        /// </summary>
-        /// <param name="a">第一个加数。</param>
-        /// <param name="b">第二个加数。</param>
-        /// <returns>两个数的和。</returns>
-        public static int Add(int a, int b)
-        {
-            return a + b;
-        }
-        public static T GetXlsData<T>(this CellRange ranges)
-        {
-            if (ranges.DisplayedText != "")
-            {
-                return (T)Convert.ChangeType(ranges.Value, typeof(T).IsEnum ? typeof(int) : typeof(T));
-            }
-            else
-            {
-                return default;
-            }
-        }
-        public static int ToEnumIndex(this string data, params string[] text)
-        {
-            return text.Contains(data) ? text.ToList().IndexOf(data) : 0;
         }
     }
 }
-
-

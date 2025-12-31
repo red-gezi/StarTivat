@@ -38,10 +38,10 @@ public class CameraTrack
             switch (trackkPointType)
             {
                 case TrackPointType.RelativeToTrigger:
-                    pos = SceneView.lastActiveSceneView.camera.transform.position- ModelConfigManager.Instance.triggerModel.transform.position;
+                    pos = SceneView.lastActiveSceneView.camera.transform.position- ModelConfigSystem.Instance.triggerModel.transform.position;
                     break;
                 case TrackPointType.RelativeToTarget:
-                    pos = SceneView.lastActiveSceneView.camera.transform.position - ModelConfigManager.Instance.targetModel.transform.position;
+                    pos = SceneView.lastActiveSceneView.camera.transform.position - ModelConfigSystem.Instance.targetModel.transform.position;
                     break;
                 case TrackPointType.FixedPosition:
                     pos = SceneView.lastActiveSceneView.camera.transform.position;

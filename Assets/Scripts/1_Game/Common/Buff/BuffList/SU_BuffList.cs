@@ -16,9 +16,8 @@ public partial class SU_BuffList : BaseBuffList
                 .RegisterName(SU_BuffName.基础流程)
                 .RegisterEvent<RoomData>( BuffTriggerType.On, BuffEventType.EnterRoom, async eventData=>
                 {
-                    //修改roomdata数据
-                    //随机房间传送门数量
-                    //根据当前模式和层级二次加工房间相关配置信息
+                    //根据游戏关卡规则和房间层数复写roomdata部分数据,如传送门数量和类型，怪物配置等
+                    eventData.CurrentRoomTag= RoomTag.Intensify;
                     switch (eventData.Layer)
                     {
                         //初始大厅
@@ -58,14 +57,6 @@ public partial class SU_BuffList : BaseBuffList
                             break;
                         }
                     }
-                    //测试
-                    //eventData.TargetDoorCount=2;
-                    //根据最终修正后的房间配置部分数据初始化整个房间的数据
-                    eventData=  RoomSystem.ReConfigRoomData(eventData);
-                    //添加房间到存档
-                    RoomSystem.AddRoom(eventData);
-
-
                 })
                 .RegisterEvent<RoomData>( BuffTriggerType.On, BuffEventType.DestoryObject, async eventData=>
                 {
@@ -77,7 +68,7 @@ public partial class SU_BuffList : BaseBuffList
                     //打开ui
                     //await Task.Delay(1000);
                     eventData.AddLog($"已获得金币{eventData.TargetValue}");
-                    OutOfBattleManager.ChangeGold( eventData.TargetValue);
+                    OutOfBattleSystem.ChangeGold( eventData.TargetValue);
                 })
                 .RegisterEvent<OutBattleEventData>( BuffTriggerType.On, BuffEventType.ItemGain, async eventData=>
                 {
@@ -90,7 +81,7 @@ public partial class SU_BuffList : BaseBuffList
                     foreach (int index in eventData.TargetBuffIndex)
                     {
                         Buff targetBuff =BuffCore.GetBuff((SU_BuffName)index);
-                        OutOfBattleManager.AddBuff(targetBuff);
+                        OutOfBattleSystem.AddBuff(targetBuff);
                         eventData.ExceBuffs = new List<Buff> { targetBuff };
                         eventData.AddLog($"已获得道具{(SU_BuffName)targetBuff.ID},尝试触发道具的获得效果");
                         // 等待异步任务完成
@@ -108,7 +99,7 @@ public partial class SU_BuffList : BaseBuffList
                     foreach (int index in eventData.TargetBuffIndex)
                     {
                         Buff targetBuff =BuffCore.GetBuff((SU_BuffName)index);
-                        OutOfBattleManager.AddBuff(targetBuff);
+                        OutOfBattleSystem.AddBuff(targetBuff);
                         eventData.ExceBuffs = new List<Buff> { targetBuff };
                         eventData.AddLog($"已获得道具{(SU_BuffName)targetBuff.ID},尝试触发道具的获得效果");
                         // 等待异步任务完成

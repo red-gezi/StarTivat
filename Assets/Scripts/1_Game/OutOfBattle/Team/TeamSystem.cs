@@ -143,14 +143,14 @@ public class TeamSystem
         var teamList = GameDataSystem.GetTeamAppearanceList();
         if (index > 0 && index <= teamList.Count)
         {
-            PlayerManager.Instance.SwitchChara(teamList[index - 1].CharaNameType);
+            PlayerSystem.Instance.SwitchChara(teamList[index - 1].CharaNameType);
             GameDataSystem.SetTeamAppearanceIndex(index);
         }
         else
         {
             Debug.LogWarning("切换索引超出范围");
         }
-        OutOfBattleUIManager.Instance.RefreshTeamAppearanceList();
+        OutOfBattleUISystem.Instance.RefreshTeamAppearanceList();
     }
     #region 总角色列表
     #endregion
@@ -169,7 +169,7 @@ public class TeamSystem
             return;
         }
         GameDataSystem.GetGameData().TeamCharaPool.Add(item);
-        OutOfBattleUIManager.Instance.RefreshTeamAppearanceList();
+        OutOfBattleUISystem.Instance.RefreshTeamAppearanceList();
         Debug.Log(GameDataSystem.GetGameData().TeamCharaPool.ToJson());
     }
     //将指定角色移除队伍列表
@@ -178,7 +178,7 @@ public class TeamSystem
         var item = GameDataSystem.GetTeamAppearanceList().FirstOrDefault(data => data.CharaNameType == charaName);
         if (item == null) return;
         GameDataSystem.GetGameData().TeamCharaPool.Remove(item);
-        OutOfBattleUIManager.Instance.RefreshTeamAppearanceList();
+        OutOfBattleUISystem.Instance.RefreshTeamAppearanceList();
     }
 
     internal static void RemoveAllFromTeamPool()
@@ -201,8 +201,8 @@ public class TeamSystem
             {
                 Debug.Log($"加入人物{charaName}到位置{i}");
                 GameDataSystem.GetGameData().TempTeamAppearanceList[i] = targetChara;
-                OutOfBattleUIManager.Instance.RefreshTempTeamAppearanceList();
-                OutOfBattleUIManager.Instance.RefreshCharaList();
+                OutOfBattleUISystem.Instance.RefreshTempTeamAppearanceList();
+                OutOfBattleUISystem.Instance.RefreshCharaList();
                 return;
             }
         }
@@ -216,8 +216,8 @@ public class TeamSystem
             {
                 Debug.Log($"移除人物{charaName}从位置{i}");
                 GameDataSystem.GetGameData().TempTeamAppearanceList[i] = null;
-                OutOfBattleUIManager.Instance.RefreshTempTeamAppearanceList();
-                OutOfBattleUIManager.Instance.RefreshCharaList();
+                OutOfBattleUISystem.Instance.RefreshTempTeamAppearanceList();
+                OutOfBattleUISystem.Instance.RefreshCharaList();
                 return;
             }
         }
@@ -244,18 +244,18 @@ public class TeamSystem
         GameDataSystem.SetTeamAppearanceList(charaNameList
              .Select(charaName => GameDataSystem.GetGameData().TeamCharaPool.FirstOrDefault(chara => chara.CharaNameType == charaName))
              .ToList());
-        OutOfBattleUIManager.Instance.RefreshTeamAppearanceList();
+        OutOfBattleUISystem.Instance.RefreshTeamAppearanceList();
     }
     //设置下载角色
     public static void SetDownloadChara(PlayerName charaName)
     {
         GameDataSystem.GetGameData().DownloadChara = GameDataSystem.GetGameData().TeamCharaPool.FirstOrDefault(chara => chara.CharaNameType == charaName);
-        OutOfBattleUIManager.Instance.RefreshTeamAppearanceList();
+        OutOfBattleUISystem.Instance.RefreshTeamAppearanceList();
     }
     public static void RemoveDownloadChara()
     {
         GameDataSystem.GetGameData().DownloadChara = null;
-        OutOfBattleUIManager.Instance.RefreshTeamAppearanceList();
+        OutOfBattleUISystem.Instance.RefreshTeamAppearanceList();
     }
     #endregion
 

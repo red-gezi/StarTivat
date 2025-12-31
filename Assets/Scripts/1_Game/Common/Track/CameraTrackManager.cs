@@ -15,12 +15,12 @@ class CameraTrackManager : MonoBehaviour
     [Button("设为镜头轨迹的触发对象")]
     public void SetTrigger()
     {
-        ModelConfigManager.Instance.triggerModel = gameObject;
+        ModelConfigSystem.Instance.triggerModel = gameObject;
         Log.Show("当前技能触发目标为{}，当前技能生效目标为{}");
     }
 
     [Button("设为镜头轨迹的目标对象")]
-    public void SetTarget() => ModelConfigManager.Instance.targetModel = gameObject;
+    public void SetTarget() => ModelConfigSystem.Instance.targetModel = gameObject;
     [Button("新增点位组")]
     public void AddPoint()
     {
@@ -52,13 +52,13 @@ class CameraTrackManager : MonoBehaviour
     public async void PlayTrack(TrackType trackType)
     {
         var trgetTrack = cameraTrackDatas.FirstOrDefault(track => track.trackType == trackType);
-        await trgetTrack.Run(Camera.main, ModelConfigManager.Instance.triggerModel, ModelConfigManager.Instance.targetModel);
+        await trgetTrack.Run(Camera.main, ModelConfigSystem.Instance.triggerModel, ModelConfigSystem.Instance.targetModel);
     }
     [Button("播放指定轨迹与技能")]
     public async void PlayTrackAndAnimation(TrackType trackType)
     {
         var trgetTrack = cameraTrackDatas.FirstOrDefault(track => track.trackType == trackType);
-        _ = trgetTrack.Run(Camera.main, ModelConfigManager.Instance.triggerModel, ModelConfigManager.Instance.targetModel);
+        _ = trgetTrack.Run(Camera.main, ModelConfigSystem.Instance.triggerModel, ModelConfigSystem.Instance.targetModel);
         switch (trackType)
         {
             case TrackType.ShowPose:
@@ -103,7 +103,7 @@ class CameraTrackManager : MonoBehaviour
         {
             Log.Show("检索不到对应轨迹", 2);
         }
-        CameraSystem.AddCameraTrack(trgetTrack, ModelConfigManager.Instance.triggerModel, ModelConfigManager.Instance.targetModel);
+        CameraSystem.AddCameraTrack(trgetTrack, ModelConfigSystem.Instance.triggerModel, ModelConfigSystem.Instance.targetModel);
     }
 
 #endif

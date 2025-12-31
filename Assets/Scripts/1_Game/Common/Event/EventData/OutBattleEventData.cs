@@ -15,7 +15,7 @@ public partial class OutBattleEventData : EventData
 
     Dictionary<RoomType, float> RoomWight { get; set; } = new()
     {
-        { RoomType.EventRoom,1 },
+        { RoomType.OccurrenceRoom,1 },
         { RoomType.BattleRoom,1 },
     };
 }
