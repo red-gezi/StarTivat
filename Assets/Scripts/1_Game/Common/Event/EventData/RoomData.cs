@@ -5,7 +5,8 @@ using UnityEngine;
 public class RoomData : EventData
 {
     //当前层数
-    public int Layer { get; set; }
+    public int CurrentLayer { get; set; }
+    public int MaxLayer { get; set; }
     //当前房间基础配置信息
     //public RoomConfigData BaseRoomConfigData { get; set; }
     //房间已完成,激活传送门
@@ -52,7 +53,9 @@ public class RoomData : EventData
     //先根据基础配置参数构建数据，场景会被确认下来，传送门参数随机，之后会通过进入新场景事件二次修改
     public RoomData(int layer, RoomConfigData baseRoomConfigData)
     {
-        Layer = layer;
+        CurrentLayer = layer;
+        //暂时设置最大层数
+        MaxLayer = 12;
         //BaseRoomConfigData = baseRoomConfigData;
 
         //Enemies = BaseRoomConfigData.outOfBattleEnemyDatas;

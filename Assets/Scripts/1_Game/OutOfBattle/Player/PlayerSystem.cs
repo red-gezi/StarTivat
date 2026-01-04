@@ -4,14 +4,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UI;
 public class PlayerSystem : MonoBehaviour
 {
-    public float moveSpeed = 5f;
+    public float moveSpeed = 3f;
     public float mouseXSpeed = 100f;
     public float mouseYSpeed = 200f;
     public float zoomSpeed = 5f;
-    public float minDistance = 2f;
-    public float maxDistance = 10f;
+    public float minDistance = 0.7f;
+    public float maxDistance = 2f;
 
     public float targetDistance = 2f;
     public float currentDistance = 2f;
@@ -45,14 +46,13 @@ public class PlayerSystem : MonoBehaviour
             animator.SetBool("IsRun", false);
             return;
         }
-        if (isCameraLocked)
+        if (!isCameraLocked)
         {
-            return;
+            targetDistance -= Input.GetAxis("Mouse ScrollWheel") * zoomSpeed;
+            mouseX += Input.GetAxis("Mouse X") * mouseXSpeed * Time.fixedDeltaTime;
+            mouseY -= Input.GetAxis("Mouse Y") * mouseYSpeed * Time.fixedDeltaTime;
         }
         ////////////////////////////////////////////////////////控制摄像机位置////////////////////////////////////////////////////
-        targetDistance -= Input.GetAxis("Mouse ScrollWheel") * zoomSpeed;
-        mouseX += Input.GetAxis("Mouse X") * mouseXSpeed * Time.fixedDeltaTime;
-        mouseY -= Input.GetAxis("Mouse Y") * mouseYSpeed * Time.fixedDeltaTime;
         //限制数值
         mouseX = Mathf.Repeat(mouseX + 180f, 360f) - 180f;
         mouseY = Mathf.Clamp(mouseY, -60, 60);
@@ -200,6 +200,25 @@ public class PlayerSystem : MonoBehaviour
 
         }
     }
+    public void SetCameraLockState(bool isLock) => isCameraLocked = isLock;
+    [Button("重置摄像机视角")]
+    public async Task ResetCameraViewAsync()
+    {
+        currentChara.transform.localEulerAngles = Vector3.zero;
+        mouseX = 180;
+        mouseY = 0;
+        currentDistance = 1;
+        targetDistance = 1;
+        SetCameraLockState(true);
+        await Task.Delay(500);
+        await CustomThread.TimerAsync(0.6f, (progress) =>
+        {
+            targetDistance = Mathf.Lerp(1, 2f, progress* progress);
+            mouseY = Mathf.Lerp(0, 15, progress* progress);
+        });
+        SetCameraLockState(false);
+    }
+
     [Button("切换人物")]
     public void SwitchChara(PlayerName charaName)
     {
@@ -260,10 +279,9 @@ public class PlayerSystem : MonoBehaviour
     {
         Debug.LogError("我被偷袭啦!");
     }
-    public void ResetCameraView()
-    {
-        mouseX = 0;
-        mouseY = 0;
-    }
-    public void SetCameraLockState(bool isLock) => isCameraLocked = isLock;
+    //public void ResetCameraView()
+    //{
+    //    mouseX = 0;
+    //    mouseY = 0;
+    //}
 }

@@ -18,7 +18,7 @@ public partial class SU_BuffList : BaseBuffList
                 {
                     //根据游戏关卡规则和房间层数复写roomdata部分数据,如传送门数量和类型，怪物配置等
                     eventData.CurrentRoomTag= RoomTag.Intensify;
-                    switch (eventData.Layer)
+                    switch (eventData.CurrentLayer)
                     {
                         //初始大厅
                         //Boss房前

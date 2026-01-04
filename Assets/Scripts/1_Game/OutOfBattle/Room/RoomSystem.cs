@@ -56,20 +56,20 @@ public partial class RoomSystem : InstanceBehaviour<RoomSystem>
             //生成事件
             case 0:
                 // 三个标签，激活所有模型
-                OccurrenceSystem.TurnOff(Instance.Occurrences[0]);
-                OccurrenceSystem.TurnOff(Instance.Occurrences[1]);
-                OccurrenceSystem.TurnOff(Instance.Occurrences[2]);
+                OccurrenceSystem.TurnOff(Instance.Occurrences[0], true);
+                OccurrenceSystem.TurnOff(Instance.Occurrences[1], true);
+                OccurrenceSystem.TurnOff(Instance.Occurrences[2], true);
                 break;
             case 1:
                 // 只有一个标签，激活第一个模型
                 OccurrenceSystem.TurnOn(Instance.Occurrences[0], currentRoomData.OccurrenceTag[0]);
-                OccurrenceSystem.TurnOff(Instance.Occurrences[1]);
-                OccurrenceSystem.TurnOff(Instance.Occurrences[2]);
+                OccurrenceSystem.TurnOff(Instance.Occurrences[1], true);
+                OccurrenceSystem.TurnOff(Instance.Occurrences[2], true);
                 break;
 
             case 2:
                 // 两个标签，激活第2、3个模型
-                OccurrenceSystem.TurnOff(Instance.Occurrences[0]);
+                OccurrenceSystem.TurnOff(Instance.Occurrences[0], true);
                 OccurrenceSystem.TurnOn(Instance.Occurrences[1], currentRoomData.OccurrenceTag[0]);
                 OccurrenceSystem.TurnOn(Instance.Occurrences[2], currentRoomData.OccurrenceTag[1]);
                 break;
@@ -285,6 +285,9 @@ public partial class RoomSystem : InstanceBehaviour<RoomSystem>
         //添加房间并保存
         AddRoom(newRoomData);
         RefreshRoomModel();
+        OutOfBattleUISystem.Instance.OpenRoomNotice(newRoomData.CurrentRoomType);
+        //重置角色视角
+        await PlayerSystem.Instance.ResetCameraViewAsync();
     }
     /// <summary>
     /// 根据配置规则填充房间数据
@@ -431,7 +434,7 @@ public partial class RoomSystem : InstanceBehaviour<RoomSystem>
         GameDataSystem.Save();
     }
 
-    private static void CheckRoomFinishState()
+    private static async void CheckRoomFinishState()
     {
         //如果所有事件/敌人都完成（后续追加游戏等）
         var roomData = GameDataSystem.GetLastRoomData();
@@ -439,6 +442,8 @@ public partial class RoomSystem : InstanceBehaviour<RoomSystem>
         {
             //房间设为完成
             roomData.IsFinish = true;
+            //短暂延时，等待事件消失后再展开传送门
+            await Task.Delay(2000);
             //开启传送门
             Instance.doors.ForEach(door => door.GetComponent<DoorSystem>().TurnOn());
         }

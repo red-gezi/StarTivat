@@ -37,7 +37,7 @@ public class Occurrence
         {
             return null;
         }
-        if (GameFlowSystem.Instance.loadConfigDataFromAB)
+        if (TestSystem.Instance.loadConfigDataFromAB)
         {
             image = AssetBundleSystem.Load<Texture2D>("Occurrence", Data.ImageName);
         }

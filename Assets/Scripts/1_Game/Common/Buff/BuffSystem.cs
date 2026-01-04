@@ -11,7 +11,7 @@ public class BuffSystem
     public static void Init()
     {
         //加载所有事件数据
-        if (GameFlowSystem.Instance.loadConfigDataFromAB)
+        if (TestSystem.Instance.loadConfigDataFromAB)
         {
             AllBuffData = AssetBundleSystem.Load<TextAsset>("GameData", "Buff.json").text.ToObject<List<BuffData>>();
         }

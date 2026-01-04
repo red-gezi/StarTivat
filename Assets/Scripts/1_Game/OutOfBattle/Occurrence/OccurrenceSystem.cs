@@ -18,7 +18,7 @@ public class OccurrenceSystem
     public static void Init()
     {
         //加载所有事件数据
-        if (GameFlowSystem.Instance.loadConfigDataFromAB)
+        if (TestSystem.Instance.loadConfigDataFromAB)
         {
             AllOccurrenceData = AssetBundleSystem.Load<TextAsset>("GameData", "Occurrence.json").text.ToObject<List<OccurrenceData>>();
         }
@@ -28,7 +28,7 @@ public class OccurrenceSystem
         }
         //加载所有系列事件列表，有增加的话在这里补充
         SU_OccurrenceList.Init();
-        AllOccurrences.Add(typeof(OccurrenceName), SU_OccurrenceList.Occurrences);
+        AllOccurrences[typeof(OccurrenceName)]=SU_OccurrenceList.Occurrences;
     }
     /// <summary>
     /// 激活指定模式的事件系列，写入游戏存档
@@ -137,7 +137,7 @@ public class OccurrenceSystem
         }
         return result;
     }
-    public static async void TurnOn(GameObject gameObject, string tag)
+    public static void TurnOn(GameObject gameObject, string tag)
     {
         gameObject.SetActive(true);
         RefreshOccurrenceModel(gameObject, tag);

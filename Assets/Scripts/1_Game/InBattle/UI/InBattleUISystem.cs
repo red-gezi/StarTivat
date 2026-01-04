@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-internal class BattleUISystem : InstanceBehaviour<BattleUISystem>
+internal class InBattleUISystem : InstanceBehaviour<InBattleUISystem>
 {
     public GameObject UI;
     internal static void ShowUI() => Instance.UI.SetActive(true);

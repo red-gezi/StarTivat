@@ -725,6 +725,31 @@ public class OutOfBattleUISystem : InstanceBehaviour<OutOfBattleUISystem>
     }
     [Button("关闭奖励组件")]
     public void CloseRewardContent() => Hide(rewardContent);
+    ///////////////////////////////////房间通告
+    public Transform roomNoticeContent;
+    public async void OpenRoomNotice(RoomType roomType)
+    {
+        Show(roomNoticeContent);
+        var canvasGroup = roomNoticeContent.GetComponent<CanvasGroup>();
+        //更换icon
+        RoomData roomData = GameDataSystem.GetLastRoomData();
+        var icon = RoomSystem.GetRoomIcon(roomType);
+        roomNoticeContent.Find("Notice/RoomIcon").GetComponent<Image>().material.SetTexture("_MainTex", icon);
+        roomNoticeContent.GetComponentInChildren<Text>().text = $"{TranslateSystem.GetRoomTypeName(roomType)}:{roomData.CurrentLayer}/{roomData.MaxLayer}";
+        await CustomThread.TimerAsync(0.2f, (progress) =>
+        {
+            canvasGroup.alpha = progress;
+        });
+        await Task.Delay(1000);
+        await CustomThread.TimerAsync(0.2f, (progress) =>
+        {
+            canvasGroup.alpha = 1 - progress;
+        });
+    }
+    public void CloseRoomNotice()
+    {
+        Hide(roomNoticeContent);
+    }
     #endregion
     // ==================== 常用UI管理函数 ==================
     #region 常用UI管理函数

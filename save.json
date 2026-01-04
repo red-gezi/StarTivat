@@ -5,20 +5,20 @@
   },
   "CurrentRoomDatas": [
     {
-      "Layer": 0,
+      "CurrentLayer": 0,
+      "MaxLayer": 12,
       "OccurenceState": {
-        "1_1": true,
-        "1_2": true
+        "1_1": false
       },
       "EnemyState": [],
       "IsFinish": false,
       "CurrentSceneModel": 8,
       "CurrentRoomType": 7,
       "CurrentRoomTag": 2,
-      "TargetDoorCount": 3,
+      "TargetDoorCount": 1,
       "OccurrenceTag": [
         "1_1",
-        "1_2"
+        "1_1"
       ],
       "DoorTypeWeight": {
         "InitRoom": 0.0,
@@ -35,64 +35,17 @@
       },
       "RoomConfigDataFromDoor": [
         {
-          "CurrentRoomType": 3,
+          "CurrentRoomType": 9,
           "SelectableSceneModel": [
-            7,
+            8
+          ],
+          "SelectableEnemyTag": [
             0,
+            3
+          ],
+          "SelectableSignTag": [],
+          "DoorCount": [
             1
-          ],
-          "SelectableEnemyTag": [
-            4,
-            5,
-            6
-          ],
-          "SelectableSignTag": [],
-          "DoorCount": [
-            2,
-            3
-          ],
-          "OccurrenceCount": [],
-          "MonstertCount": [],
-          "outOfBattleEnemyDatas": [],
-          "ChestCount": [],
-          "SceneObjectCount": [],
-          "NPC": []
-        },
-        {
-          "CurrentRoomType": 10,
-          "SelectableSceneModel": [
-            7
-          ],
-          "SelectableEnemyTag": [
-            7,
-            2
-          ],
-          "SelectableSignTag": [],
-          "DoorCount": [
-            1,
-            2
-          ],
-          "OccurrenceCount": [],
-          "MonstertCount": [],
-          "outOfBattleEnemyDatas": [],
-          "ChestCount": [],
-          "SceneObjectCount": [],
-          "NPC": []
-        },
-        {
-          "CurrentRoomType": 4,
-          "SelectableSceneModel": [
-            7,
-            0
-          ],
-          "SelectableEnemyTag": [
-            4,
-            3
-          ],
-          "SelectableSignTag": [],
-          "DoorCount": [
-            2,
-            3
           ],
           "OccurrenceCount": [],
           "MonstertCount": [],
@@ -216,13 +169,13 @@
         "ImageName": "1",
         "SideColor": "gold",
         "Name": {
-          "Ch": "随机事件一"
+          "Ch": "格子的事件"
         },
         "Dialogue": {
-          "Ch": "系统:事件一"
+          "Ch": "系统:事件一\n格子:我能随意加剧情！\n系统:好的，你家了剧情"
         },
-        "ShowName": "随机事件一",
-        "ShowDialogue": "系统:事件一"
+        "ShowName": "格子的事件",
+        "ShowDialogue": "系统:事件一\n格子:我能随意加剧情！\n系统:好的，你家了剧情"
       }
     },
     {
@@ -262,13 +215,13 @@
         "ImageName": "1",
         "SideColor": "gold",
         "Name": {
-          "Ch": "随机事件一"
+          "Ch": "格子的事件"
         },
         "Dialogue": {
-          "Ch": "系统:事件一"
+          "Ch": "系统:事件一\n格子:我能随意加剧情！\n系统:好的，你家了剧情"
         },
-        "ShowName": "随机事件一",
-        "ShowDialogue": "系统:事件一"
+        "ShowName": "格子的事件",
+        "ShowDialogue": "系统:事件一\n格子:我能随意加剧情！\n系统:好的，你家了剧情"
       }
     },
     {

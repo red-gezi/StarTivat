@@ -6,8 +6,7 @@ using UnityEngine;
 
 public class GameFlowSystem : InstanceBehaviour<GameFlowSystem>
 {
-    [Title("是否从AB包加载数据")]
-    public bool loadConfigDataFromAB;
+    
 
     private void Awake() => Instance = this;
     private void Start() => Init();
@@ -34,10 +33,10 @@ public class GameFlowSystem : InstanceBehaviour<GameFlowSystem>
         OutOfBattleUISystem.Init();
         SwitchOutOfBattleMode();
         //测试各种效果
-        var oc = OccurrenceSystem.GetOccurrence("1_1");
-        var b = oc.GetOccurrenceImage();
-        var oc2 = OccurrenceSystem.GetOccurrence("1_2");
-        var b2 = oc.GetOccurrenceImage();
+        //var oc = OccurrenceSystem.GetOccurrence("1_1");
+        //var b = oc.GetOccurrenceImage();
+        //var oc2 = OccurrenceSystem.GetOccurrence("1_2");
+        //var b2 = oc.GetOccurrenceImage();
         //var buff = BuffSystem.GetBuff(Chara_BuffName.人物天赋1);
         //await GameEventSystem.Test(BuffEventType.BattleStart, new InBattleEventData() { ListenerBuffs = new() { buff }, ExceBuff = buff });
         //await GameEventSystem.Test(BuffEventType.Hit, new SkillData() { ListenerBuffs = new() { buff }, ExceBuff =  buff  });
@@ -58,10 +57,10 @@ public class GameFlowSystem : InstanceBehaviour<GameFlowSystem>
     //    gameData.PlayerPos = transform.position.ToTuple();
     //    gameData.PlayerEular = transform.eulerAngles.ToTuple();
     //}
-    public void SwitchOutOfBattleMode()
+    public async void SwitchOutOfBattleMode()
     {
         //关闭局内ui
-        BattleUISystem.CloeUI();
+        InBattleUISystem.CloeUI();
 
         //开启局外ui
         OutOfBattleUISystem.ShowUI();
@@ -74,7 +73,7 @@ public class GameFlowSystem : InstanceBehaviour<GameFlowSystem>
         //初始化房间
 
         //规则化角色视角
-        PlayerSystem.Instance.ResetCameraView();
+       await PlayerSystem.Instance.ResetCameraViewAsync();
     }
     public void SwitchInBattleMode(List<PlayerName> playerNames, OutOfBattleEnemyDatas enemyDatas)
     {
@@ -86,7 +85,7 @@ public class GameFlowSystem : InstanceBehaviour<GameFlowSystem>
         OutOfBattleSystem.Instance.outBattleParent.gameObject.SetActive(false);
 
         //开启局内ui
-        BattleUISystem.ShowUI();
+        InBattleUISystem.ShowUI();
         //开启战场角色
         InBattleSystem.Instance.battleParent.gameObject.SetActive(true);
         //设置摄像机模式
